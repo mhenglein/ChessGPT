@@ -1,0 +1,9 @@
+#myBoard {
+  /* Big width on small sc */
+  width: 50%;
+
+  /*  */
+  @media screen and (min-width: 600px) {
+    width: 25%;
+  }
+}

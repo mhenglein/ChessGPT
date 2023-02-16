@@ -47,6 +47,18 @@
       "sC" : 0,
       "tS" : 0
     },
+    "\/app\/styles.css" : {
+      "aP" : 1,
+      "bl" : 0,
+      "ci" : 0,
+      "co" : 0,
+      "ft" : 16,
+      "ma" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/styles.css",
+      "oF" : 2,
+      "pg" : 0
+    },
     "\/index.js" : {
       "bF" : 0,
       "ft" : 64,
