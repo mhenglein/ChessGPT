@@ -11,3 +11,8 @@
     padding-bottom: 100%;
   }
 }
+
+body {
+  overflow: hidden;
+  overflow: none;
+}
