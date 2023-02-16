@@ -1941,6 +1941,12 @@ var scripts = (function (exports) {
       const spinner = document.getElementById("spinner");
       spinner.classList.remove("d-none");
       $.get("/ai-move", { fen: game.fen() }, function (data) {
+        if (data.msg) {
+          alert(data.msg);
+          spinner.classList.add("d-none");
+          return;
+        }
+
         var move = game.move(data);
         if (move === null) {
           console.error("Received invalid move from server:", data);
