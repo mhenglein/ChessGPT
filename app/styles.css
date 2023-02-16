@@ -1,9 +1,13 @@
+/* Set a default size for the board */
 #myBoard {
-  /* Big width on small sc */
-  width: 50%;
+  width: 550px;
+}
 
-  /*  */
-  @media screen and (min-width: 600px) {
-    width: 25%;
+/* Adjust the size of the board for smaller screens */
+@media (screen && max-width: 767px) {
+  #myBoard {
+    width: 90% !important;
+    height: 0;
+    padding-bottom: 100%;
   }
 }

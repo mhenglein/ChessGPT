@@ -2031,3 +2031,15 @@ try {
 } catch (e) {
   console.log(e);
 }
+
+// const myBoard = document.getElementById("myBoard");
+// const parent = myBoard.parentNode;
+// const width = parent.clientWidth + 200;
+// myBoard.style.width = `${width}px`;
+
+// // resize the board when the browser window is resized
+// window.addEventListener("resize", () => {
+//   const parent = myBoard.parentNode;
+//   const width = parent.clientWidth;
+//   myBoard.style.width = `${width}px`;
+// });
