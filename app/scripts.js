@@ -1926,7 +1926,7 @@ try {
 
   // Onload, clear local storage
   window.onload = function () {
-    localStorage.removeItem("an");
+    localStorage.removeItem("moves");
   };
 
   function onDrop(source, target) {

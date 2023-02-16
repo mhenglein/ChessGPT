@@ -46,14 +46,17 @@ app.listen(port, () => {
 
 async function getNextMove(fen, an, i = 0) {
   try {
-    const prompt = `You are Stockfish-Kasparov, a superintelligent chess computer that is a hybrid of the best chess engine and the best human chess player. What is your optimal move based on the FEN and AN below?\n\nFEN: ${fen}\n\nAN: ${an}\nMOVE (SAN):`;
+    const prompt = `You are Stockfish-Kasparov, a superintelligent chess computer that is a hybrid of the best chess engine and the best human chess player. What is your optimal move based on the FEN and AN below?
+    FEN: ${fen}
+    AN: ${an},`;
     console.log(prompt);
     const response = await openai.createCompletion({
       model: "text-davinci-003",
       prompt,
       temperature: 1,
-      max_tokens: 5,
+      max_tokens: 4,
       top_p: 1,
+      stop: [",", "\n"],
       frequency_penalty: 0,
       presence_penalty: 0,
       n: 10,
@@ -66,9 +69,6 @@ async function getNextMove(fen, an, i = 0) {
       let possibleMove = choice.text;
       possibleMove = possibleMove.replace(" ", "").trim();
       possibleMove = possibleMove.replace(/(\r\n|\n|\r)/gm, "");
-      if (possibleMove.includes("-")) {
-        possibleMove = possibleMove.split("-")[1];
-      }
       possibleMoves.push(possibleMove);
     });
 
