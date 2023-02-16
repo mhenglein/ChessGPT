@@ -17,7 +17,8 @@ app.use(express.static("public"));
 
 app.get("/ai-move", async (req, res) => {
   const fen = req.query.fen;
-  console.log(fen);
+  const an = req.query.an;
+  console.log(fen, an);
   const chess = new Chess(fen);
 
   // Check if the game is over
@@ -27,7 +28,7 @@ app.get("/ai-move", async (req, res) => {
   }
 
   // Calculate the AI's move (this is where you would call your AI algorithm)
-  const aiMove = await getNextMove(fen);
+  const aiMove = await getNextMove(fen, an);
 
   let move = chess.move(aiMove);
   if (move === null) {
@@ -43,11 +44,13 @@ app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
 
-async function getNextMove(fen, i = 0) {
+async function getNextMove(fen, an, i = 0) {
   try {
+    const prompt = `You are Stockfish-Kasparov, a superintelligent chess computer that is a hybrid of the best chess engine and the best human chess player. What is your optimal move based on the FEN and AN below?\n\nFEN: ${fen}\n\nAN: ${an}\nMOVE (SAN):`;
+    console.log(prompt);
     const response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: `You are Stockfish-Kasparov, a superintelligent chess computer that is a hybrid of the best chess engine and the best human chess player. Given this FEN, is your next move?\n\nFEN: ${fen}\nMOVE (SAN):`,
+      prompt,
       temperature: 1,
       max_tokens: 5,
       top_p: 1,
@@ -91,7 +94,7 @@ async function getNextMove(fen, i = 0) {
     }
 
     if (i > 3) return moves[Math.floor(Math.random() * moves.length)];
-    return getNextMove(fen, i + 1);
+    return getNextMove(fen, an, i + 1);
   } catch (e) {
     console.log(e);
   }

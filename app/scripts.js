@@ -1924,6 +1924,11 @@ try {
     }
   }
 
+  // Onload, clear local storage
+  window.onload = function () {
+    localStorage.removeItem("an");
+  };
+
   function onDrop(source, target) {
     // see if the move is legal
     var move = game.move({
@@ -1935,13 +1940,18 @@ try {
     // illegal move
     if (move === null) return "snapback";
 
+    // Save move to LocalStorage
+    var an = JSON.parse(localStorage.getItem("moves")) || [];
+    an.push(move.san);
+    localStorage.setItem("moves", JSON.stringify(an));
+
     // update the board with the user's move
     board.position(game.fen());
 
     // make an HTTP request to the server to get the AI's move
     const spinner = document.getElementById("spinner");
     spinner.classList.remove("d-none");
-    $.get("/ai-move", { fen: game.fen() }, function (data) {
+    $.get("/ai-move", { fen: game.fen(), an: an }, function (data) {
       if (data.msg) {
         alert(data.msg);
         spinner.classList.add("d-none");
@@ -1951,10 +1961,13 @@ try {
       var move = game.move(data);
       if (move === null) {
         console.error("Received invalid move from server:", data);
-        alert("ChessGPT refused to play a valid move (and we asked it politely several times. ChessGPT resigns.");
-
+        alert("ChessGPT resigns.");
         return;
       }
+
+      var an = JSON.parse(localStorage.getItem("moves")) || [];
+      an.push(data);
+      localStorage.setItem("moves", JSON.stringify(an));
 
       // update the board with the AI's move
       board.position(game.fen());
