@@ -38,28 +38,32 @@ app.listen(port, () => {
 });
 
 async function getNextMove(fen, i = 0) {
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: `You are Stockfish-Kasparov, a superintelligent chess computer that is a hybrid of the best chess engine and the best human chess player. Given this FEN, is your next move?\n\nFEN: ${fen}\nMOVE:`,
-    temperature: 1,
-    max_tokens: 4,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
+  try {
+    const response = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: `You are Stockfish-Kasparov, a superintelligent chess computer that is a hybrid of the best chess engine and the best human chess player. Given this FEN, is your next move?\n\nFEN: ${fen}\nMOVE:`,
+      temperature: 1,
+      max_tokens: 4,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+    });
 
-  let possibleMove = response.data.choices[0].text;
-  possibleMove = possibleMove.replace(" ", "").trim();
-  console.log("Possible move", possibleMove);
+    let possibleMove = response.data.choices[0].text;
+    possibleMove = possibleMove.replace(" ", "").trim();
+    console.log("Possible move", possibleMove);
 
-  // Is it a valid move? chess.js
-  const chess = new Chess(fen);
-  const moves = chess.moves();
-  if (moves.includes(possibleMove)) {
-    return possibleMove;
-  } else {
-    // If not, try again
-    if (i > 5) return moves[Math.floor(Math.random() * moves.length)];
-    return getNextMove(fen, i + 1);
+    // Is it a valid move? chess.js
+    const chess = new Chess(fen);
+    const moves = chess.moves();
+    if (moves.includes(possibleMove)) {
+      return possibleMove;
+    } else {
+      // If not, try again
+      if (i > 5) return moves[Math.floor(Math.random() * moves.length)];
+      return getNextMove(fen, i + 1);
+    }
+  } catch (e) {
+    console.log(e);
   }
 }
