@@ -132,7 +132,7 @@ async function getNextMove(fen, an, i = 0) {
       let possibleMove = choice.message.content;
       possibleMove = possibleMove.replace(" ", "").trim();
       possibleMove = possibleMove.replace(/(\r\n|\n|\r)/gm, "");
-      possibleMove = possibleMove.replaceAll("...", "");
+      possibleMove = possibleMove.replace("...", "");
       possibleMoves.push(possibleMove);
     });
 
