@@ -12,10 +12,56 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const app = express();
-const port = 3000;
+const port = 3500;
 
 app.use(express.json());
 app.use(express.static("public"));
+
+// Domain handler - Restart server on crashes
+app.use(function (req, res, next) {
+  const domain = require("domain").create(); // Create a domain for this request
+
+  // Handle errors on this domain
+  domain.on("error", function (err) {
+    console.error("DOMAIN ERROR CAUGHT\n", err.stack);
+    // Log error properly
+    try {
+      // Failsafe shutdown in 5 seconds
+      setTimeout(function () {
+        console.error("Failsafe shutdown.");
+        process.exit(1);
+      }, 5000);
+
+      // Disconnect from the cluster
+      const worker = require("cluster").worker;
+      if (worker) worker.disconnect();
+
+      // Stop taking new requests
+      server.close();
+      try {
+        // attempt to use Express error route
+        next(err);
+      } catch (err) {
+        // if Express error route failed, try plain Node response
+        console.error("Express error mechanism failed.\n", err.stack);
+        logger.error(err.stack);
+        if (!res.headersSent) {
+          res.statusCode = 500;
+          res.render("500");
+        }
+        return;
+      }
+    } catch (err) {
+      console.error("Unable to send 500 response.\n", err.stack);
+    }
+  });
+  // add the request and response objects to the domain
+  domain.add(req);
+  domain.add(res);
+
+  // execute the rest of the request chain in the domain
+  domain.run(next);
+});
 
 app.get("/ai-move", async (req, res) => {
   const { Chess } = await chessImport;
@@ -112,13 +158,15 @@ async function getNextMove(fen, an, i = 0) {
     const messages = [userMessage];
     console.log({ messages });
 
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages,
-      temperature: 1,
-      max_tokens: 4,
-      n: 5,
-    });
+    const response = await backOff(() =>
+      openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages,
+        temperature: 1,
+        max_tokens: 4,
+        n: 5,
+      })
+    );
 
     if (!response.data.choices) {
       console.log("No choices");
