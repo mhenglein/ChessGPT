@@ -181,27 +181,23 @@ async function getNextMove(fen, an, i = 0) {
 
 const fenregex = /^([rnbqkpRNBQKP1-8]+\/){7}([rnbqkpRNBQKP1-8]+)\s[bw]\s(-|K?Q?k?q?)\s(-|[a-h][36])\s(0|[1-9][0-9]*)\s([1-9][0-9]*)/;
 
-function askStockfish(fen) {
+async function askStockfish(fen) {
   const engine = stockfish();
-  console.log("Asking Stockfish for move", engine);
   return new Promise((resolve, reject) => {
     if (!fen.match(fenregex)) {
       reject("Invalid fen string");
       return;
     }
 
-    console.log("FEN is valid");
-
-    // if chess engine replies
-    engine.onmessage = function (msg) {
-      console.log(msg);
-      // only send response when it is a recommendation
+    const messageHandler = function (msg) {
       if (typeof msg == "string" && msg.match("bestmove")) {
+        engine.onmessage = null;
         resolve(msg);
       }
     };
 
-    // run chess engine
+    engine.onmessage = messageHandler;
+
     engine.postMessage("ucinewgame");
     engine.postMessage("position fen " + fen);
     engine.postMessage("go depth 18");
