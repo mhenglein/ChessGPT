@@ -1,1 +1,0 @@
-import express from"express";import chess from"chess";const app=express();app.use(express.static("public")),app.post("/is-move-valid",((s,p)=>{p.send("Hello World!")})),app.listen(3e3,(()=>{console.log("Example app listening on port 3000!")}));

@@ -4,15 +4,174 @@
 }
 
 /* Adjust the size of the board for smaller screens */
-@media (screen && max-width: 767px) {
-  #myBoard {
+@media (max-width: 767px) {
+  /* #myBoard {
     width: 90% !important;
     height: 0;
     padding-bottom: 100%;
+  } */
+  #myBoard {
+    width: 350px;
   }
 }
 
 body {
   overflow: hidden;
   overflow: none;
+}
+
+@import url(//db.onlinewebfonts.com/c/b10849c899982654fae3f01d02269043?family=Emulogic);
+@import url(//db.onlinewebfonts.com/c/831e1f4da157d96bc996f8c9f5f1e578?family=Pokemon+GB);
+
+@font-face {
+  font-family: "Emulogic";
+  src: url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.eot");
+  src: url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.eot?#iefix") format("embedded-opentype"),
+    url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.woff2") format("woff2"),
+    url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.woff") format("woff"),
+    url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.ttf") format("truetype"),
+    url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.svg#Emulogic") format("svg");
+}
+
+@font-face {
+  font-family: "Pokemon GB";
+  src: url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.eot");
+  src: url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.eot?#iefix") format("embedded-opentype"),
+    url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.woff2") format("woff2"),
+    url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.woff") format("woff"),
+    url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.ttf") format("truetype"),
+    url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.svg#Pokemon GB") format("svg");
+}
+
+:root {
+  --electric-blue: #0070ff;
+  --cyber-yellow: #ffd700;
+  --neon-green: #39ff14;
+  --fire-red: #ff4500;
+  --mystic-purple: #800080;
+  --oceanic-teal: #008080;
+  --rock-gray: #7a7a7a;
+  --iridescent-silver: #c0c0c0;
+  --ghostly-lavender: #e6e6fa;
+  --galactic-black: #0b3d91;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Emulogic", sans-serif;
+  background-color: var(--ghostly-lavender) !important;
+}
+
+main {
+  background-color: var(--ghostly-lavender);
+}
+
+.evolving {
+  font-family: "Pokemon GB", sans-serif;
+}
+
+.container {
+  background-color: var(--ghostly-lavender);
+}
+
+h1 {
+  font-family: "Emulogic", sans-serif;
+}
+
+#container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--ghostly-lavender);
+}
+
+#chessBoard {
+  background-color: var(--ghostly-lavender);
+}
+
+.block {
+  position: absolute;
+  background-color: black;
+  width: 150px;
+  height: 150px;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.visible {
+  opacity: 1;
+  transition: opacity 0.6s ease-out;
+}
+
+.smooth-transitions {
+  transition: all 0.3s ease;
+}
+
+@-webkit-keyframes bounce {
+  0%,
+  100% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+  50% {
+    -webkit-transform: translateX(5px);
+    transform: translateX(5px);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+  50% {
+    -webkit-transform: translateX(5px);
+    transform: translateX(5px);
+  }
+}
+
+.bounce-image {
+  display: inline-block;
+  -webkit-animation: bounce 1s ease-in-out infinite;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+#chatGptLogo {
+  height: 150px;
+}
+
+#redLogo {
+  height: 200px;
+}
+
+@media only screen and (max-width: 767px) {
+  #chatGptLogo {
+    height: 50px;
+  }
+}
+
+/* Small height on smaller screens */
+@media only screen and (max-width: 767px) {
+  #redLogo {
+    height: 70px;
+  }
+}
+
+.brutalist-shadow {
+  box-shadow: 6px 6px 0 0 #000;
+}
+
+.brutalist-shadow-sm {
+  box-shadow: 3px 3px 0 0 #000;
+}
+
+.brutalist-shadow-xs {
+  box-shadow: 1px 1px 0 0 #000;
 }
