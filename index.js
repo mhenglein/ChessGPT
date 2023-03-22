@@ -5,6 +5,7 @@ const chessImport = import("chess.js");
 const { Configuration, OpenAIApi } = require("openai");
 const { backOff } = require("exponential-backoff");
 const stockfish = require("stockfish");
+const chalk = require("chalk");
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -12,7 +13,8 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const app = express();
-const port = 3500;
+app.set("host", process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0");
+app.set("port", process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 3500);
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -47,7 +49,7 @@ app.use(function (req, res, next) {
         logger.error(err.stack);
         if (!res.headersSent) {
           res.statusCode = 500;
-          res.render("500");
+          res.sendFile("index.html", { root: __dirname + "/public" });
         }
         return;
       }
@@ -125,8 +127,23 @@ app.get("/ai-move", async (req, res) => {
   res.send(move.san);
 });
 
-app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+// Error Handler: 500
+if (process.env.NODE_ENV === "development") {
+  // only use in development
+  app.use(errorhandler());
+} else {
+  app.use(function (err, req, res, next) {
+    console.error(err.stack);
+    res.statusCode = 500;
+    // return res.end(res.sentry);
+    return res.render("500", { sentry: res.sentry });
+  });
+}
+
+// Start Express server.
+let server = app.listen(app.get("port"), () => {
+  console.log("%s App is running at http://localhost:%d in %s mode", chalk.green("✓"), app.get("port"), app.get("env"));
+  console.log("Press CTRL-C to stop\n");
 });
 
 async function getNextMove(fen, an, i = 0) {
