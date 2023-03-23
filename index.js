@@ -103,10 +103,8 @@ app.get("/ai-move", async (req, res) => {
   // Calculate the AI's move (this is where you would call your AI algorithm)
   let aiMove = "";
   if (bot === "chessgpt") {
-    console.log("Getting ChessGPT move");
     aiMove = await getNextMove(fen, an);
   } else if (bot === "stockfish") {
-    console.log("Getting Stockfish move");
     aiMove = await getStockfishMove(fen);
   } else {
     // Random move
@@ -115,15 +113,13 @@ app.get("/ai-move", async (req, res) => {
   }
 
   // It is not awaiting the getStockfishMove function, so it is undefined (async issue)
-  console.log("AI move:", aiMove); // aiMove is undefined
+
   let move = chess.move(aiMove);
   if (move === null) {
     res.status(500).send("Invalid move");
     return;
   }
 
-  console.log("SAN", move.san);
-  console.log("FEN", chess.fen());
   res.send(move.san);
 });
 
@@ -173,7 +169,6 @@ async function getNextMove(fen, an, i = 0) {
     };
 
     const messages = [userMessage];
-    console.log({ messages });
 
     const response = await backOff(() =>
       openai.createChatCompletion({
@@ -186,11 +181,8 @@ async function getNextMove(fen, an, i = 0) {
     );
 
     if (!response.data.choices) {
-      console.log("No choices");
       return moves[Math.floor(Math.random() * moves.length)];
     }
-
-    console.log(response.data.choices);
 
     let possibleMoves = [];
     response.data.choices.forEach((choice) => {
@@ -203,7 +195,6 @@ async function getNextMove(fen, an, i = 0) {
 
     // Remove duplicates
     possibleMoves = [...new Set(possibleMoves)];
-    console.log(possibleMoves);
 
     // Remove all single-letter moves
     possibleMoves = possibleMoves.filter((move) => move.length > 1);
@@ -212,7 +203,6 @@ async function getNextMove(fen, an, i = 0) {
     for (let i = 0; i < possibleMoves.length; i++) {
       const possibleMove = possibleMoves[i];
       if (moves.includes(possibleMove)) {
-        console.log("Found a valid move", possibleMove);
         validMove = possibleMove;
         return validMove;
       }
@@ -278,7 +268,7 @@ async function getStockfishMove(fen) {
   try {
     const output = await askStockfish(fen); // Add the 'await' keyword here
     const bestMove = extractBestMove(output);
-    console.log({ bestMove });
+
     return bestMove;
   } catch (error) {
     console.error(error);

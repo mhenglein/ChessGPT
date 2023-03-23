@@ -15,7 +15,7 @@ const redLogo = document.getElementById("redLogo");
 const audioElement = document.getElementById("audio-element");
 
 const blockSize = window.innerWidth < 700 ? 20 : 55;
-const animationSpeed = 0.5;
+const animationSpeed = 1;
 let blocks = [];
 
 function createBlock(x, y) {
@@ -120,7 +120,7 @@ startAnimation.addEventListener("click", async () => {
         myBoard.classList.add("visible");
         myBoard.classList.remove("hidden");
       }, 2200); // You can adjust this delay according to your needs
-    }, 50);
+    }, 800);
   }, totalAnimationDuration);
 });
 
