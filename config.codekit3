@@ -297,6 +297,17 @@
       "oAP" : "\/public\/scripts.mjs",
       "oF" : 0
     },
+    "\/cluster.js" : {
+      "bF" : 4,
+      "ft" : 64,
+      "ma" : 0,
+      "mi" : 0,
+      "oA" : 1,
+      "oAP" : "\/public\/cluster.js",
+      "oF" : 1,
+      "sC" : 0,
+      "tS" : 0
+    },
     "\/index.js" : {
       "bF" : 4,
       "ft" : 64,

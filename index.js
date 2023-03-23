@@ -246,8 +246,8 @@ async function getNextMove(fen, an, i = 0) {
 
 const fenregex = /^([rnbqkpRNBQKP1-8]+\/){7}([rnbqkpRNBQKP1-8]+)\s[bw]\s(-|K?Q?k?q?)\s(-|[a-h][36])\s(0|[1-9][0-9]*)\s([1-9][0-9]*)/;
 
+const engine = stockfish();
 async function askStockfish(fen) {
-  const engine = stockfish();
   return new Promise((resolve, reject) => {
     if (!fen.match(fenregex)) {
       reject("Invalid fen string");
