@@ -72,29 +72,33 @@ app.get("/ai-move", async (req, res) => {
   const chess = new Chess(fen);
 
   // Check if the game is over
-  if (chess.isGameOver()) {
-    // Who won?
-    if (chess.in_checkmate()) {
-      res.status(200).json({ msg: "Checkmate" });
-      console.log("Checkmate");
-    } else if (chess.in_draw()) {
-      res.status(200).json({ msg: "Draw" });
-      console.log("Draw");
-    } else if (chess.in_stalemate()) {
-      res.status(200).json({ msg: "Stalemate" });
-      console.log("Stalemate");
-    } else if (chess.in_threefold_repetition()) {
-      res.status(200).json({ msg: "Threefold repetition" });
-      console.log("Threefold repetition");
-    } else if (chess.insufficient_material()) {
-      res.status(200).json({ msg: "Insufficient material" });
-      console.log("Insufficient material");
-    } else if (chess.in_fifty_moves()) {
-      res.status(200).json({ msg: "Fifty moves" });
-      console.log("Fifty moves");
-    }
+  try {
+    if (chess.isGameOver()) {
+      // Who won?
+      if (chess.in_checkmate()) {
+        res.status(200).json({ msg: "Checkmate" });
+        console.log("Checkmate");
+      } else if (chess.in_draw()) {
+        res.status(200).json({ msg: "Draw" });
+        console.log("Draw");
+      } else if (chess.in_stalemate()) {
+        res.status(200).json({ msg: "Stalemate" });
+        console.log("Stalemate");
+      } else if (chess.in_threefold_repetition()) {
+        res.status(200).json({ msg: "Threefold repetition" });
+        console.log("Threefold repetition");
+      } else if (chess.insufficient_material()) {
+        res.status(200).json({ msg: "Insufficient material" });
+        console.log("Insufficient material");
+      } else if (chess.in_fifty_moves()) {
+        res.status(200).json({ msg: "Fifty moves" });
+        console.log("Fifty moves");
+      }
 
-    return;
+      return;
+    }
+  } catch (err) {
+    console.log(err);
   }
 
   // Choose bot
