@@ -227,7 +227,7 @@ try {
     movesMade++;
     console.log("movesMade:", movesMade);
 
-    if (movesMade === 7) {
+    if (movesMade === 6) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await startEvolution();
       bot = "stockfish";
