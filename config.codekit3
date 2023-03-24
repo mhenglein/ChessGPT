@@ -289,6 +289,14 @@
       "sC" : 0,
       "tS" : 0
     },
+    "\/app\/metal-music.mp3" : {
+      "cB" : 0,
+      "ft" : 8192,
+      "hM" : 0,
+      "oA" : 0,
+      "oAP" : "\/public\/metal-music.mp3",
+      "oF" : 0
+    },
     "\/app\/scripts.mjs" : {
       "cB" : 0,
       "ft" : 8192,

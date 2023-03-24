@@ -13,9 +13,10 @@ const redLogo = document.getElementById("redLogo");
 
 // Get the button and audio elements by their IDs
 const audioElement = document.getElementById("audio-element");
+const audioElementMetal = document.getElementById("audio-element-metal");
 
 const blockSize = window.innerWidth < 700 ? 20 : 55;
-const animationSpeed = 1;
+const animationSpeed = 7.5;
 let blocks = [];
 
 function createBlock(x, y) {
@@ -75,7 +76,7 @@ startAnimation.addEventListener("click", async () => {
     return;
   }
 
-  const totalAnimationDuration = 1500; // 10 times * 150ms
+  const totalAnimationDuration = 900; // 10 times * 150ms
 
   // Hide/Unhide button every 100ms for 10 times
   for (let i = 0; i < 10; i++) {
@@ -120,7 +121,7 @@ startAnimation.addEventListener("click", async () => {
         myBoard.classList.add("visible");
         myBoard.classList.remove("hidden");
       }, 2200); // You can adjust this delay according to your needs
-    }, 800);
+    }, 50);
   }, totalAnimationDuration);
 });
 
@@ -145,6 +146,43 @@ function gentlyLowerVolume(audioElement, startVolume, endVolume, duration) {
       clearInterval(intervalId);
     }
   }, stepTime);
+}
+
+function gentlyIncreaseVolume(audioElement, startVolume, endVolume, duration) {
+  const stepTime = 50; // in milliseconds
+  const volumeChangePerStep = ((endVolume - startVolume) * stepTime) / duration;
+
+  // Set the initial volume
+  audioElement.volume = startVolume;
+
+  // Start gradually increasing the volume
+  const intervalId = setInterval(() => {
+    // Increase the volume by volumeChangePerStep
+    audioElement.volume += volumeChangePerStep;
+
+    // Clamp the volume between 0 and 1
+    audioElement.volume = Math.max(Math.min(audioElement.volume, 1), 0);
+
+    // Stop increasing the volume when the target volume is reached
+    if (audioElement.volume >= endVolume) {
+      audioElement.volume = endVolume;
+      clearInterval(intervalId);
+    }
+  }, stepTime);
+}
+
+function switchToMetalTrack() {
+  const audioElementMetal = document.getElementById("audio-element-metal");
+  setTimeout(() => {
+    gentlyLowerVolume(audioElement, 0.1, 0.0, 5000);
+    audioElementMetal.volume = 0.0;
+    audioElementMetal.play();
+    gentlyIncreaseVolume(audioElementMetal, 0.0, 1.0, 10000);
+
+    setTimeout(() => {
+      audioElement.volume = 0.0;
+    }, 1000);
+  }, 2000);
 }
 
 try {
@@ -303,6 +341,7 @@ async function startEvolution() {
   evolutionImage.src = "/stockfish.png";
   await new Promise((resolve) => setTimeout(resolve, 250));
   evolutionImage.src = "/chatgpt.png";
+  switchToMetalTrack();
   await new Promise((resolve) => setTimeout(resolve, 750));
   evolutionImage.src = "/stockfish.png";
   await new Promise((resolve) => setTimeout(resolve, 500));

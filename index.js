@@ -181,6 +181,7 @@ async function getNextMove(fen, an, i = 0) {
     );
 
     if (!response.data.choices) {
+      console.log("No choices, random move");
       return moves[Math.floor(Math.random() * moves.length)];
     }
 
