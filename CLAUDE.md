@@ -1,93 +1,52 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. It's a fun game that starts out as playing chess against OpenAI, then it switches to the Stockfish engine halfway through.
+ChessGPT: Play chess against ChatGPT, which "evolves" to Stockfish after repeated invalid moves.
 
-## Commands
+## Quick Start
 
-### Development
 ```bash
-# Install dependencies
-npm install
-
-# Start development server (with clustering and memory optimization)
-npm start
-
-# Start with PM2 for production (recommended)
-./start-pm2.sh
-
-# Package as binary executable
-npm run package
-
-# Health check endpoint
-curl http://localhost:3500/health
+npm install              # Install dependencies
+npm start                # Start server (port 3500)
+npm run dev              # Development mode (single process)
+./start-pm2.sh           # Production with PM2
+curl localhost:3500/health  # Health check
 ```
 
-### Environment Setup
-Create a `.env` file with:
-```
-OPENAI_API_KEY=your_api_key_here
-PORT=3500  # Optional, defaults to 3500
-WEB_CONCURRENCY=1  # Optional, number of worker processes
-LOG_LEVEL=info  # Optional, logging level (error, warn, info, debug)
-```
+## Environment Setup
 
-### Production Management
-```bash
-# Start with PM2 (production recommended)
-./start-pm2.sh
-
-# PM2 management commands
-pm2 logs        # View logs
-pm2 monit       # Real-time monitoring
-pm2 restart chessgpt  # Restart app
-pm2 stop chessgpt     # Stop app
-pm2 status      # Check status
+Copy `.env.example` to `.env`:
+```
+OPENAI_API_KEY=your_key  # Required
+PORT=3500                # Optional
+LOG_LEVEL=info           # error|warn|info|debug
 ```
 
-## Architecture Overview
+## Architecture
 
-ChessGPT is a web application that allows users to play chess against ChatGPT (with Stockfish as a fallback). The architecture consists of:
+```
+cluster.js          # Production entry point - worker process management
+index.js            # Server bootstrap, imports src/app.js
+src/
+  app.js            # Express app, routes, middleware
+  config/           # Centralized config and logger
+  services/         # OpenAI and Stockfish integrations
+  utils/            # Chess helper functions
+app/                # Frontend source (dev)
+public/             # Static files (production)
+```
 
-### Backend Architecture
-- **Clustering**: Production-ready Node.js clustering via `cluster.js` for scalability
-- **Main Server**: Express.js server in `index.js` serving static files and providing the `/ai-move` API endpoint
-- **AI Integration**: 
-  - Primary: OpenAI ChatGPT API with creative prompt engineering to make it play chess
-  - Fallback: Stockfish chess engine (triggered as "evolution" after multiple ChatGPT failures)
-- **Error Handling**: Domain-based error handling with automatic worker restart on crashes
-- **Memory Management**: Manual garbage collection scheduling for Heroku deployment
+**Key Flow**: Client sends FEN position to `/ai-move` -> Server validates turn (black) -> ChatGPT or Stockfish generates move -> Returns SAN move
 
-### Frontend Architecture
-- **Static Files**: Development files in `/app/`, production-ready files in `/public/`
-- **Chess UI**: Uses chessboard.js for board visualization with Wikipedia-style piece images
-- **Game Logic**: chess.js library handles move validation on both client and server
-- **Styling**: Bootstrap 5 with custom brutalist CSS design and Emulogic font
-- **Audio**: Pokemon-inspired battle intro music and sound effects
+**Bot Selection**: `?bot=chessgpt` (default) or `?bot=stockfish`
 
-### Key Technical Details
-- **Move Format**: Uses FEN (Forsyth-Edwards Notation) for board state and SAN (Standard Algebraic Notation) for moves
-- **API Resilience**: Exponential backoff for OpenAI API calls
-- **State Management**: Board state passed between client and server on each move
-- **PWA Support**: Includes manifest and icons for Progressive Web App capabilities
+## Technical Notes
 
-### File Structure
-- `/app/`: Development frontend source files
-- `/public/`: Production static files (includes minified CSS)
-- `cluster.js`: Entry point with worker process management
-- `index.js`: Express server with API endpoints
-- `config.codekit3`: Indicates CodeKit is used for asset compilation
+- Uses FEN for board state, SAN for moves
+- OpenAI v4 SDK with exponential backoff
+- Stockfish instances created per-request with cleanup
+- Rate limiting: 30 requests/minute on `/ai-move`
+- No automated tests exist
 
-### Reliability Improvements (Latest)
-- **Stockfish Integration**: Fixed race conditions by creating new engine instances per request with proper cleanup
-- **Error Handling**: Added winston logging and proper error recovery mechanisms
-- **Turn Validation**: Added server-side validation to prevent color-switching bugs
-- **Health Monitoring**: Added `/health` endpoint for monitoring application status
-- **Process Management**: PM2 configuration with graceful shutdowns and restart limits
-- **UCI to SAN Conversion**: Proper move format conversion from Stockfish to chess.js
+## Render MCP
 
-### Important Notes
-- No automated tests or linting configuration exists
-- Frontend uses vanilla JavaScript with jQuery (no modern framework)
-- Google AdSense integration is present in the frontend
-- The "evolution" feature transitions from ChatGPT to Stockfish after repeated invalid moves
-- Logs are stored in `logs/` directory (gitignored)
+Workspace: **Marcus Henglein's Workspace** (`tea-cspt7nggph6c739ls70g`)

@@ -1,132 +1,141 @@
-const cluster = require("cluster");
-const winston = require("winston");
+/**
+ * ChessGPT Cluster Manager
+ *
+ * Handles multi-process clustering for improved performance.
+ * For production, prefer using PM2 (ecosystem.config.js) which handles
+ * restart logic, monitoring, and logging automatically.
+ *
+ * This file is used by: npm start
+ * PM2 alternative: pm2 start ecosystem.config.js
+ */
 
-// Configure winston logger for cluster
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.printf(({ timestamp, level, message, ...meta }) => {
-      const metaStr = Object.keys(meta).length ? JSON.stringify(meta) : '';
-      return `${timestamp} [${level}] ${message} ${metaStr}`;
-    })
-  ),
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'logs/cluster.log' })
-  ]
-});
+const cluster = require("cluster");
+const config = require("./src/config");
+const logger = require("./src/config/logger");
+
+// Clustering configuration
+const WORKER_COUNT = config.WEB_CONCURRENCY;
+const MAX_RESTART_COUNT = config.MAX_RESTART_COUNT;
+const RESTART_WINDOW_MS = config.RESTART_WINDOW_MS;
+const GC_INTERVAL_MINUTES = config.GC_INTERVAL_MINUTES;
 
 let shuttingDown = false;
-let restartCount = {};
-const MAX_RESTART_COUNT = 10;
-const RESTART_WINDOW = 60000; // 1 minute
+let restartCounts = new Map();
 
+/**
+ * Start a new worker process
+ */
 function startWorker() {
   if (shuttingDown) {
     logger.info("Shutdown in progress, not starting new worker");
-    return;
+    return null;
   }
-  
+
   const worker = cluster.fork();
-  scheduleGc();
-  logger.info(`CLUSTER: Worker ${worker.id} started`);
-  
-  // Track restart counts
-  worker.on('exit', () => {
-    const now = Date.now();
-    if (!restartCount[worker.id]) {
-      restartCount[worker.id] = [];
-    }
-    
-    // Clean old restart entries
-    restartCount[worker.id] = restartCount[worker.id].filter(time => now - time < RESTART_WINDOW);
-    restartCount[worker.id].push(now);
-    
-    if (restartCount[worker.id].length > MAX_RESTART_COUNT) {
-      logger.error(`Worker ${worker.id} restarted too many times, not restarting`);
-      delete restartCount[worker.id];
-      if (Object.keys(cluster.workers).length === 0) {
-        logger.error("All workers dead, exiting master");
-        process.exit(1);
-      }
-    }
-  });
+  logger.info(`Worker ${worker.id} started`);
+
+  // Schedule GC if exposed
+  scheduleGC();
+
+  return worker;
 }
 
-if (cluster.isMaster) {
-  // Count the machine's CPUs
-  const cpuCount = process.env.WEB_CONCURRENCY || 1;
-  // See: https://devcenter.heroku.com/articles/node-memory-use
+/**
+ * Check if a worker can be restarted (rate limiting)
+ */
+function canRestartWorker(workerId) {
+  const now = Date.now();
 
-  // Create a worker for each CPU
-  for (let i = 0; i < cpuCount; i += 1) {
+  if (!restartCounts.has(workerId)) {
+    restartCounts.set(workerId, []);
+  }
+
+  const timestamps = restartCounts.get(workerId);
+
+  // Remove old entries outside the window
+  const recent = timestamps.filter((t) => now - t < RESTART_WINDOW_MS);
+  restartCounts.set(workerId, recent);
+
+  if (recent.length >= MAX_RESTART_COUNT) {
+    logger.error(`Worker ${workerId} exceeded restart limit (${MAX_RESTART_COUNT} in ${RESTART_WINDOW_MS}ms)`);
+    return false;
+  }
+
+  recent.push(now);
+  return true;
+}
+
+/**
+ * Graceful shutdown of all workers
+ */
+function gracefulShutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+
+  logger.info(`Received ${signal}, shutting down gracefully...`);
+
+  // Disconnect all workers
+  for (const id in cluster.workers) {
+    cluster.workers[id].disconnect();
+  }
+
+  // Force kill after timeout
+  setTimeout(() => {
+    for (const id in cluster.workers) {
+      cluster.workers[id].kill();
+    }
+    process.exit(0);
+  }, 5000);
+}
+
+/**
+ * Schedule garbage collection (for --expose-gc flag)
+ */
+function scheduleGC() {
+  if (!global.gc) return;
+
+  // Random interval between 15-45 minutes
+  const intervalMinutes = Math.random() * 30 + 15;
+
+  setTimeout(() => {
+    if (global.gc) {
+      global.gc();
+      scheduleGC();
+    }
+  }, intervalMinutes * 60 * 1000);
+}
+
+// Master process
+if (cluster.isMaster) {
+  logger.info(`Master process started (PID: ${process.pid})`);
+  logger.info(`Starting ${WORKER_COUNT} worker(s)...`);
+
+  // Fork workers
+  for (let i = 0; i < WORKER_COUNT; i++) {
     startWorker();
   }
 
-  // Handle graceful shutdown
-  process.on('SIGTERM', gracefulShutdown);
-  process.on('SIGINT', gracefulShutdown);
-  
-  function gracefulShutdown() {
-    if (shuttingDown) return;
-    shuttingDown = true;
-    
-    logger.info('Master received shutdown signal, gracefully shutting down workers...');
-    
-    // Stop accepting new connections
-    for (const id in cluster.workers) {
-      cluster.workers[id].disconnect();
-    }
-    
-    // Give workers time to finish
-    setTimeout(() => {
-      for (const id in cluster.workers) {
-        cluster.workers[id].kill();
-      }
-      process.exit(0);
-    }, 5000);
-  }
-  
-  // log any workers that disconnect; if a worker disconnects, it
-  // should then exit, so we'll wait for the exit event to spawn
-  // a new worker to replace it
-  cluster.on("disconnect", function (worker) {
-    logger.info(`CLUSTER: Worker ${worker.id} disconnected from the cluster.`);
+  // Graceful shutdown handlers
+  process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+  process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+  // Worker disconnect event
+  cluster.on("disconnect", (worker) => {
+    logger.info(`Worker ${worker.id} disconnected`);
   });
 
-  // when a worker dies (exits), create a worker to replace it
-  cluster.on("exit", function (worker, code, signal) {
-    logger.warn(`CLUSTER: Worker ${worker.id} died with exit code ${code} (${signal})`);
-    
-    if (!shuttingDown && restartCount[worker.id] && restartCount[worker.id].length <= MAX_RESTART_COUNT) {
-      setTimeout(() => {
-        startWorker();
-      }, 1000); // Delay restart by 1 second
+  // Worker exit event - restart if appropriate
+  cluster.on("exit", (worker, code, signal) => {
+    logger.warn(`Worker ${worker.id} died (code: ${code}, signal: ${signal})`);
+
+    if (!shuttingDown && canRestartWorker(worker.id)) {
+      setTimeout(() => startWorker(), 1000);
+    } else if (!shuttingDown && Object.keys(cluster.workers).length === 0) {
+      logger.error("All workers dead, master exiting");
+      process.exit(1);
     }
   });
 } else {
+  // Worker process - start the server
   require("./index");
 }
-
-// Sources: https://gist.github.com/learncodeacademy/954568155105f4ff3599
-// Pages 132-133 of Ethan Brown's book
-
-// Manually trigger GC whenever memory exceeds a set limit
-function scheduleGc() {
-  if (!global.gc) {
-    logger.warn("Garbage collection is not exposed");
-    return;
-  }
-
-  global.gc();
-
-  var nextMinutes = Math.random() * 30 + 15;
-
-  setTimeout(function () {
-    global.gc();
-    // console.log("Manual gc", process.memoryUsage());
-    scheduleGc();
-  }, nextMinutes * 60 * 1000);
-}
-// Based on: https://serverfault.com/questions/714534/heroku-error-r14-memory-quota-exceeded-using-node-js

@@ -1,7 +1,50 @@
-import { Chess } from "chess";
+// Import Chess from node_modules (bundled by esbuild)
+import { Chess } from "chess.js";
 
 let movesMade = 0;
 let bot = "chessgpt";
+let waitingForAI = false; // Lock to prevent race condition / color-switching bug
+
+// Safe localStorage helpers with error handling
+function safeGetItem(key, defaultValue = null) {
+  try {
+    const item = localStorage.getItem(key);
+    return item !== null ? item : defaultValue;
+  } catch (e) {
+    console.warn("localStorage read error:", e);
+    return defaultValue;
+  }
+}
+
+function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (e) {
+    console.warn("localStorage write error:", e);
+    return false;
+  }
+}
+
+function safeGetJSON(key, defaultValue = []) {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (e) {
+    console.warn("localStorage JSON parse error:", e);
+    return defaultValue;
+  }
+}
+
+function safeSetJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (e) {
+    console.warn("localStorage JSON write error:", e);
+    return false;
+  }
+}
 
 const container = document.getElementById("container");
 const startAnimation = document.getElementById("startAnimation");
@@ -65,14 +108,14 @@ async function animate() {
 
 startAnimation.addEventListener("click", async () => {
   // Check if volume message has been shown or not
-  if (localStorage.getItem("volumeMessageShown") !== "true") {
+  if (safeGetItem("volumeMessageShown") !== "true") {
     // Show the volume message
     const volumeMessage = document.getElementById("volumeMessage");
     const volumeMessageModal = new bootstrap.Modal(volumeMessage);
     volumeMessageModal.show();
 
     // Set the volume message shown to true
-    localStorage.setItem("volumeMessageShown", "true");
+    safeSetItem("volumeMessageShown", "true");
     return;
   }
 
@@ -125,51 +168,38 @@ startAnimation.addEventListener("click", async () => {
   }, totalAnimationDuration);
 });
 
-function gentlyLowerVolume(audioElement, startVolume, endVolume, duration) {
+// Unified volume fade function (DRY - replaces gentlyLowerVolume & gentlyIncreaseVolume)
+function fadeVolume(audioElement, startVolume, endVolume, duration) {
   const stepTime = 50; // in milliseconds
-  const volumeChangePerStep = ((startVolume - endVolume) * stepTime) / duration;
+  const totalSteps = duration / stepTime;
+  const volumeChangePerStep = (endVolume - startVolume) / totalSteps;
+  const isIncreasing = endVolume > startVolume;
 
   // Set the initial volume
   audioElement.volume = startVolume;
 
-  // Start gradually lowering the volume
+  // Start gradually changing the volume
   const intervalId = setInterval(() => {
-    // Decrease the volume by volumeChangePerStep
-    audioElement.volume -= volumeChangePerStep;
-
-    // Clamp the volume between 0 and 1
-    audioElement.volume = Math.max(Math.min(audioElement.volume, 1), 0);
-
-    // Stop lowering the volume when the target volume is reached
-    if (audioElement.volume <= endVolume) {
-      audioElement.volume = endVolume;
-      clearInterval(intervalId);
-    }
-  }, stepTime);
-}
-
-function gentlyIncreaseVolume(audioElement, startVolume, endVolume, duration) {
-  const stepTime = 50; // in milliseconds
-  const volumeChangePerStep = ((endVolume - startVolume) * stepTime) / duration;
-
-  // Set the initial volume
-  audioElement.volume = startVolume;
-
-  // Start gradually increasing the volume
-  const intervalId = setInterval(() => {
-    // Increase the volume by volumeChangePerStep
     audioElement.volume += volumeChangePerStep;
 
     // Clamp the volume between 0 and 1
-    audioElement.volume = Math.max(Math.min(audioElement.volume, 1), 0);
+    audioElement.volume = Math.max(0, Math.min(1, audioElement.volume));
 
-    // Stop increasing the volume when the target volume is reached
-    if (audioElement.volume >= endVolume) {
+    // Stop when target volume is reached
+    const reachedTarget = isIncreasing
+      ? audioElement.volume >= endVolume
+      : audioElement.volume <= endVolume;
+
+    if (reachedTarget) {
       audioElement.volume = endVolume;
       clearInterval(intervalId);
     }
   }, stepTime);
 }
+
+// Backwards compatibility aliases
+const gentlyLowerVolume = fadeVolume;
+const gentlyIncreaseVolume = fadeVolume;
 
 function switchToMetalTrack() {
   const audioElementMetal = document.getElementById("audio-element-metal");
@@ -195,17 +225,30 @@ try {
   var $pgn = $("#pgn");
 
   function onDragStart(source, piece, position, orientation) {
-    console.log("onDragStart called");
     // do not pick up pieces if the game is over
-    if (game.game_over()) return false;
+    if (game.isGameOver()) return false;
 
-    // only pick up pieces for the side to move
-    if ((game.turn() === "w" && piece.search(/^b/) !== -1) || (game.turn() === "b" && piece.search(/^w/) !== -1)) {
+    // Block if waiting for AI response (prevents race condition)
+    if (waitingForAI) return false;
+
+    // only pick up pieces for White (player's side)
+    if (piece.search(/^b/) !== -1) {
+      return false;
+    }
+
+    // only pick up pieces when it's white's turn
+    if (game.turn() !== "w") {
       return false;
     }
   }
 
   async function onDrop(source, target) {
+    // Prevent moves while waiting for AI (race condition fix)
+    if (waitingForAI) return "snapback";
+
+    // Only allow moves when it's white's turn (color-switching bug fix)
+    if (game.turn() !== "w") return "snapback";
+
     // see if the move is legal
     var move = game.move({
       from: source,
@@ -217,15 +260,14 @@ try {
     if (move === null) return "snapback";
 
     // Save move to LocalStorage
-    var an = JSON.parse(localStorage.getItem("moves")) || [];
+    var an = safeGetJSON("moves", []);
     an.push(move.san);
-    localStorage.setItem("moves", JSON.stringify(an));
+    safeSetJSON("moves", an);
 
     // update the board with the user's move
     board.position(game.fen());
 
     movesMade++;
-    console.log("movesMade:", movesMade);
 
     if (movesMade === 6) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -233,29 +275,56 @@ try {
       bot = "stockfish";
     }
 
+    // Lock before making AI request
+    waitingForAI = true;
+
     // make an HTTP request to the server to get the AI's move
-    $.get("/ai-move", { fen: game.fen(), bot, an }, function (data) {
-      var move = game.move(data);
-      if (move === null) {
-        console.error("Received invalid move from server:", data);
-        alert("Something went wrong, but it doesn't count as a win for you, sorry");
-        return window.location.reload();
-      }
+    $.get("/ai-move", { fen: game.fen(), bot, an: JSON.stringify(an) })
+      .done(function (data) {
+        // Check if response is a game-over message or error
+        if (typeof data === "object") {
+          if (data.error) {
+            console.error("Server error:", data.error);
+            waitingForAI = false;
+            return;
+          }
+          if (data.msg) {
+            // Game over message from server
+            console.log("Game state:", data.msg);
+            updateStatus();
+            waitingForAI = false;
+            return;
+          }
+        }
 
-      var an = JSON.parse(localStorage.getItem("moves")) || [];
-      an.push(data);
-      localStorage.setItem("moves", JSON.stringify(an));
+        var move = game.move(data);
+        if (move === null) {
+          console.error("Received invalid move from server:", data);
+          waitingForAI = false;
+          // Don't reload - just unlock and let user try again
+          return;
+        }
 
-      // update the board with the AI's move
-      board.position(game.fen());
+        var an = safeGetJSON("moves", []);
+        an.push(data);
+        safeSetJSON("moves", an);
 
-      // update the game status
-      updateStatus();
-    });
+        // update the board with the AI's move
+        board.position(game.fen());
+
+        // update the game status
+        updateStatus();
+
+        // Unlock after AI move is complete
+        waitingForAI = false;
+      })
+      .fail(function (jqXHR) {
+        console.error("Server request failed:", jqXHR.status, jqXHR.responseJSON);
+        waitingForAI = false;
+      });
   }
 
   function onSnapEnd() {
-    console.log("onSnapEnd called");
     board.position(game.fen());
   }
 
@@ -269,8 +338,8 @@ try {
       moveColor = "Black";
     }
 
-    // checkmate?
-    if (game.in_checkmate()) {
+    // checkmate? (updated to new chess.js API)
+    if (game.isCheckmate()) {
       status = "Game over, " + moveColor + " is in checkmate.";
       if (moveColor === "Black") {
         whoWon = "w";
@@ -280,8 +349,8 @@ try {
       stop = true;
     }
 
-    // draw?
-    else if (game.in_draw()) {
+    // draw? (updated to new chess.js API)
+    else if (game.isDraw()) {
       status = "Game over, drawn position";
       stop = true;
     }
@@ -290,8 +359,8 @@ try {
     else {
       status = moveColor + " to move";
 
-      // check?
-      if (game.in_check()) {
+      // check? (updated to new chess.js API)
+      if (game.isCheck()) {
         status += ", " + moveColor + " is in check";
       }
     }
@@ -302,7 +371,6 @@ try {
 
     if (stop) {
       alert(status);
-      // board.destroy();
       updateHighScore(whoWon);
     }
   }
@@ -319,7 +387,7 @@ try {
 
   updateStatus();
 } catch (e) {
-  console.log(e);
+  console.error("Chess initialization error:", e);
 }
 
 async function startEvolution() {
@@ -373,11 +441,9 @@ function adjustLogoHeight() {
   if (window.innerWidth <= 767) {
     redLogo.style.top = "90%";
     chatGptLogo.style.top = "2%";
-    // redLogo.style.left = "10%";
   } else {
     redLogo.style.top = "75%";
     chatGptLogo.style.top = "5%";
-    // redLogo.style.left = "";
   }
 }
 
@@ -389,9 +455,9 @@ async function updateHighScore(whoWhon = "b") {
   // Wait for a second with a promise resolve
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  // Get the chatGptScore from LocalStorage
-  let chessGptScoreValue = localStorage.getItem("chessGptScoreValue") || 0;
-  let yourScoreValue = localStorage.getItem("yourScore") || 0;
+  // Get the chatGptScore from LocalStorage (parse as int to avoid type coercion bugs)
+  let chessGptScoreValue = parseInt(safeGetItem("chessGptScoreValue", "0"), 10) || 0;
+  let yourScoreValue = parseInt(safeGetItem("yourScore", "0"), 10) || 0;
 
   if (whoWhon === "b") chessGptScoreValue++;
   if (whoWhon === "w") yourScoreValue++;
@@ -401,8 +467,8 @@ async function updateHighScore(whoWhon = "b") {
   yourScore.innerText = yourScoreValue;
 
   // Set the chatGptScore in LocalStorage
-  localStorage.setItem("chessGptScoreValue", chessGptScoreValue);
-  localStorage.setItem("yourScore", yourScoreValue);
+  safeSetItem("chessGptScoreValue", chessGptScoreValue.toString());
+  safeSetItem("yourScore", yourScoreValue.toString());
 
   // Show scoreboard modal
   const scoreBoard = document.getElementById("scoreBoard");
