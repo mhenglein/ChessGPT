@@ -12,6 +12,8 @@ module.exports = {
   // Rate limiting
   RATE_LIMIT_WINDOW_MS: 60 * 1000, // 1 minute
   RATE_LIMIT_MAX_REQUESTS: 30,
+  RATE_LIMIT_MAX_KEYS: 10000, // Max unique IPs to track (prevents memory leak)
+  RATE_LIMIT_CLEANUP_INTERVAL_MS: 60 * 1000, // Cleanup expired entries every minute
 
   // Input validation
   MAX_FEN_LENGTH: 100,

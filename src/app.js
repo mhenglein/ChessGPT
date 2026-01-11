@@ -23,13 +23,108 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-// Rate limiter for AI endpoint
+/**
+ * Bounded rate limiter store to prevent memory leaks.
+ * Uses FIFO eviction when max keys are reached.
+ */
+class BoundedStore {
+  constructor(windowMs, maxKeys) {
+    this.windowMs = windowMs;
+    this.maxKeys = maxKeys;
+    this.hits = new Map();
+    this.keyOrder = []; // Track insertion order for FIFO eviction
+
+    // Periodic cleanup of expired entries
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, config.RATE_LIMIT_CLEANUP_INTERVAL_MS);
+
+    // Allow cleanup interval to be garbage collected on process exit
+    if (this.cleanupInterval.unref) {
+      this.cleanupInterval.unref();
+    }
+  }
+
+  // Remove expired entries
+  cleanup() {
+    const now = Date.now();
+    for (const [key, value] of this.hits) {
+      if (now > value.resetTime) {
+        this.hits.delete(key);
+        const idx = this.keyOrder.indexOf(key);
+        if (idx > -1) this.keyOrder.splice(idx, 1);
+      }
+    }
+  }
+
+  // Evict oldest entries when at capacity
+  evictOldest() {
+    while (this.keyOrder.length >= this.maxKeys) {
+      const oldestKey = this.keyOrder.shift();
+      if (oldestKey) {
+        this.hits.delete(oldestKey);
+      }
+    }
+  }
+
+  // express-rate-limit store interface
+  async increment(key) {
+    const now = Date.now();
+    let record = this.hits.get(key);
+
+    if (!record || now > record.resetTime) {
+      // Evict if at capacity and this is a new key
+      if (!record && this.keyOrder.length >= this.maxKeys) {
+        this.evictOldest();
+      }
+
+      record = {
+        totalHits: 0,
+        resetTime: now + this.windowMs,
+      };
+
+      // Track key order for FIFO eviction
+      if (!this.hits.has(key)) {
+        this.keyOrder.push(key);
+      }
+    }
+
+    record.totalHits++;
+    this.hits.set(key, record);
+
+    return {
+      totalHits: record.totalHits,
+      resetTime: new Date(record.resetTime),
+    };
+  }
+
+  async decrement(key) {
+    const record = this.hits.get(key);
+    if (record) {
+      record.totalHits = Math.max(0, record.totalHits - 1);
+    }
+  }
+
+  async resetKey(key) {
+    this.hits.delete(key);
+    const idx = this.keyOrder.indexOf(key);
+    if (idx > -1) this.keyOrder.splice(idx, 1);
+  }
+
+  async resetAll() {
+    this.hits.clear();
+    this.keyOrder = [];
+  }
+}
+
+// Rate limiter for AI endpoint with bounded store
 const aiRateLimiter = rateLimit({
   windowMs: config.RATE_LIMIT_WINDOW_MS,
   max: config.RATE_LIMIT_MAX_REQUESTS,
   message: { error: "Too many requests, please try again later" },
   standardHeaders: true,
   legacyHeaders: false,
+  store: new BoundedStore(config.RATE_LIMIT_WINDOW_MS, config.RATE_LIMIT_MAX_KEYS),
 });
 
 // Health check endpoint

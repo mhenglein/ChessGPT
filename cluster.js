@@ -54,14 +54,25 @@ function canRestartWorker(workerId) {
 
   // Remove old entries outside the window
   const recent = timestamps.filter((t) => now - t < RESTART_WINDOW_MS);
-  restartCounts.set(workerId, recent);
+
+  // Clean up empty entries to prevent memory leak
+  if (recent.length === 0) {
+    restartCounts.delete(workerId);
+  } else {
+    restartCounts.set(workerId, recent);
+  }
 
   if (recent.length >= MAX_RESTART_COUNT) {
     logger.error(`Worker ${workerId} exceeded restart limit (${MAX_RESTART_COUNT} in ${RESTART_WINDOW_MS}ms)`);
     return false;
   }
 
-  recent.push(now);
+  // Re-add entry with new timestamp if we deleted it above
+  if (!restartCounts.has(workerId)) {
+    restartCounts.set(workerId, [now]);
+  } else {
+    recent.push(now);
+  }
   return true;
 }
 

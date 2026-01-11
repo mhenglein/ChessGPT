@@ -50,26 +50,33 @@ async function convertUCItoSAN(fen, uciMove, ChessConstructor) {
  * Ask Stockfish engine for the best move
  * @param {string} fen - Current board position
  * @param {object} engine - Stockfish engine instance
- * @returns {Promise<string>} - Stockfish output containing best move
+ * @returns {{promise: Promise<string>, cleanup: Function}} - Promise and cleanup function
  */
 function askStockfish(fen, engine) {
-  return new Promise((resolve, reject) => {
+  let messageBuffer = [];
+  let resolved = false;
+
+  // Cleanup function to prevent memory leaks
+  const cleanup = () => {
+    engine.onmessage = null;
+    messageBuffer.length = 0;
+    messageBuffer = null;
+  };
+
+  const promise = new Promise((resolve, reject) => {
     if (!fen.match(FEN_REGEX)) {
+      cleanup();
       reject(new Error("Invalid fen string"));
       return;
     }
 
-    let messageBuffer = [];
-    let resolved = false;
-
     const messageHandler = function (msg) {
-      if (typeof msg === "string") {
+      if (typeof msg === "string" && messageBuffer) {
         messageBuffer.push(msg);
 
         if (msg.includes("bestmove")) {
           resolved = true;
-          engine.onmessage = null;
-          messageBuffer.length = 0; // Clear buffer to prevent memory leak
+          cleanup();
           resolve(msg);
         }
       }
@@ -82,6 +89,8 @@ function askStockfish(fen, engine) {
     engine.postMessage(`go depth ${config.STOCKFISH_DEPTH}`);
     // Note: Timeout handled by Promise.race in getStockfishMove()
   });
+
+  return { promise, cleanup };
 }
 
 /**
@@ -131,8 +140,11 @@ async function getStockfishMove(fen, ChessConstructor) {
     );
   });
 
+  // Get promise and cleanup function from askStockfish
+  const { promise: stockfishPromise, cleanup: cleanupHandler } = askStockfish(fen, engine);
+
   try {
-    const result = await Promise.race([askStockfish(fen, engine), timeoutPromise]);
+    const result = await Promise.race([stockfishPromise, timeoutPromise]);
 
     const bestMove = extractBestMove(result);
     if (!bestMove) {
@@ -159,6 +171,7 @@ async function getStockfishMove(fen, ChessConstructor) {
   } finally {
     // Always cleanup - this prevents memory leaks
     clearTimeout(timeoutId);
+    cleanupHandler(); // Clean up message handler and buffer
     cleanupEngine(engine);
   }
 }
