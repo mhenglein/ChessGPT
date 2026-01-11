@@ -6,6 +6,27 @@ const { Configuration, OpenAIApi } = require("openai");
 const { backOff } = require("exponential-backoff");
 const stockfish = require("stockfish");
 const chalk = require("chalk");
+const winston = require("winston");
+
+// Configure winston logger
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      )
+    }),
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' })
+  ]
+});
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -46,7 +67,7 @@ app.use(function (req, res, next) {
       } catch (err) {
         // if Express error route failed, try plain Node response
         console.error("Express error mechanism failed.\n", err.stack);
-        logger.error(err.stack);
+        logger.error("Express error mechanism failed", { error: err.stack });
         if (!res.headersSent) {
           res.statusCode = 500;
           res.sendFile("index.html", { root: __dirname + "/public" });
@@ -65,11 +86,37 @@ app.use(function (req, res, next) {
   domain.run(next);
 });
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy", 
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get("/ai-move", async (req, res) => {
   const { Chess } = await chessImport;
   const fen = req.query.fen;
   const an = req.query.an || "No AN available";
-  const chess = new Chess(fen);
+  
+  if (!fen) {
+    return res.status(400).json({ error: "FEN is required" });
+  }
+  
+  let chess;
+  try {
+    chess = new Chess(fen);
+  } catch (err) {
+    logger.error("Invalid FEN provided", { fen, error: err.message });
+    return res.status(400).json({ error: "Invalid FEN string" });
+  }
+  
+  // Validate it's black's turn (AI plays black)
+  if (chess.turn() !== 'b') {
+    logger.warn("AI move requested but it's not black's turn", { fen, turn: chess.turn() });
+    return res.status(400).json({ error: "Not black's turn" });
+  }
 
   // Check if the game is over
   try {
@@ -116,29 +163,32 @@ app.get("/ai-move", async (req, res) => {
     aiMove = moves[Math.floor(Math.random() * moves.length)];
   }
 
-  // It is not awaiting the getStockfishMove function, so it is undefined (async issue)
+  if (!aiMove) {
+    logger.error("AI failed to generate a move", { bot, fen });
+    // Fallback to random move
+    const moves = chess.moves();
+    aiMove = moves[Math.floor(Math.random() * moves.length)];
+  }
 
   let move = chess.move(aiMove);
   if (move === null) {
-    res.status(500).send("Invalid move");
+    logger.error("Invalid move from AI", { bot, aiMove, fen });
+    res.status(500).json({ error: "Invalid move generated" });
     return;
   }
 
+  logger.info("AI move successful", { bot, move: move.san, fen });
   res.send(move.san);
 });
 
 // Error Handler: 500
-if (process.env.NODE_ENV === "development") {
-  // only use in development
-  app.use(errorhandler());
-} else {
-  app.use(function (err, req, res, next) {
-    console.error(err.stack);
-    res.statusCode = 500;
-    // return res.end(res.sentry);
-    return res.render("500", { sentry: res.sentry });
-  });
-}
+app.use(function (err, req, res, next) {
+  logger.error("Unhandled error", { error: err.stack });
+  res.statusCode = 500;
+  if (!res.headersSent) {
+    res.json({ error: "Internal server error" });
+  }
+});
 
 // Start Express server.
 let server = app.listen(app.get("port"), () => {
@@ -176,7 +226,7 @@ async function getNextMove(fen, an, i = 0) {
 
     const response = await backOff(() =>
       openai.createChatCompletion({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages,
         temperature: 1,
         max_tokens: 4,
@@ -241,18 +291,52 @@ async function getNextMove(fen, an, i = 0) {
 
 const fenregex = /^([rnbqkpRNBQKP1-8]+\/){7}([rnbqkpRNBQKP1-8]+)\s[bw]\s(-|K?Q?k?q?)\s(-|[a-h][36])\s(0|[1-9][0-9]*)\s([1-9][0-9]*)/;
 
-const engine = stockfish();
-async function askStockfish(fen) {
+// Convert UCI move format (e2e4) to SAN format (e4)
+async function convertUCItoSAN(fen, uciMove) {
+  if (!uciMove) return null;
+  
+  const { Chess } = await chessImport;
+  const chess = new Chess(fen);
+  
+  // Parse UCI move (e.g., "e2e4" or "e7e8q" for promotion)
+  const from = uciMove.substring(0, 2);
+  const to = uciMove.substring(2, 4);
+  const promotion = uciMove.substring(4, 5);
+  
+  try {
+    const move = chess.move({
+      from,
+      to,
+      promotion: promotion || undefined
+    });
+    
+    return move ? move.san : null;
+  } catch (err) {
+    logger.error("Failed to convert UCI to SAN", { fen, uciMove, error: err.message });
+    return null;
+  }
+}
+
+// Create a new Stockfish instance for each request
+async function askStockfish(fen, engine) {
   return new Promise((resolve, reject) => {
     if (!fen.match(fenregex)) {
-      reject("Invalid fen string");
+      reject(new Error("Invalid fen string"));
       return;
     }
 
+    let messageBuffer = [];
+    let resolved = false;
+
     const messageHandler = function (msg) {
-      if (typeof msg == "string" && msg.match("bestmove")) {
-        engine.onmessage = null;
-        resolve(msg);
+      if (typeof msg === "string") {
+        messageBuffer.push(msg);
+        
+        if (msg.includes("bestmove")) {
+          resolved = true;
+          engine.onmessage = null;
+          resolve(msg);
+        }
       }
     };
 
@@ -260,22 +344,70 @@ async function askStockfish(fen) {
 
     engine.postMessage("ucinewgame");
     engine.postMessage("position fen " + fen);
-    engine.postMessage("go depth 18");
+    engine.postMessage("go depth 15"); // Reduced depth for faster response
+    
+    // Timeout fallback
+    setTimeout(() => {
+      if (!resolved) {
+        engine.onmessage = null;
+        reject(new Error("Stockfish timeout"));
+      }
+    }, 5000);
   });
 }
 
 function extractBestMove(stockfishOutput) {
-  const match = stockfishOutput.match(/bestmove\s(\w{4})/);
+  const match = stockfishOutput.match(/bestmove\s(\w{4,5})/);
   return match ? match[1] : null;
 }
 
 async function getStockfishMove(fen) {
+  const engine = stockfish();
+  let timeoutId;
+  
   try {
-    const output = await askStockfish(fen); // Add the 'await' keyword here
-    const bestMove = extractBestMove(output);
-
-    return bestMove;
+    const result = await Promise.race([
+      askStockfish(fen, engine),
+      new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Stockfish timeout')), 5000);
+      })
+    ]);
+    
+    clearTimeout(timeoutId);
+    
+    const bestMove = extractBestMove(result);
+    if (!bestMove) {
+      throw new Error("No best move found in Stockfish output");
+    }
+    
+    // Convert UCI to SAN format
+    const sanMove = await convertUCItoSAN(fen, bestMove);
+    
+    // Clean up engine
+    engine.postMessage("quit");
+    
+    if (!sanMove) {
+      throw new Error("Failed to convert UCI move to SAN");
+    }
+    
+    return sanMove;
   } catch (error) {
-    console.error(error);
+    logger.error('Stockfish error', { error: error.message, fen });
+    
+    // Clean up engine
+    try {
+      engine.postMessage("quit");
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+    
+    // Return random valid move as fallback
+    const { Chess } = await chessImport;
+    const chess = new Chess(fen);
+    const moves = chess.moves();
+    const fallbackMove = moves[Math.floor(Math.random() * moves.length)];
+    
+    logger.info("Using fallback random move", { move: fallbackMove, fen });
+    return fallbackMove;
   }
 }
