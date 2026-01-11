@@ -1,52 +1,48 @@
 # CLAUDE.md
 
-ChessGPT: Play chess against ChatGPT, which "evolves" to Stockfish after repeated invalid moves.
+ChessGPT: Play chess against GPT-4o or Stockfish. The AI plays black.
 
-## Quick Start
+## Commands
 
 ```bash
 npm install              # Install dependencies
-npm start                # Start server (port 3500)
+npm start                # Production server (clustered)
 npm run dev              # Development mode (single process)
-./start-pm2.sh           # Production with PM2
-curl localhost:3500/health  # Health check
+npm test                 # Run tests
+npm run build            # Bundle frontend for production
 ```
 
-## Environment Setup
+## Environment
 
-Copy `.env.example` to `.env`:
-```
-OPENAI_API_KEY=your_key  # Required
-PORT=3500                # Optional
-LOG_LEVEL=info           # error|warn|info|debug
-```
+Copy `.env.example` to `.env`. Required: `OPENAI_API_KEY`
 
 ## Architecture
 
 ```
-cluster.js          # Production entry point - worker process management
-index.js            # Server bootstrap, imports src/app.js
+cluster.js               # Production entry - worker process management
+index.js                 # Server bootstrap
 src/
-  app.js            # Express app, routes, middleware
-  config/           # Centralized config and logger
-  services/         # OpenAI and Stockfish integrations
-  utils/            # Chess helper functions
-app/                # Frontend source (dev)
-public/             # Static files (production)
+  app.js                 # Express app, routes (/ai-move, /health)
+  config/index.js        # Centralized config constants
+  config/logger.js       # Winston logger
+  services/openai-service.js    # GPT-4o integration
+  services/stockfish-service.js # Stockfish engine
+  utils/chess-helpers.js # Game state, move helpers
+app/js/scripts.js        # Frontend source (bundled to public/)
+public/                  # Static assets served by Express
+tests/                   # Jest tests
 ```
 
-**Key Flow**: Client sends FEN position to `/ai-move` -> Server validates turn (black) -> ChatGPT or Stockfish generates move -> Returns SAN move
+## API
 
-**Bot Selection**: `?bot=chessgpt` (default) or `?bot=stockfish`
+`GET /ai-move?fen=<FEN>&bot=<chessgpt|stockfish>` - Returns SAN move (AI plays black)
 
-## Technical Notes
+## Tech Notes
 
-- Uses FEN for board state, SAN for moves
-- OpenAI v4 SDK with exponential backoff
-- Stockfish instances created per-request with cleanup
-- Rate limiting: 30 requests/minute on `/ai-move`
-- No automated tests exist
+- FEN for board state, SAN for moves
+- Rate limit: 30 req/min on `/ai-move`
+- Stockfish depth 15, 5s timeout
 
-## Render MCP
+## Render
 
-Workspace: **Marcus Henglein's Workspace** (`tea-cspt7nggph6c739ls70g`)
+Workspace: `tea-cspt7nggph6c739ls70g`
