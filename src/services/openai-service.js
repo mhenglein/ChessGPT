@@ -27,16 +27,17 @@ const openai = new OpenAI({
  * @param {string} fen - Current board position in FEN notation
  * @param {string} an - Algebraic notation history of moves
  * @param {Chess} chess - chess.js instance for the current position
- * @param {number} retryCount - Current retry attempt (internal)
  * @returns {Promise<string>} - Best move in SAN notation
  */
-async function getNextMove(fen, an, chess, retryCount = 0) {
+async function getNextMove(fen, an, chess) {
   const moves = chess.moves();
 
-  try {
-    const userMessage = {
-      role: "user",
-      content: `You are ChessGPT, a superintelligent chess computer. What is the optimal move based on the FEN and AN below? Answer in SAN (e.g. e4, Nf3, etc.). Don't provide any explanation.
+  // Iterative retry loop (prevents stack accumulation from recursion)
+  for (let attempt = 0; attempt <= config.MAX_OPENAI_RETRIES; attempt++) {
+    try {
+      const userMessage = {
+        role: "user",
+        content: `You are ChessGPT, a superintelligent chess computer. What is the optimal move based on the FEN and AN below? Answer in SAN (e.g. e4, Nf3, etc.). Don't provide any explanation.
       FEN: ${fen}.
       AN: ${an}.
       Are you (black) currently checked? ${chess.isCheck() ? "Yes" : "No"}
@@ -44,65 +45,67 @@ async function getNextMove(fen, an, chess, retryCount = 0) {
     ${chess.ascii()}
 
     The following are a list of your available moves: ${moves.join(", ")}`,
-    };
+      };
 
-    // OpenAI v4 API (using config values)
-    const response = await backOff(() =>
-      openai.chat.completions.create({
-        model: config.OPENAI_MODEL,
-        messages: [userMessage],
-        temperature: config.OPENAI_TEMPERATURE,
-        max_tokens: config.OPENAI_MAX_TOKENS,
-        n: config.OPENAI_NUM_COMPLETIONS,
-      })
-    );
+      // OpenAI v4 API (using config values)
+      const response = await backOff(() =>
+        openai.chat.completions.create({
+          model: config.OPENAI_MODEL,
+          messages: [userMessage],
+          temperature: config.OPENAI_TEMPERATURE,
+          max_tokens: config.OPENAI_MAX_TOKENS,
+          n: config.OPENAI_NUM_COMPLETIONS,
+        })
+      );
 
-    if (!response.choices) {
-      logger.warn("No choices from OpenAI, using random move");
-      return getRandomMove(moves);
-    }
+      if (!response.choices) {
+        logger.warn("No choices from OpenAI, using random move");
+        return getRandomMove(moves);
+      }
 
-    let possibleMoves = [];
-    response.choices.forEach((choice) => {
-      let possibleMove = choice.message.content;
-      possibleMove = possibleMove.replace(" ", "").trim();
-      possibleMove = possibleMove.replace(/(\r\n|\n|\r)/gm, "");
-      possibleMove = possibleMove.replace("...", "");
-      possibleMoves.push(possibleMove);
-    });
+      let possibleMoves = [];
+      response.choices.forEach((choice) => {
+        let possibleMove = choice.message.content;
+        possibleMove = possibleMove.replace(" ", "").trim();
+        possibleMove = possibleMove.replace(/(\r\n|\n|\r)/gm, "");
+        possibleMove = possibleMove.replace("...", "");
+        possibleMoves.push(possibleMove);
+      });
 
-    // Remove duplicates
-    possibleMoves = [...new Set(possibleMoves)];
+      // Remove duplicates
+      possibleMoves = [...new Set(possibleMoves)];
 
-    // Remove all single-letter moves
-    possibleMoves = possibleMoves.filter((move) => move.length > 1);
+      // Remove all single-letter moves
+      possibleMoves = possibleMoves.filter((move) => move.length > 1);
 
-    // Find first valid move
-    for (const possibleMove of possibleMoves) {
-      if (moves.includes(possibleMove)) {
-        return possibleMove;
+      // Find first valid move
+      for (const possibleMove of possibleMoves) {
+        if (moves.includes(possibleMove)) {
+          return possibleMove;
+        }
+      }
+
+      // No valid move found, continue to next attempt
+      if (attempt < config.MAX_OPENAI_RETRIES) {
+        logger.warn("No valid move from OpenAI, retrying", { attempt: attempt + 1 });
+      }
+    } catch (error) {
+      logger.error("OpenAI API error", {
+        error: error.message,
+        status: error.status,
+        fen,
+        attempt,
+      });
+
+      // On error, wait then try again or fall through to random move
+      if (attempt < config.MAX_OPENAI_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, config.OPENAI_RETRY_DELAY_MS));
       }
     }
-
-    // Retry if no valid move found
-    if (retryCount > config.MAX_OPENAI_RETRIES) {
-      return getRandomMove(moves);
-    }
-    return getNextMove(fen, an, chess, retryCount + 1);
-  } catch (error) {
-    logger.error("OpenAI API error", {
-      error: error.message,
-      status: error.status,
-      fen,
-    });
-
-    // Return random move after delay (with proper error handling)
-    return new Promise((resolve) =>
-      setTimeout(resolve, config.OPENAI_RETRY_DELAY_MS)
-    )
-      .then(() => getRandomMove(moves))
-      .catch(() => getRandomMove(moves));
   }
+
+  // All retries exhausted, return random move
+  return getRandomMove(moves);
 }
 
 module.exports = {

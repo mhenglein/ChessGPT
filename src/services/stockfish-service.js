@@ -57,7 +57,9 @@ function askStockfish(fen, engine) {
   let resolved = false;
 
   // Cleanup function to prevent memory leaks
+  // Guard against double-call (messageHandler + finally block both call this)
   const cleanup = () => {
+    if (messageBuffer === null) return;
     engine.onmessage = null;
     messageBuffer.length = 0;
     messageBuffer = null;
