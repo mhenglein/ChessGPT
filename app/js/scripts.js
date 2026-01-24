@@ -46,6 +46,155 @@ function safeSetJSON(key, value) {
   }
 }
 
+// Play sound effect with volume handling
+function playGameSound(type) {
+  try {
+    const audio = type === "victory" ? audioVictory : audioDefeat;
+    if (audio) {
+      audio.volume = 0.5;
+      audio.currentTime = 0;
+      audio.play().catch((e) => console.warn("Audio play failed:", e));
+    }
+  } catch (e) {
+    console.warn("Sound playback error:", e);
+  }
+}
+
+// Show game over modal with animations
+function showGameOverModal(result, status) {
+  const board = document.getElementById("myBoard");
+
+  // Reset modal state
+  leaderboardSubmit.classList.remove("d-none");
+  leaderboardDisplay.classList.add("d-none");
+  nicknameInput.value = safeGetItem("lastNickname", "");
+
+  // Store result for leaderboard submission
+  currentGameResult = result;
+
+  if (result === "ai") {
+    // AI wins (player loses)
+    gameOverTitle.textContent = "DEFEATED!";
+    gameOverTitle.className = "game-over-title defeat";
+    gameOverLogo.src = bot === "stockfish" ? "/stockfish.png" : "/chatgpt.png";
+    gameOverLogo.className = "game-over-logo defeat";
+    board.classList.add("shake");
+    playGameSound("defeat");
+
+    // Remove shake class after animation
+    setTimeout(() => board.classList.remove("shake"), 500);
+  } else if (result === "player") {
+    // Player wins
+    gameOverTitle.textContent = "VICTORY!";
+    gameOverTitle.className = "game-over-title victory";
+    gameOverLogo.src = "/red.png";
+    gameOverLogo.className = "game-over-logo victory";
+    playGameSound("victory");
+
+    // Trigger confetti
+    if (typeof confetti === "function") {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+      // Second burst
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+        });
+        confetti({
+          particleCount: 50,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+        });
+      }, 250);
+    }
+  } else {
+    // Draw
+    gameOverTitle.textContent = "DRAW";
+    gameOverTitle.className = "game-over-title draw";
+    gameOverLogo.src = "/chatgpt.png";
+    gameOverLogo.className = "game-over-logo";
+  }
+
+  gameOverStatus.textContent = status;
+
+  // Update resign button to restart button
+  if (resignRestartBtn) {
+    resignRestartBtn.textContent = "Restart";
+    resignRestartBtn.classList.remove("btn-outline-danger");
+    resignRestartBtn.classList.add("btn-outline-warning");
+  }
+
+  // Show the modal
+  const modal = new bootstrap.Modal(gameOverModal);
+  modal.show();
+}
+
+// Fetch and display leaderboard
+async function fetchLeaderboard(targetBody, limit = 10) {
+  try {
+    const response = await fetch(`/api/leaderboard?limit=${limit}`);
+    if (!response.ok) throw new Error("Failed to fetch leaderboard");
+
+    const data = await response.json();
+    targetBody.innerHTML = "";
+
+    if (data.length === 0) {
+      targetBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No entries yet</td></tr>';
+      return;
+    }
+
+    data.forEach((player, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${escapeHtml(player.nickname)}</td>
+        <td>${player.wins}</td>
+        <td>${player.losses}</td>
+        <td>${player.draws}</td>
+      `;
+      targetBody.appendChild(row);
+    });
+  } catch (e) {
+    console.warn("Leaderboard fetch error:", e);
+    targetBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Could not load leaderboard</td></tr>';
+  }
+}
+
+// Submit score to leaderboard
+async function submitScore(nickname, result) {
+  try {
+    const response = await fetch("/api/leaderboard", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nickname, result }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error || "Submission failed");
+    }
+
+    return true;
+  } catch (e) {
+    console.error("Score submission error:", e);
+    return false;
+  }
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 const container = document.getElementById("container");
 const startAnimation = document.getElementById("startAnimation");
 const startContainer = document.getElementById("startContainer");
@@ -53,6 +202,28 @@ const chessBoard = document.getElementById("chessBoard");
 const myBoard = document.getElementById("myBoard");
 const chatGptLogo = document.getElementById("chatGptLogo");
 const redLogo = document.getElementById("redLogo");
+
+// Game over modal elements
+const gameOverModal = document.getElementById("gameOverModal");
+const gameOverTitle = document.getElementById("gameOverTitle");
+const gameOverStatus = document.getElementById("gameOverStatus");
+const gameOverLogo = document.getElementById("gameOverLogo");
+const nicknameInput = document.getElementById("nicknameInput");
+const submitScoreBtn = document.getElementById("submitScoreBtn");
+const leaderboardSubmit = document.getElementById("leaderboardSubmit");
+const leaderboardDisplay = document.getElementById("leaderboardDisplay");
+const leaderboardBody = document.getElementById("leaderboardBody");
+const playAgainBtn = document.getElementById("playAgainBtn");
+const viewLeaderboardBtn = document.getElementById("viewLeaderboardBtn");
+const standaloneLeaderboardBody = document.getElementById("standaloneLeaderboardBody");
+const resignRestartBtn = document.getElementById("resignRestartBtn");
+
+// Audio elements
+const audioVictory = document.getElementById("audio-victory");
+const audioDefeat = document.getElementById("audio-defeat");
+
+// Track current game result for leaderboard submission
+let currentGameResult = null;
 
 // Get the button and audio elements by their IDs
 const audioElement = document.getElementById("audio-element");
@@ -370,7 +541,15 @@ try {
     $pgn.html(game.pgn());
 
     if (stop) {
-      alert(status);
+      // Determine result type for modal
+      let resultType = "draw";
+      if (whoWon === "w") resultType = "player";
+      else if (whoWon === "b") resultType = "ai";
+
+      // Show game over modal with animations
+      showGameOverModal(resultType, status);
+
+      // Update local high score
       updateHighScore(whoWon);
     }
   }
@@ -452,9 +631,6 @@ window.addEventListener("load", adjustLogoHeight);
 window.addEventListener("resize", adjustLogoHeight);
 
 async function updateHighScore(whoWhon = "b") {
-  // Wait for a second with a promise resolve
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
   // Get the chatGptScore from LocalStorage (parse as int to avoid type coercion bugs)
   let chessGptScoreValue = parseInt(safeGetItem("chessGptScoreValue", "0"), 10) || 0;
   let yourScoreValue = parseInt(safeGetItem("yourScore", "0"), 10) || 0;
@@ -463,17 +639,12 @@ async function updateHighScore(whoWhon = "b") {
   if (whoWhon === "w") yourScoreValue++;
   const chessGptScore = document.getElementById("chessGptScore");
   const yourScore = document.getElementById("yourScore");
-  chessGptScore.innerText = chessGptScoreValue;
-  yourScore.innerText = yourScoreValue;
+  if (chessGptScore) chessGptScore.innerText = chessGptScoreValue;
+  if (yourScore) yourScore.innerText = yourScoreValue;
 
   // Set the chatGptScore in LocalStorage
   safeSetItem("chessGptScoreValue", chessGptScoreValue.toString());
   safeSetItem("yourScore", yourScoreValue.toString());
-
-  // Show scoreboard modal
-  const scoreBoard = document.getElementById("scoreBoard");
-  const myModal = new bootstrap.Modal(scoreBoard);
-  myModal.show();
 }
 
 const resetBtn = document.getElementById("resetBtn");
@@ -481,3 +652,101 @@ resetBtn.addEventListener("click", () => {
   // Reload page
   window.location.reload();
 });
+
+// Play Again button in game over modal
+if (playAgainBtn) {
+  playAgainBtn.addEventListener("click", () => {
+    window.location.reload();
+  });
+}
+
+// Submit score to leaderboard
+if (submitScoreBtn) {
+  submitScoreBtn.addEventListener("click", async () => {
+    const nickname = nicknameInput.value.trim();
+    if (!nickname) {
+      nicknameInput.classList.add("border-danger");
+      nicknameInput.focus();
+      return;
+    }
+
+    nicknameInput.classList.remove("border-danger");
+
+    // Determine result for API
+    let apiResult;
+    if (currentGameResult === "player") apiResult = "win";
+    else if (currentGameResult === "ai") apiResult = "loss";
+    else apiResult = "draw";
+
+    // Disable button during submission
+    submitScoreBtn.disabled = true;
+    submitScoreBtn.textContent = "Submitting...";
+
+    // Save nickname for next time
+    safeSetItem("lastNickname", nickname);
+
+    const success = await submitScore(nickname, apiResult);
+
+    if (success) {
+      // Hide submission form, show leaderboard
+      leaderboardSubmit.classList.add("d-none");
+      leaderboardDisplay.classList.remove("d-none");
+
+      // Fetch and display leaderboard
+      await fetchLeaderboard(leaderboardBody);
+    } else {
+      submitScoreBtn.disabled = false;
+      submitScoreBtn.textContent = "Try Again";
+    }
+  });
+}
+
+// Enter key submits score
+if (nicknameInput) {
+  nicknameInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      submitScoreBtn.click();
+    }
+  });
+}
+
+// View Leaderboard button
+if (viewLeaderboardBtn) {
+  viewLeaderboardBtn.addEventListener("click", async () => {
+    const leaderboardModal = document.getElementById("leaderboardModal");
+    const modal = new bootstrap.Modal(leaderboardModal);
+    modal.show();
+    await fetchLeaderboard(standaloneLeaderboardBody);
+  });
+}
+
+// Resign/Restart button handler
+if (resignRestartBtn) {
+  resignRestartBtn.addEventListener("click", function () {
+    if (game.isGameOver()) {
+      // Game already over - restart
+      window.location.reload();
+    } else {
+      // Active game - resign (player loses)
+      showGameOverModal("ai", "You resigned!");
+    }
+  });
+}
+
+// Show leaderboard and resign buttons when chess board is visible
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.target.classList.contains("visible") && !mutation.target.classList.contains("hidden")) {
+      if (viewLeaderboardBtn) {
+        viewLeaderboardBtn.classList.remove("d-none");
+      }
+      if (resignRestartBtn) {
+        resignRestartBtn.classList.remove("d-none");
+      }
+    }
+  });
+});
+
+if (myBoard) {
+  observer.observe(myBoard, { attributes: true, attributeFilter: ["class"] });
+}

@@ -113,33 +113,18 @@ h1 {
   transition: all 0.3s ease;
 }
 
-@-webkit-keyframes bounce {
-  0%,
-  100% {
-    -webkit-transform: translateX(0);
-    transform: translateX(0);
-  }
-  50% {
-    -webkit-transform: translateX(5px);
-    transform: translateX(5px);
-  }
-}
-
 @keyframes bounce {
   0%,
   100% {
-    -webkit-transform: translateX(0);
     transform: translateX(0);
   }
   50% {
-    -webkit-transform: translateX(5px);
     transform: translateX(5px);
   }
 }
 
 .bounce-image {
   display: inline-block;
-  -webkit-animation: bounce 1s ease-in-out infinite;
   animation: bounce 1s ease-in-out infinite;
 }
 
@@ -174,4 +159,212 @@ h1 {
 
 .brutalist-shadow-xs {
   box-shadow: 1px 1px 0 0 #000;
+}
+
+/* Game Over Animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+  20%, 40%, 60%, 80% { transform: translateX(10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px currentColor);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 30px currentColor);
+  }
+}
+
+@keyframes victory-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes text-reveal {
+  from {
+    opacity: 0;
+    letter-spacing: 0.5em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.1em;
+  }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.pulse-glow {
+  animation: pulse-glow 1s ease-in-out infinite;
+}
+
+.victory-bounce {
+  animation: victory-bounce 0.5s ease-in-out 3;
+}
+
+/* Game Over Modal Styles */
+#gameOverModal .modal-content {
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 4px solid #333;
+}
+
+#gameOverModal .modal-body {
+  padding: 3rem;
+}
+
+.game-over-title {
+  font-family: "Pokemon GB", sans-serif;
+  font-size: 3rem;
+  text-align: center;
+  animation: text-reveal 0.8s ease-out forwards, fade-in-up 0.5s ease-out;
+  letter-spacing: 0.1em;
+}
+
+.game-over-title.defeat {
+  color: var(--fire-red);
+  text-shadow: 0 0 20px var(--fire-red), 0 0 40px var(--fire-red);
+}
+
+.game-over-title.victory {
+  color: var(--cyber-yellow);
+  text-shadow: 0 0 20px var(--cyber-yellow), 0 0 40px var(--cyber-yellow);
+}
+
+.game-over-title.draw {
+  color: var(--iridescent-silver);
+  text-shadow: 0 0 20px var(--iridescent-silver);
+}
+
+.game-over-status {
+  font-family: "Emulogic", sans-serif;
+  font-size: 1rem;
+  color: #aaa;
+  text-align: center;
+  margin-top: 1rem;
+  animation: fade-in-up 0.5s ease-out 0.3s both;
+}
+
+.game-over-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin: 1.5rem 0;
+  animation: fade-in-up 0.5s ease-out 0.5s both;
+}
+
+.game-over-logo.defeat {
+  animation: fade-in-up 0.5s ease-out 0.5s both, pulse-glow 1.5s ease-in-out infinite;
+  color: var(--fire-red);
+}
+
+.game-over-logo.victory {
+  animation: fade-in-up 0.5s ease-out 0.5s both, victory-bounce 0.5s ease-in-out 3;
+}
+
+/* Leaderboard Styles */
+.leaderboard-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.leaderboard-table {
+  font-family: "Emulogic", sans-serif;
+  font-size: 0.75rem;
+}
+
+.leaderboard-table th {
+  color: var(--cyber-yellow);
+  border-bottom: 2px solid var(--cyber-yellow);
+}
+
+.leaderboard-table td {
+  color: #ddd;
+  border-bottom: 1px solid #333;
+}
+
+.leaderboard-table tr:hover td {
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+.nickname-input {
+  font-family: "Pokemon GB", sans-serif;
+  background-color: #111;
+  border: 2px solid #444;
+  color: #fff;
+  padding: 0.75rem;
+  text-align: center;
+  max-width: 250px;
+}
+
+.nickname-input:focus {
+  border-color: var(--cyber-yellow);
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.nickname-input::placeholder {
+  color: #666;
+}
+
+/* View Leaderboard Button */
+#viewLeaderboardBtn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  font-family: "Pokemon GB", sans-serif;
+  font-size: 0.6rem;
+  padding: 0.5rem 1rem;
+}
+
+/* Resign/Restart Button */
+#resignRestartBtn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  font-family: "Pokemon GB", sans-serif;
+  font-size: 0.6rem;
+  padding: 0.5rem 1rem;
+}
+
+@media (max-width: 767px) {
+  .game-over-title {
+    font-size: 1.8rem;
+  }
+
+  .game-over-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .leaderboard-table {
+    font-size: 0.6rem;
+  }
+
+  #viewLeaderboardBtn {
+    font-size: 0.5rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  #resignRestartBtn {
+    font-size: 0.5rem;
+    padding: 0.4rem 0.8rem;
+  }
 }

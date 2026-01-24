@@ -33,6 +33,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
+    <!-- Confetti library for victory animation -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   </head>
   <body>
     <main id="startContainer" class="vh-100 d-flex flex-column">
@@ -121,6 +123,88 @@
         </div>
       </div>
     </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal fade" id="gameOverModal" tabindex="-1" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body d-flex flex-column justify-content-center align-items-center text-center py-5">
+            <h2 class="game-over-title" id="gameOverTitle">GAME OVER</h2>
+            <p class="game-over-status" id="gameOverStatus"></p>
+            <img id="gameOverLogo" class="game-over-logo" src="/chatgpt.png" alt="Game result" />
+
+            <!-- Leaderboard submission -->
+            <div id="leaderboardSubmit" class="mt-4 w-100">
+              <p class="evolving text-light mb-2" style="font-size: 0.8rem;">Enter name for leaderboard</p>
+              <input type="text" id="nicknameInput" class="nickname-input w-100 mb-3" placeholder="Your nickname" maxlength="20" />
+              <button id="submitScoreBtn" class="btn btn-outline-warning rounded-0 evolving w-100">Submit Score</button>
+            </div>
+
+            <!-- Leaderboard display (shown after submission) -->
+            <div id="leaderboardDisplay" class="mt-4 w-100 d-none">
+              <h4 class="evolving text-warning mb-3">TOP PLAYERS</h4>
+              <div class="leaderboard-container">
+                <table class="table table-dark leaderboard-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>W</th>
+                      <th>L</th>
+                      <th>D</th>
+                    </tr>
+                  </thead>
+                  <tbody id="leaderboardBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="d-flex flex-row mt-4 evolving gap-2">
+              <button id="playAgainBtn" class="btn btn-outline-primary rounded-0">Play Again</button>
+              <button data-bs-dismiss="modal" class="btn btn-outline-secondary rounded-0">View Board</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Standalone Leaderboard Modal -->
+    <div class="modal fade" id="leaderboardModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: rgba(0, 0, 0, 0.95); border: 4px solid #333;">
+          <div class="modal-header border-0">
+            <h4 class="evolving text-warning">LEADERBOARD</h4>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="leaderboard-container">
+              <table class="table table-dark leaderboard-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Wins</th>
+                    <th>Losses</th>
+                    <th>Draws</th>
+                  </tr>
+                </thead>
+                <tbody id="standaloneLeaderboardBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Leaderboard Button (shown on chess board) -->
+    <button id="viewLeaderboardBtn" class="btn btn-outline-warning rounded-0 d-none">Leaderboard</button>
+
+    <!-- Resign/Restart Button (shown on chess board) -->
+    <button id="resignRestartBtn" class="btn btn-outline-danger rounded-0 d-none">Resign</button>
+
+    <!-- Audio elements for game over sounds -->
+    <audio id="audio-victory" src="/victory.mp3" preload="auto"></audio>
+    <audio id="audio-defeat" src="/defeat.mp3" preload="auto"></audio>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
