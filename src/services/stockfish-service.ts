@@ -8,27 +8,41 @@
  * Creating one engine and queuing requests eliminates this leak.
  */
 
-const stockfish = require("stockfish");
-const config = require("../config");
-const logger = require("../config/logger");
-const { getRandomMove } = require("../utils/chess-helpers");
+import stockfish from "stockfish";
+import config from "../config";
+import logger from "../config/logger";
+import { getRandomMove } from "../utils/chess-helpers";
+import type { ChessConstructor } from "../types";
+
+// Type for stockfish engine
+interface StockfishEngine {
+  onmessage: ((message: string) => void) | null;
+  postMessage(message: string): void;
+}
 
 // FEN validation regex
-const FEN_REGEX = /^([rnbqkpRNBQKP1-8]+\/){7}([rnbqkpRNBQKP1-8]+)\s[bw]\s(-|K?Q?k?q?)\s(-|[a-h][36])\s(0|[1-9][0-9]*)\s([1-9][0-9]*)/;
+export const FEN_REGEX =
+  /^([rnbqkpRNBQKP1-8]+\/){7}([rnbqkpRNBQKP1-8]+)\s[bw]\s(-|K?Q?k?q?)\s(-|[a-h][36])\s(0|[1-9][0-9]*)\s([1-9][0-9]*)/;
 
 // ============================================
 // SINGLETON ENGINE WITH REQUEST QUEUING
 // ============================================
 
-let singletonEngine = null;
-let currentRequest = null;
-const requestQueue = [];
+interface QueuedRequest {
+  fen: string;
+  resolve: (value: string) => void;
+  reject: (reason: Error) => void;
+  timeoutId: ReturnType<typeof setTimeout>;
+}
+
+let singletonEngine: StockfishEngine | null = null;
+let currentRequest: QueuedRequest | null = null;
+const requestQueue: QueuedRequest[] = [];
 
 /**
  * Get or create the singleton Stockfish engine
- * @returns {object} - Stockfish engine instance
  */
-function getEngine() {
+function getEngine(): StockfishEngine {
   if (!singletonEngine) {
     logger.info("Creating singleton Stockfish engine");
     singletonEngine = stockfish();
@@ -39,16 +53,16 @@ function getEngine() {
 /**
  * Process the next request in the queue
  */
-function processQueue() {
+function processQueue(): void {
   // Already processing a request or queue is empty
   if (currentRequest || requestQueue.length === 0) return;
 
-  currentRequest = requestQueue.shift();
-  const { fen, resolve, reject, timeoutId } = currentRequest;
+  currentRequest = requestQueue.shift()!;
+  const { fen, resolve, timeoutId } = currentRequest;
 
   const engine = getEngine();
 
-  const messageHandler = function (msg) {
+  const messageHandler = function (msg: string): void {
     if (typeof msg === "string" && msg.includes("bestmove")) {
       // Clear the handler before resolving
       engine.onmessage = null;
@@ -72,10 +86,8 @@ function processQueue() {
 
 /**
  * Queue a request to the singleton Stockfish engine
- * @param {string} fen - Current board position
- * @returns {Promise<string>} - Raw Stockfish output with bestmove
  */
-function queueStockfishRequest(fen) {
+function queueStockfishRequest(fen: string): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!fen.match(FEN_REGEX)) {
       reject(new Error("Invalid fen string"));
@@ -113,12 +125,12 @@ function queueStockfishRequest(fen) {
 
 /**
  * Convert UCI move format (e2e4) to SAN format (e4)
- * @param {string} fen - Current board position
- * @param {string} uciMove - Move in UCI format
- * @param {function} ChessConstructor - Chess class constructor
- * @returns {Promise<string|null>} - Move in SAN format or null
  */
-async function convertUCItoSAN(fen, uciMove, ChessConstructor) {
+export async function convertUCItoSAN(
+  fen: string,
+  uciMove: string,
+  ChessConstructor: ChessConstructor
+): Promise<string | null> {
   if (!uciMove) return null;
 
   const chess = new ChessConstructor(fen);
@@ -126,13 +138,13 @@ async function convertUCItoSAN(fen, uciMove, ChessConstructor) {
   // Parse UCI move (e.g., "e2e4" or "e7e8q" for promotion)
   const from = uciMove.substring(0, 2);
   const to = uciMove.substring(2, 4);
-  const promotion = uciMove.substring(4, 5);
+  const promotion = uciMove.substring(4, 5) || undefined;
 
   try {
     const move = chess.move({
       from,
       to,
-      promotion: promotion || undefined,
+      promotion,
     });
 
     return move ? move.san : null;
@@ -140,7 +152,7 @@ async function convertUCItoSAN(fen, uciMove, ChessConstructor) {
     logger.error("Failed to convert UCI to SAN", {
       fen,
       uciMove,
-      error: err.message,
+      error: (err as Error).message,
     });
     return null;
   }
@@ -148,10 +160,8 @@ async function convertUCItoSAN(fen, uciMove, ChessConstructor) {
 
 /**
  * Extract best move from Stockfish output
- * @param {string} stockfishOutput - Raw output from Stockfish
- * @returns {string|null} - UCI move or null
  */
-function extractBestMove(stockfishOutput) {
+function extractBestMove(stockfishOutput: string): string | null {
   const match = stockfishOutput.match(/bestmove\s(\w{4,5})/);
   return match ? match[1] : null;
 }
@@ -162,11 +172,11 @@ function extractBestMove(stockfishOutput) {
 
 /**
  * Get the best move from Stockfish
- * @param {string} fen - Current board position in FEN notation
- * @param {function} ChessConstructor - Chess class constructor for fallback
- * @returns {Promise<string>} - Best move in SAN notation
  */
-async function getStockfishMove(fen, ChessConstructor) {
+export async function getStockfishMove(
+  fen: string,
+  ChessConstructor: ChessConstructor
+): Promise<string> {
   try {
     const result = await queueStockfishRequest(fen);
 
@@ -184,7 +194,7 @@ async function getStockfishMove(fen, ChessConstructor) {
 
     return sanMove;
   } catch (error) {
-    logger.error("Stockfish error", { error: error.message, fen });
+    logger.error("Stockfish error", { error: (error as Error).message, fen });
 
     // Return random valid move as fallback
     const chess = new ChessConstructor(fen);
@@ -194,9 +204,3 @@ async function getStockfishMove(fen, ChessConstructor) {
     return fallbackMove;
   }
 }
-
-module.exports = {
-  getStockfishMove,
-  convertUCItoSAN,
-  FEN_REGEX,
-};

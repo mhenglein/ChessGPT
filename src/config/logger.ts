@@ -3,8 +3,8 @@
  * Used by both the main server and cluster manager
  */
 
-const winston = require("winston");
-const config = require("./index");
+import winston from "winston";
+import config from "./index";
 
 const logger = winston.createLogger({
   level: config.LOG_LEVEL,
@@ -25,4 +25,4 @@ const logger = winston.createLogger({
   ],
 });
 
-module.exports = logger;
+export default logger;

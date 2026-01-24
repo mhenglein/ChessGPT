@@ -9,23 +9,22 @@
  * PM2 alternative: pm2 start ecosystem.config.js
  */
 
-const cluster = require("cluster");
-const config = require("./src/config");
-const logger = require("./src/config/logger");
+import cluster, { Worker } from "cluster";
+import config from "./src/config";
+import logger from "./src/config/logger";
 
 // Clustering configuration
 const WORKER_COUNT = config.WEB_CONCURRENCY;
 const MAX_RESTART_COUNT = config.MAX_RESTART_COUNT;
 const RESTART_WINDOW_MS = config.RESTART_WINDOW_MS;
-const GC_INTERVAL_MINUTES = config.GC_INTERVAL_MINUTES;
 
 let shuttingDown = false;
-let restartCounts = new Map();
+const restartCounts = new Map<number, number[]>();
 
 /**
  * Start a new worker process
  */
-function startWorker() {
+function startWorker(): Worker | null {
   if (shuttingDown) {
     logger.info("Shutdown in progress, not starting new worker");
     return null;
@@ -43,43 +42,31 @@ function startWorker() {
 /**
  * Check if a worker can be restarted (rate limiting)
  */
-function canRestartWorker(workerId) {
+function canRestartWorker(workerId: number): boolean {
   const now = Date.now();
+  const timestamps = restartCounts.get(workerId) ?? [];
 
-  if (!restartCounts.has(workerId)) {
-    restartCounts.set(workerId, []);
-  }
-
-  const timestamps = restartCounts.get(workerId);
-
-  // Remove old entries outside the window
+  // Filter to recent restarts within window
   const recent = timestamps.filter((t) => now - t < RESTART_WINDOW_MS);
 
-  // Clean up empty entries to prevent memory leak
-  if (recent.length === 0) {
-    restartCounts.delete(workerId);
-  } else {
-    restartCounts.set(workerId, recent);
-  }
-
   if (recent.length >= MAX_RESTART_COUNT) {
-    logger.error(`Worker ${workerId} exceeded restart limit (${MAX_RESTART_COUNT} in ${RESTART_WINDOW_MS}ms)`);
+    logger.error(
+      `Worker ${workerId} exceeded restart limit (${MAX_RESTART_COUNT} in ${RESTART_WINDOW_MS}ms)`
+    );
+    restartCounts.set(workerId, recent);
     return false;
   }
 
-  // Re-add entry with new timestamp if we deleted it above
-  if (!restartCounts.has(workerId)) {
-    restartCounts.set(workerId, [now]);
-  } else {
-    recent.push(now);
-  }
+  // Add current restart timestamp and update map
+  recent.push(now);
+  restartCounts.set(workerId, recent);
   return true;
 }
 
 /**
  * Graceful shutdown of all workers
  */
-function gracefulShutdown(signal) {
+function gracefulShutdown(signal: string): void {
   if (shuttingDown) return;
   shuttingDown = true;
 
@@ -87,13 +74,13 @@ function gracefulShutdown(signal) {
 
   // Disconnect all workers
   for (const id in cluster.workers) {
-    cluster.workers[id].disconnect();
+    cluster.workers[id]?.disconnect();
   }
 
   // Force kill after timeout
   setTimeout(() => {
     for (const id in cluster.workers) {
-      cluster.workers[id].kill();
+      cluster.workers[id]?.kill();
     }
     process.exit(0);
   }, 5000);
@@ -102,7 +89,7 @@ function gracefulShutdown(signal) {
 /**
  * Schedule garbage collection (for --expose-gc flag)
  */
-function scheduleGC() {
+function scheduleGC(): void {
   if (!global.gc) return;
 
   // Random interval between 15-45 minutes
@@ -117,7 +104,7 @@ function scheduleGC() {
 }
 
 // Master process
-if (cluster.isMaster) {
+if (cluster.isPrimary) {
   logger.info(`Master process started (PID: ${process.pid})`);
   logger.info(`Starting ${WORKER_COUNT} worker(s)...`);
 
@@ -141,12 +128,12 @@ if (cluster.isMaster) {
 
     if (!shuttingDown && canRestartWorker(worker.id)) {
       setTimeout(() => startWorker(), 1000);
-    } else if (!shuttingDown && Object.keys(cluster.workers).length === 0) {
+    } else if (!shuttingDown && Object.keys(cluster.workers || {}).length === 0) {
       logger.error("All workers dead, master exiting");
       process.exit(1);
     }
   });
 } else {
   // Worker process - start the server
-  require("./index");
+  import("./index");
 }

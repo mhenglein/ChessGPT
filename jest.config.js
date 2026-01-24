@@ -4,16 +4,23 @@
 
 module.exports = {
   testEnvironment: "node",
-  testMatch: ["**/tests/**/*.test.js", "**/*.spec.js"],
+  preset: "ts-jest",
+  testMatch: ["**/tests/**/*.test.ts", "**/*.spec.ts", "**/tests/**/*.test.js", "**/*.spec.js"],
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   collectCoverageFrom: [
-    "src/**/*.js",
-    "!src/**/*.spec.js",
-    "!src/**/*.test.js",
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts",
+    "!src/types/**/*",
   ],
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov", "html"],
   verbose: true,
   testTimeout: 10000,
+  // Transform TypeScript files
+  transform: {
+    "^.+\\.tsx?$": "ts-jest",
+  },
   // Transform ES modules if needed
   transformIgnorePatterns: [
     "node_modules/(?!(chess\\.js)/)",

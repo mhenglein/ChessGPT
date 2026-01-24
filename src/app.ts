@@ -3,16 +3,23 @@
  * Clean, modular Express configuration
  */
 
-require("dotenv").config();
-require("express-async-errors");
+import "dotenv/config";
+import "express-async-errors";
 
-const express = require("express");
-const rateLimit = require("express-rate-limit");
-const config = require("./config");
-const logger = require("./config/logger");
-const { getGameState, getRandomMove, sanitizeAN } = require("./utils/chess-helpers");
-const { getNextMove } = require("./services/openai-service");
-const { getStockfishMove } = require("./services/stockfish-service");
+import * as Sentry from "@sentry/node";
+import express, { Request, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
+import config from "./config";
+import logger from "./config/logger";
+import {
+  getGameState,
+  getRandomMove,
+  sanitizeAN,
+} from "./utils/chess-helpers";
+import { getNextMove } from "./services/openai-service";
+import { getStockfishMove } from "./services/stockfish-service";
+import * as leaderboard from "./services/leaderboard-service";
+import type { RateLimitRecord, RateLimitIncrementResult, BotType, GameResult } from "./types";
 
 // Dynamic import for chess.js (ES module)
 const chessImport = import("chess.js");
@@ -28,11 +35,17 @@ app.use(express.static("public"));
  * Uses FIFO eviction when max keys are reached.
  */
 class BoundedStore {
-  constructor(windowMs, maxKeys) {
+  private windowMs: number;
+  private maxKeys: number;
+  private hits: Map<string, RateLimitRecord>;
+  private keyOrder: string[]; // Track insertion order for FIFO eviction
+  private cleanupInterval: ReturnType<typeof setInterval>;
+
+  constructor(windowMs: number, maxKeys: number) {
     this.windowMs = windowMs;
     this.maxKeys = maxKeys;
     this.hits = new Map();
-    this.keyOrder = []; // Track insertion order for FIFO eviction
+    this.keyOrder = [];
 
     // Periodic cleanup of expired entries
     this.cleanupInterval = setInterval(() => {
@@ -46,7 +59,7 @@ class BoundedStore {
   }
 
   // Remove expired entries
-  cleanup() {
+  private cleanup(): void {
     const now = Date.now();
     for (const [key, value] of this.hits) {
       if (now > value.resetTime) {
@@ -58,7 +71,7 @@ class BoundedStore {
   }
 
   // Evict oldest entries when at capacity
-  evictOldest() {
+  private evictOldest(): void {
     while (this.keyOrder.length >= this.maxKeys) {
       const oldestKey = this.keyOrder.shift();
       if (oldestKey) {
@@ -68,7 +81,7 @@ class BoundedStore {
   }
 
   // express-rate-limit store interface
-  async increment(key) {
+  async increment(key: string): Promise<RateLimitIncrementResult> {
     const now = Date.now();
     let record = this.hits.get(key);
 
@@ -98,20 +111,20 @@ class BoundedStore {
     };
   }
 
-  async decrement(key) {
+  async decrement(key: string): Promise<void> {
     const record = this.hits.get(key);
     if (record) {
       record.totalHits = Math.max(0, record.totalHits - 1);
     }
   }
 
-  async resetKey(key) {
+  async resetKey(key: string): Promise<void> {
     this.hits.delete(key);
     const idx = this.keyOrder.indexOf(key);
     if (idx > -1) this.keyOrder.splice(idx, 1);
   }
 
-  async resetAll() {
+  async resetAll(): Promise<void> {
     this.hits.clear();
     this.keyOrder = [];
   }
@@ -124,11 +137,14 @@ const aiRateLimiter = rateLimit({
   message: { error: "Too many requests, please try again later" },
   standardHeaders: true,
   legacyHeaders: false,
-  store: new BoundedStore(config.RATE_LIMIT_WINDOW_MS, config.RATE_LIMIT_MAX_KEYS),
+  store: new BoundedStore(
+    config.RATE_LIMIT_WINDOW_MS,
+    config.RATE_LIMIT_MAX_KEYS
+  ),
 });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({
     status: "healthy",
     uptime: process.uptime(),
@@ -137,10 +153,10 @@ app.get("/health", (req, res) => {
 });
 
 // Main AI move endpoint
-app.get("/ai-move", aiRateLimiter, async (req, res) => {
+app.get("/ai-move", aiRateLimiter, async (req: Request, res: Response) => {
   const { Chess } = await chessImport;
-  const fen = req.query.fen;
-  const rawAN = req.query.an || "";
+  const fen = req.query.fen as string | undefined;
+  const rawAN = (req.query.an as string) || "";
 
   // Validate FEN is provided
   if (!fen) {
@@ -160,7 +176,7 @@ app.get("/ai-move", aiRateLimiter, async (req, res) => {
   try {
     chess = new Chess(fen);
   } catch (err) {
-    logger.error("Invalid FEN provided", { fen, error: err.message });
+    logger.error("Invalid FEN provided", { fen, error: (err as Error).message });
     return res.status(400).json({ error: "Invalid FEN string" });
   }
 
@@ -180,11 +196,11 @@ app.get("/ai-move", aiRateLimiter, async (req, res) => {
       return res.status(200).json({ msg: gameState.result });
     }
   } catch (err) {
-    logger.error("Error checking game state", { error: err.message });
+    logger.error("Error checking game state", { error: (err as Error).message });
   }
 
   // Choose bot
-  const bot = req.query.bot || "stockfish";
+  const bot = (req.query.bot as BotType) || "stockfish";
 
   // Calculate the AI's move
   let aiMove = "";
@@ -204,7 +220,7 @@ app.get("/ai-move", aiRateLimiter, async (req, res) => {
   }
 
   // Validate and apply move
-  let move = chess.move(aiMove);
+  const move = chess.move(aiMove);
   if (move === null) {
     logger.error("Invalid move from AI", { bot, aiMove, fen });
     return res.status(500).json({ error: "Invalid move generated" });
@@ -214,12 +230,80 @@ app.get("/ai-move", aiRateLimiter, async (req, res) => {
   res.send(move.san);
 });
 
+// Rate limiter for leaderboard submissions (stricter to prevent spam)
+const leaderboardRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 submissions per minute
+  message: { error: "Too many submissions, please try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: new BoundedStore(60 * 1000, 1000),
+});
+
+// Get leaderboard - public endpoint
+app.get("/api/leaderboard", async (req: Request, res: Response) => {
+  const limit = Math.min(parseInt(req.query.limit as string, 10) || 10, 50);
+  const data = await leaderboard.getLeaderboard(limit);
+  res.json(data);
+});
+
+// Submit game result - rate limited
+app.post(
+  "/api/leaderboard",
+  leaderboardRateLimiter,
+  async (req: Request, res: Response) => {
+    const { nickname, result } = req.body as {
+      nickname?: string;
+      result?: string;
+    };
+
+    // Validate nickname
+    if (!nickname || typeof nickname !== "string") {
+      return res.status(400).json({ error: "Nickname is required" });
+    }
+
+    const cleanNickname = nickname.trim();
+    if (cleanNickname.length === 0 || cleanNickname.length > 20) {
+      return res.status(400).json({ error: "Nickname must be 1-20 characters" });
+    }
+
+    // Validate result
+    const validResults: GameResult[] = ["win", "loss", "draw"];
+    if (!validResults.includes(result as GameResult)) {
+      return res.status(400).json({ error: "Result must be win, loss, or draw" });
+    }
+
+    const success = await leaderboard.submitResult(
+      cleanNickname,
+      result as GameResult
+    );
+    if (success) {
+      res.json({ success: true });
+    } else {
+      res.status(500).json({ error: "Failed to submit result" });
+    }
+  }
+);
+
+// Sentry debug route for verification (remove after testing)
+app.get("/debug-sentry", function mainHandler(_req: Request, _res: Response) {
+  throw new Error("My first Sentry error!");
+});
+
+// Sentry error handler (must be before other error handlers)
+Sentry.setupExpressErrorHandler(app);
+
 // Error Handler
-app.use(function (err, req, res, next) {
+app.use(function (
+  err: Error,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+) {
   logger.error("Unhandled error", { error: err.stack });
   if (!res.headersSent) {
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-module.exports = app;
+export default app;

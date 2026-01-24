@@ -3,17 +3,23 @@
  * Handles communication with OpenAI API for chess move generation
  */
 
-const OpenAI = require("openai");
-const { backOff } = require("exponential-backoff");
-const config = require("../config");
-const logger = require("../config/logger");
-const { getRandomMove } = require("../utils/chess-helpers");
+import OpenAI from "openai";
+import { backOff } from "exponential-backoff";
+import config from "../config";
+import logger from "../config/logger";
+import { getRandomMove } from "../utils/chess-helpers";
+import type { Chess } from "../types";
 
 // Validate API key at module load
 if (!process.env.OPENAI_API_KEY) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const chalk = require("chalk");
-  console.error(chalk.red("ERROR: OPENAI_API_KEY environment variable is required"));
-  console.error(chalk.yellow("Create a .env file with: OPENAI_API_KEY=your_api_key_here"));
+  console.error(
+    chalk.red("ERROR: OPENAI_API_KEY environment variable is required")
+  );
+  console.error(
+    chalk.yellow("Create a .env file with: OPENAI_API_KEY=your_api_key_here")
+  );
   process.exit(1);
 }
 
@@ -24,18 +30,18 @@ const openai = new OpenAI({
 
 /**
  * Get the next chess move from OpenAI
- * @param {string} fen - Current board position in FEN notation
- * @param {string} an - Algebraic notation history of moves
- * @param {Chess} chess - chess.js instance for the current position
- * @returns {Promise<string>} - Best move in SAN notation
  */
-async function getNextMove(fen, an, chess) {
+export async function getNextMove(
+  fen: string,
+  an: string,
+  chess: Chess
+): Promise<string> {
   const moves = chess.moves();
 
   // Iterative retry loop (prevents stack accumulation from recursion)
   for (let attempt = 0; attempt <= config.MAX_OPENAI_RETRIES; attempt++) {
     try {
-      const userMessage = {
+      const userMessage: OpenAI.Chat.ChatCompletionMessageParam = {
         role: "user",
         content: `You are ChessGPT, a superintelligent chess computer. What is the optimal move based on the FEN and AN below? Answer in SAN (e.g. e4, Nf3, etc.). Don't provide any explanation.
       FEN: ${fen}.
@@ -63,9 +69,9 @@ async function getNextMove(fen, an, chess) {
         return getRandomMove(moves);
       }
 
-      let possibleMoves = [];
+      let possibleMoves: string[] = [];
       response.choices.forEach((choice) => {
-        let possibleMove = choice.message.content;
+        let possibleMove = choice.message.content || "";
         possibleMove = possibleMove.replace(" ", "").trim();
         possibleMove = possibleMove.replace(/(\r\n|\n|\r)/gm, "");
         possibleMove = possibleMove.replace("...", "");
@@ -87,19 +93,24 @@ async function getNextMove(fen, an, chess) {
 
       // No valid move found, continue to next attempt
       if (attempt < config.MAX_OPENAI_RETRIES) {
-        logger.warn("No valid move from OpenAI, retrying", { attempt: attempt + 1 });
+        logger.warn("No valid move from OpenAI, retrying", {
+          attempt: attempt + 1,
+        });
       }
     } catch (error) {
+      const err = error as Error & { status?: number };
       logger.error("OpenAI API error", {
-        error: error.message,
-        status: error.status,
+        error: err.message,
+        status: err.status,
         fen,
         attempt,
       });
 
       // On error, wait then try again or fall through to random move
       if (attempt < config.MAX_OPENAI_RETRIES) {
-        await new Promise((resolve) => setTimeout(resolve, config.OPENAI_RETRY_DELAY_MS));
+        await new Promise((resolve) =>
+          setTimeout(resolve, config.OPENAI_RETRY_DELAY_MS)
+        );
       }
     }
   }
@@ -107,7 +118,3 @@ async function getNextMove(fen, an, chess) {
   // All retries exhausted, return random move
   return getRandomMove(moves);
 }
-
-module.exports = {
-  getNextMove,
-};

@@ -3,12 +3,12 @@
  * Shared helpers for chess game logic
  */
 
+import type { Chess, GameState } from "../types";
+
 /**
  * Get the game result/state from a chess instance
- * @param {Chess} chess - chess.js instance
- * @returns {object|null} - { isOver: boolean, result: string } or null if game continues
  */
-function getGameState(chess) {
+export function getGameState(chess: Chess): GameState | null {
   if (!chess.isGameOver()) {
     return null;
   }
@@ -34,27 +34,16 @@ function getGameState(chess) {
 
 /**
  * Get a random move from available moves
- * @param {string[]} moves - Array of legal moves in SAN notation
- * @returns {string} - Random move from the array
  */
-function getRandomMove(moves) {
+export function getRandomMove(moves: string[]): string {
   return moves[Math.floor(Math.random() * moves.length)];
 }
 
 /**
  * Sanitize algebraic notation to prevent prompt injection
- * @param {string} an - Algebraic notation string
- * @param {number} maxLength - Maximum allowed length
- * @returns {string} - Sanitized string
  */
-function sanitizeAN(an, maxLength = 2000) {
+export function sanitizeAN(an: string, maxLength: number = 2000): string {
   if (!an || typeof an !== "string") return "";
   // Allow only safe chess notation characters: letters, numbers, spaces, common notation symbols
   return an.replace(/[^\w\s,.\-+#=()x]/gi, "").substring(0, maxLength);
 }
-
-module.exports = {
-  getGameState,
-  getRandomMove,
-  sanitizeAN,
-};

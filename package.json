@@ -2,13 +2,14 @@
   "name": "chessgpt",
   "version": "1.1.0",
   "description": "Play chess against ChatGPT with Stockfish evolution",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 --expose-gc cluster.js",
-    "dev": "node index.js",
-    "build": "node scripts/build-frontend.js",
+    "start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 --expose-gc dist/cluster.js",
+    "dev": "tsx index.ts",
+    "build": "tsc && node scripts/build-frontend.js",
     "build:dev": "node scripts/build-frontend.js --dev",
     "build:watch": "node scripts/build-frontend.js --watch --dev",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -17,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/node": "^10.36.0",
     "chalk": "^4.1.1",
     "chess.js": "^1.0.0",
     "dotenv": "^16.0.3",
@@ -25,13 +27,20 @@
     "express-async-errors": "^3.1.1",
     "express-rate-limit": "^8.2.1",
     "openai": "^4.77.0",
+    "pg": "^8.13.1",
     "stockfish": "^10.0.2",
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.10",
+    "@types/pg": "^8.16.0",
     "esbuild": "^0.27.2",
     "jest": "^30.2.0",
-    "pkg": "^5.8.1"
+    "pkg": "^5.8.1",
+    "ts-jest": "^29.4.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
   "bin": {
     "stockfish-server": "server.js"
