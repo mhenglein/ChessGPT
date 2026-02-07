@@ -16,7 +16,6 @@ import {
   getRandomMove,
   sanitizeAN,
 } from "./utils/chess-helpers";
-import { getNextMove } from "./services/openai-service";
 import { getStockfishMove } from "./services/stockfish-service";
 import * as leaderboard from "./services/leaderboard-service";
 import type { RateLimitRecord, RateLimitIncrementResult, BotType, GameResult } from "./types";
@@ -25,6 +24,10 @@ import type { RateLimitRecord, RateLimitIncrementResult, BotType, GameResult } f
 const chessImport = import("chess.js");
 
 const app = express();
+
+// Trust the first proxy (Render's reverse proxy) so express-rate-limit
+// correctly identifies clients via X-Forwarded-For
+app.set("trust proxy", 1);
 
 // Basic middleware
 app.use(express.json());
@@ -205,7 +208,7 @@ app.get("/ai-move", aiRateLimiter, async (req: Request, res: Response) => {
   // Calculate the AI's move
   let aiMove = "";
   if (bot === "chessgpt") {
-    aiMove = await getNextMove(fen, an, chess);
+    aiMove = getRandomMove(chess.moves());
   } else if (bot === "stockfish") {
     aiMove = await getStockfishMove(fen, Chess);
   } else {
