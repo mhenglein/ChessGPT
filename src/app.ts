@@ -208,6 +208,9 @@ app.get("/ai-move", aiRateLimiter, async (req: Request, res: Response) => {
   // Calculate the AI's move
   let aiMove = "";
   if (bot === "chessgpt") {
+    // Add a small delay to simulate "thinking" for random opening moves
+    const thinkingDelay = 500 + Math.random() * 1000;
+    await new Promise((resolve) => setTimeout(resolve, thinkingDelay));
     aiMove = getRandomMove(chess.moves());
   } else if (bot === "stockfish") {
     aiMove = await getStockfishMove(fen, Chess);
