@@ -26,6 +26,7 @@ if (!process.env.OPENAI_API_KEY) {
 // OpenAI v4 client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  organization: process.env.OPENAI_ORG_ID,
 });
 
 /**
