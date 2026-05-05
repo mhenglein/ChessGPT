@@ -95,12 +95,14 @@ function syncHardModeUI() {
     el.classList.toggle("d-none", !unlocked);
   });
   document.querySelectorAll("[data-hard-mode-toggle]").forEach((btn) => {
-    btn.disabled = enabled; // once on, can't be turned off
     btn.classList.toggle("is-active", enabled);
     btn.setAttribute("aria-pressed", enabled ? "true" : "false");
     const icon = btn.querySelector("[data-hard-mode-icon]");
-    if (icon) icon.textContent = enabled ? "🔒" : "🔥";
-    btn.title = enabled ? "Hard mode is locked on" : "Click to enable hard mode for your next game";
+    if (icon) icon.textContent = enabled ? "🔥" : "🔥";
+    btn.title = enabled ? "Hard mode is on — click to turn off" : "Click to enable hard mode";
+  });
+  document.querySelectorAll("[data-hard-mode-badge]").forEach((el) => {
+    el.classList.toggle("d-none", !enabled);
   });
 }
 
@@ -416,6 +418,12 @@ startAnimation.addEventListener("click", async () => {
   }
 
   const totalAnimationDuration = 900; // 10 times * 150ms
+
+  // Hide the front-page hard-mode toggle so it doesn't jump as the start
+  // button flickers in and out of layout below.
+  document.querySelectorAll("[data-hard-mode-prompt]").forEach((el) => {
+    el.classList.add("d-none");
+  });
 
   // Hide/Unhide button every 100ms for 10 times
   for (let i = 0; i < 10; i++) {
@@ -918,12 +926,10 @@ if (myBoard) {
   observer.observe(myBoard, { attributes: true, attributeFilter: ["class"] });
 }
 
-// Hard mode toggle: clicking enables hard mode for the next game.
-// Once enabled, the button is disabled — hard mode cannot be turned off.
+// Hard mode toggle: front-page button flips hard mode on/off for the next game.
 document.querySelectorAll("[data-hard-mode-toggle]").forEach((btn) => {
   btn.addEventListener("click", () => {
-    if (isHardModeEnabled()) return;
-    setHardModeEnabled(true);
+    setHardModeEnabled(!isHardModeEnabled());
   });
 });
 

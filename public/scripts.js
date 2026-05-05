@@ -1,4 +1,4 @@
-// ChessGPT Frontend - Built 2026-05-05T22:51:14.588Z
+// ChessGPT Frontend - Built 2026-05-05T22:57:25.371Z
 
 "use strict";
 (() => {
@@ -3541,12 +3541,14 @@
       el.classList.toggle("d-none", !unlocked);
     });
     document.querySelectorAll("[data-hard-mode-toggle]").forEach((btn) => {
-      btn.disabled = enabled;
       btn.classList.toggle("is-active", enabled);
       btn.setAttribute("aria-pressed", enabled ? "true" : "false");
       const icon = btn.querySelector("[data-hard-mode-icon]");
-      if (icon) icon.textContent = enabled ? "\u{1F512}" : "\u{1F525}";
-      btn.title = enabled ? "Hard mode is locked on" : "Click to enable hard mode for your next game";
+      if (icon) icon.textContent = enabled ? "\u{1F525}" : "\u{1F525}";
+      btn.title = enabled ? "Hard mode is on \u2014 click to turn off" : "Click to enable hard mode";
+    });
+    document.querySelectorAll("[data-hard-mode-badge]").forEach((el) => {
+      el.classList.toggle("d-none", !enabled);
     });
   }
   function playGameSound(type) {
@@ -3786,6 +3788,9 @@
       return;
     }
     const totalAnimationDuration = 900;
+    document.querySelectorAll("[data-hard-mode-prompt]").forEach((el) => {
+      el.classList.add("d-none");
+    });
     for (let i = 0; i < 10; i++) {
       setTimeout(() => {
         startAnimation.classList.toggle("d-none");
@@ -4148,8 +4153,7 @@
   }
   document.querySelectorAll("[data-hard-mode-toggle]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (isHardModeEnabled()) return;
-      setHardModeEnabled(true);
+      setHardModeEnabled(!isHardModeEnabled());
     });
   });
   syncHardModeUI();

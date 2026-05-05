@@ -20,27 +20,16 @@ body {
   overflow: none;
 }
 
-@import url(//db.onlinewebfonts.com/c/b10849c899982654fae3f01d02269043?family=Emulogic);
-@import url(//db.onlinewebfonts.com/c/831e1f4da157d96bc996f8c9f5f1e578?family=Pokemon+GB);
-
 @font-face {
   font-family: "Emulogic";
-  src: url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.eot");
-  src: url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.eot?#iefix") format("embedded-opentype"),
-    url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.woff2") format("woff2"),
-    url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.woff") format("woff"),
-    url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.ttf") format("truetype"),
-    url("//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.svg#Emulogic") format("svg");
+  src: url("/fonts/emulogic.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Pokemon GB";
-  src: url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.eot");
-  src: url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.eot?#iefix") format("embedded-opentype"),
-    url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.woff2") format("woff2"),
-    url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.woff") format("woff"),
-    url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.ttf") format("truetype"),
-    url("//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.svg#Pokemon GB") format("svg");
+  src: url("/fonts/pokemon-gb.woff2") format("woff2");
+  font-display: swap;
 }
 
 :root {
@@ -299,18 +288,45 @@ h1 {
   box-shadow: 0 0 0 #000;
 }
 
-.hard-mode-prompt-board:disabled,
 .hard-mode-prompt-board.is-active {
-  cursor: not-allowed;
   background-color: #ffc107;
   border-color: #000;
   color: #000;
-  opacity: 1;
+}
+
+.hard-mode-prompt-board.is-active:hover {
+  background-color: #ffb700;
 }
 
 @media (max-width: 767px) {
   .hard-mode-prompt-board {
     font-size: 0.5rem;
+  }
+}
+
+/* HARD MODE indicator (top-centre on the chess board) */
+.hard-mode-badge {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  font-family: "Pokemon GB", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  background-color: #ffc107;
+  color: #000;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
+  padding: 0.35rem 0.75rem;
+  pointer-events: none;
+  animation: hardModePulse 1.2s ease-in-out infinite alternate;
+}
+
+@media (max-width: 767px) {
+  .hard-mode-badge {
+    font-size: 0.55rem;
+    padding: 0.25rem 0.5rem;
   }
 }
 

@@ -60,11 +60,8 @@
 
     <base href="../" />
 
-    <link rel="preload" href="//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.woff2" as="font" type="font/woff2" crossorigin />
-
-    <link href="//db.onlinewebfonts.com/c/b10849c899982654fae3f01d02269043?family=Emulogic" rel="stylesheet" type="text/css" />
-    <link href="//db.onlinewebfonts.com/c/831e1f4da157d96bc996f8c9f5f1e578?family=Pokemon+GB" rel="stylesheet" type="text/css" />
+    <link rel="preload" href="/fonts/emulogic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/pokemon-gb.woff2" as="font" type="font/woff2" crossorigin />
 
     <link rel="stylesheet" href="/styles.css" />
 
@@ -122,6 +119,9 @@
     <audio id="audio-element-metal" src="metal-music.mp3" preload="auto" loop></audio>
 
     <section id="chessBoard" class="d-none hidden">
+      <!-- HARD MODE indicator (top centre, shown when hard mode is enabled) -->
+      <div id="hardModeBadge" class="hard-mode-badge d-none" data-hard-mode-badge>🔒 HARD MODE</div>
+
       <!-- <div class="spinner-grow d-none" id="spinner" role="status">
         <span class="visually-hidden">Loading...</span>
       </div> -->
