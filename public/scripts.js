@@ -1,26 +1,4153 @@
-// ChessGPT Frontend - Built 2026-02-07T13:52:37.162Z
+// ChessGPT Frontend - Built 2026-05-05T22:41:40.348Z
 
-"use strict";(()=>{var qs=Object.defineProperty;var Ds=(i,t,e)=>t in i?qs(i,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):i[t]=e;var A=(i,t,e)=>Ds(i,typeof t!="symbol"?t+"":t,e);function Us(i){return i!==null?{comment:i,variations:[]}:{variations:[]}}function Gs(i,t,e,s,r){let o={move:i,variations:r};return t&&(o.suffix=t),e&&(o.nag=e),s!==null&&(o.comment=s),o}function Hs(...i){let[t,...e]=i,s=t;for(let r of e)r!==null&&(s.variations=[r,...r.variations],r.variations=[],s=r);return t}function Qs(i,t){if(t.marker&&t.marker.comment){let e=t.root;for(;;){let s=e.variations[0];if(!s){e.comment=t.marker.comment;break}e=s}}return{headers:i,root:t.root,result:(t.marker&&t.marker.result)??void 0}}function js(i,t){function e(){this.constructor=i}e.prototype=t.prototype,i.prototype=new e}function ee(i,t,e,s){var r=Error.call(this,i);return Object.setPrototypeOf&&Object.setPrototypeOf(r,ee.prototype),r.expected=t,r.found=e,r.location=s,r.name="SyntaxError",r}js(ee,Error);function Ne(i,t,e){return e=e||" ",i.length>t?i:(t-=i.length,e+=e.repeat(t),i+e.slice(0,t))}ee.prototype.format=function(i){var t="Error: "+this.message;if(this.location){var e=null,s;for(s=0;s<i.length;s++)if(i[s].source===this.location.source){e=i[s].text.split(/\r\n|\n|\r/g);break}var r=this.location.start,o=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(r):r,a=this.location.source+":"+o.line+":"+o.column;if(e){var h=this.location.end,u=Ne("",o.line.toString().length," "),p=e[r.line-1],m=r.line===h.line?h.column:p.length+1,w=m-r.column||1;t+=`
- --> `+a+`
-`+u+` |
-`+o.line+" | "+p+`
-`+u+" | "+Ne("",r.column-1," ")+Ne("",w,"^")}else t+=`
- at `+a}return t};ee.buildMessage=function(i,t){var e={literal:function(p){return'"'+r(p.text)+'"'},class:function(p){var m=p.parts.map(function(w){return Array.isArray(w)?o(w[0])+"-"+o(w[1]):o(w)});return"["+(p.inverted?"^":"")+m.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function(p){return p.description}};function s(p){return p.charCodeAt(0).toString(16).toUpperCase()}function r(p){return p.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(m){return"\\x0"+s(m)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(m){return"\\x"+s(m)})}function o(p){return p.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(m){return"\\x0"+s(m)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(m){return"\\x"+s(m)})}function a(p){return e[p.type](p)}function h(p){var m=p.map(a),w,g;if(m.sort(),m.length>0){for(w=1,g=1;w<m.length;w++)m[w-1]!==m[w]&&(m[g]=m[w],g++);m.length=g}switch(m.length){case 1:return m[0];case 2:return m[0]+" or "+m[1];default:return m.slice(0,-1).join(", ")+", or "+m[m.length-1]}}function u(p){return p?'"'+r(p)+'"':"end of input"}return"Expected "+h(i)+" but "+u(t)+" found."};function Ws(i,t){t=t!==void 0?t:{};var e={},s=t.grammarSource,r={pgn:ft},o=ft,a="[",h='"',u="]",p=".",m="O-O-O",w="O-O",g="0-0-0",E="0-0",C="$",T="{",D="}",Ae=";",Te="(",Rt=")",He="1-0",Qe="0-1",je="1/2-1/2",Ft="*",$e=/^[a-zA-Z]/,We=/^[^"]/,fe=/^[0-9]/,Ve=/^[.]/,Je=/^[a-zA-Z1-8\-=]/,qt=/^[+#]/,Ye=/^[!?]/,ze=/^[^}]/,Ze=/^[^\r\n]/,Xe=/^[ \t\r\n]/,Dt=R("tag pair"),Ut=N("[",!1),et=N('"',!1),Gt=N("]",!1),Ht=R("tag name"),Ie=q([["a","z"],["A","Z"]],!1,!1),Qt=R("tag value"),tt=q(['"'],!0,!1),jt=R("move number"),he=q([["0","9"]],!1,!1),Wt=N(".",!1),st=q(["."],!1,!1),Vt=R("standard algebraic notation"),Jt=N("O-O-O",!1),Yt=N("O-O",!1),zt=N("0-0-0",!1),Zt=N("0-0",!1),it=q([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),Xt=q(["+","#"],!1,!1),es=R("suffix annotation"),rt=q(["!","?"],!1,!1),ts=R("NAG"),ss=N("$",!1),is=R("brace comment"),rs=N("{",!1),nt=q(["}"],!0,!1),ns=N("}",!1),os=R("rest of line comment"),as=N(";",!1),ot=q(["\r",`
-`],!0,!1),ls=R("variation"),cs=N("(",!1),fs=N(")",!1),hs=R("game termination marker"),us=N("1-0",!1),ds=N("0-1",!1),ps=N("1/2-1/2",!1),gs=N("*",!1),ms=R("whitespace"),at=q([" ","	","\r",`
-`],!1,!1),_s=function(n,c){return Qs(n,c)},vs=function(n){return Object.fromEntries(n)},bs=function(n,c){return[n,c]},Es=function(n,c){return{root:n,marker:c}},ys=function(n,c){return Hs(Us(n),...c.flat())},Ss=function(n,c,f,v,b){return Gs(n,c,f,v,b)},ws=function(n){return n},Cs=function(n){return n.replace(/[\r\n]+/g," ")},ks=function(n){return n.trim()},As=function(n){return n},Ts=function(n,c){return{result:n,comment:c}},l=t.peg$currPos|0,Z=[{line:1,column:1}],F=l,ue=t.peg$maxFailExpected||[],d=t.peg$silentFails|0,re;if(t.startRule){if(!(t.startRule in r))throw new Error(`Can't start parsing from rule "`+t.startRule+'".');o=r[t.startRule]}function N(n,c){return{type:"literal",text:n,ignoreCase:c}}function q(n,c,f){return{type:"class",parts:n,inverted:c,ignoreCase:f}}function $s(){return{type:"end"}}function R(n){return{type:"other",description:n}}function lt(n){var c=Z[n],f;if(c)return c;if(n>=Z.length)f=Z.length-1;else for(f=n;!Z[--f];);for(c=Z[f],c={line:c.line,column:c.column};f<n;)i.charCodeAt(f)===10?(c.line++,c.column=1):c.column++,f++;return Z[n]=c,c}function ct(n,c,f){var v=lt(n),b=lt(c),k={source:s,start:{offset:n,line:v.line,column:v.column},end:{offset:c,line:b.line,column:b.column}};return k}function _(n){l<F||(l>F&&(F=l,ue=[]),ue.push(n))}function Is(n,c,f){return new ee(ee.buildMessage(n,c),n,c,f)}function ft(){var n,c,f;return n=l,c=Ls(),f=Os(),n=_s(c,f),n}function Ls(){var n,c,f;for(n=l,c=[],f=ht();f!==e;)c.push(f),f=ht();return f=B(),n=vs(c),n}function ht(){var n,c,f,v,b,k,W;return d++,n=l,B(),i.charCodeAt(l)===91?(c=a,l++):(c=e,d===0&&_(Ut)),c!==e?(B(),f=Ns(),f!==e?(B(),i.charCodeAt(l)===34?(v=h,l++):(v=e,d===0&&_(et)),v!==e?(b=Ps(),i.charCodeAt(l)===34?(k=h,l++):(k=e,d===0&&_(et)),k!==e?(B(),i.charCodeAt(l)===93?(W=u,l++):(W=e,d===0&&_(Gt)),W!==e?n=bs(f,b):(l=n,n=e)):(l=n,n=e)):(l=n,n=e)):(l=n,n=e)):(l=n,n=e),d--,n===e&&d===0&&_(Dt),n}function Ns(){var n,c,f;if(d++,n=l,c=[],f=i.charAt(l),$e.test(f)?l++:(f=e,d===0&&_(Ie)),f!==e)for(;f!==e;)c.push(f),f=i.charAt(l),$e.test(f)?l++:(f=e,d===0&&_(Ie));else c=e;return c!==e?n=i.substring(n,l):n=c,d--,n===e&&(c=e,d===0&&_(Ht)),n}function Ps(){var n,c,f;for(d++,n=l,c=[],f=i.charAt(l),We.test(f)?l++:(f=e,d===0&&_(tt));f!==e;)c.push(f),f=i.charAt(l),We.test(f)?l++:(f=e,d===0&&_(tt));return n=i.substring(n,l),d--,c=e,d===0&&_(Qt),n}function Os(){var n,c,f;return n=l,c=ut(),B(),f=Fs(),f===e&&(f=null),B(),n=Es(c,f),n}function ut(){var n,c,f,v;for(n=l,c=Le(),c===e&&(c=null),f=[],v=dt();v!==e;)f.push(v),v=dt();return n=ys(c,f),n}function dt(){var n,c,f,v,b,k,W,de;if(n=l,B(),xs(),B(),c=Ms(),c!==e){for(f=Bs(),f===e&&(f=null),v=[],b=pt();b!==e;)v.push(b),b=pt();for(b=B(),k=Le(),k===e&&(k=null),W=[],de=gt();de!==e;)W.push(de),de=gt();n=Ss(c,f,v,k,W)}else l=n,n=e;return n}function xs(){var n,c,f,v,b,k;for(d++,n=l,c=[],f=i.charAt(l),fe.test(f)?l++:(f=e,d===0&&_(he));f!==e;)c.push(f),f=i.charAt(l),fe.test(f)?l++:(f=e,d===0&&_(he));if(i.charCodeAt(l)===46?(f=p,l++):(f=e,d===0&&_(Wt)),f!==e){for(v=B(),b=[],k=i.charAt(l),Ve.test(k)?l++:(k=e,d===0&&_(st));k!==e;)b.push(k),k=i.charAt(l),Ve.test(k)?l++:(k=e,d===0&&_(st));c=[c,f,v,b],n=c}else l=n,n=e;return d--,n===e&&(c=e,d===0&&_(jt)),n}function Ms(){var n,c,f,v,b,k;if(d++,n=l,c=l,i.substr(l,5)===m?(f=m,l+=5):(f=e,d===0&&_(Jt)),f===e&&(i.substr(l,3)===w?(f=w,l+=3):(f=e,d===0&&_(Yt)),f===e&&(i.substr(l,5)===g?(f=g,l+=5):(f=e,d===0&&_(zt)),f===e&&(i.substr(l,3)===E?(f=E,l+=3):(f=e,d===0&&_(Zt)),f===e))))if(f=l,v=i.charAt(l),$e.test(v)?l++:(v=e,d===0&&_(Ie)),v!==e){if(b=[],k=i.charAt(l),Je.test(k)?l++:(k=e,d===0&&_(it)),k!==e)for(;k!==e;)b.push(k),k=i.charAt(l),Je.test(k)?l++:(k=e,d===0&&_(it));else b=e;b!==e?(v=[v,b],f=v):(l=f,f=e)}else l=f,f=e;return f!==e?(v=i.charAt(l),qt.test(v)?l++:(v=e,d===0&&_(Xt)),v===e&&(v=null),f=[f,v],c=f):(l=c,c=e),c!==e?n=i.substring(n,l):n=c,d--,n===e&&(c=e,d===0&&_(Vt)),n}function Bs(){var n,c,f;for(d++,n=l,c=[],f=i.charAt(l),Ye.test(f)?l++:(f=e,d===0&&_(rt));f!==e;)c.push(f),c.length>=2?f=e:(f=i.charAt(l),Ye.test(f)?l++:(f=e,d===0&&_(rt)));return c.length<1?(l=n,n=e):n=c,d--,n===e&&(c=e,d===0&&_(es)),n}function pt(){var n,c,f,v,b;if(d++,n=l,B(),i.charCodeAt(l)===36?(c=C,l++):(c=e,d===0&&_(ss)),c!==e){if(f=l,v=[],b=i.charAt(l),fe.test(b)?l++:(b=e,d===0&&_(he)),b!==e)for(;b!==e;)v.push(b),b=i.charAt(l),fe.test(b)?l++:(b=e,d===0&&_(he));else v=e;v!==e?f=i.substring(f,l):f=v,f!==e?n=ws(f):(l=n,n=e)}else l=n,n=e;return d--,n===e&&d===0&&_(ts),n}function Le(){var n;return n=Ks(),n===e&&(n=Rs()),n}function Ks(){var n,c,f,v,b;if(d++,n=l,i.charCodeAt(l)===123?(c=T,l++):(c=e,d===0&&_(rs)),c!==e){for(f=l,v=[],b=i.charAt(l),ze.test(b)?l++:(b=e,d===0&&_(nt));b!==e;)v.push(b),b=i.charAt(l),ze.test(b)?l++:(b=e,d===0&&_(nt));f=i.substring(f,l),i.charCodeAt(l)===125?(v=D,l++):(v=e,d===0&&_(ns)),v!==e?n=Cs(f):(l=n,n=e)}else l=n,n=e;return d--,n===e&&(c=e,d===0&&_(is)),n}function Rs(){var n,c,f,v,b;if(d++,n=l,i.charCodeAt(l)===59?(c=Ae,l++):(c=e,d===0&&_(as)),c!==e){for(f=l,v=[],b=i.charAt(l),Ze.test(b)?l++:(b=e,d===0&&_(ot));b!==e;)v.push(b),b=i.charAt(l),Ze.test(b)?l++:(b=e,d===0&&_(ot));f=i.substring(f,l),n=ks(f)}else l=n,n=e;return d--,n===e&&(c=e,d===0&&_(os)),n}function gt(){var n,c,f,v;return d++,n=l,B(),i.charCodeAt(l)===40?(c=Te,l++):(c=e,d===0&&_(cs)),c!==e?(f=ut(),f!==e?(B(),i.charCodeAt(l)===41?(v=Rt,l++):(v=e,d===0&&_(fs)),v!==e?n=As(f):(l=n,n=e)):(l=n,n=e)):(l=n,n=e),d--,n===e&&d===0&&_(ls),n}function Fs(){var n,c,f;return d++,n=l,i.substr(l,3)===He?(c=He,l+=3):(c=e,d===0&&_(us)),c===e&&(i.substr(l,3)===Qe?(c=Qe,l+=3):(c=e,d===0&&_(ds)),c===e&&(i.substr(l,7)===je?(c=je,l+=7):(c=e,d===0&&_(ps)),c===e&&(i.charCodeAt(l)===42?(c=Ft,l++):(c=e,d===0&&_(gs))))),c!==e?(B(),f=Le(),f===e&&(f=null),n=Ts(c,f)):(l=n,n=e),d--,n===e&&(c=e,d===0&&_(hs)),n}function B(){var n,c;for(d++,n=[],c=i.charAt(l),Xe.test(c)?l++:(c=e,d===0&&_(at));c!==e;)n.push(c),c=i.charAt(l),Xe.test(c)?l++:(c=e,d===0&&_(at));return d--,c=e,d===0&&_(ms),n}if(re=o(),t.peg$library)return{peg$result:re,peg$currPos:l,peg$FAILED:e,peg$maxFailExpected:ue,peg$maxFailPos:F};if(re!==e&&l===i.length)return re;throw re!==e&&l<i.length&&_($s()),Is(ue,F<i.length?i.charAt(F):null,F<i.length?ct(F,F+1):ct(F,F))}var ge=0xffffffffffffffffn;function Pe(i,t){return(i<<t|i>>64n-t)&0xffffffffffffffffn}function mt(i,t){return i*t&ge}function Vs(i){return function(){let t=BigInt(i&ge),e=BigInt(i>>64n&ge),s=mt(Pe(mt(t,5n),7n),9n);return e^=t,t=(Pe(t,24n)^e^e<<16n)&ge,e=Pe(e,37n),i=e<<64n|t,s}}var ve=Vs(0xa187eb39cdcaed8f31c4b365b102e01en),Js=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>ve()))),Ys=Array.from({length:8},()=>ve()),zs=Array.from({length:16},()=>ve()),Oe=ve(),M="w",K="b",I="p",Re="n",me="b",oe="r",H="q",L="k",xe="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",X=class{constructor(t,e){A(this,"color");A(this,"from");A(this,"to");A(this,"piece");A(this,"captured");A(this,"promotion");A(this,"flags");A(this,"san");A(this,"lan");A(this,"before");A(this,"after");let{color:s,piece:r,from:o,to:a,flags:h,captured:u,promotion:p}=e,m=P(o),w=P(a);this.color=s,this.piece=r,this.from=m,this.to=w,this.san=t._moveToSan(e,t._moves({legal:!0})),this.lan=m+w,this.before=t.fen(),t._makeMove(e),this.after=t.fen(),t._undoMove(),this.flags="";for(let g in S)S[g]&h&&(this.flags+=V[g]);u&&(this.captured=u),p&&(this.promotion=p,this.lan+=p)}isCapture(){return this.flags.indexOf(V.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(V.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(V.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(V.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(V.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(V.BIG_PAWN)>-1}},O=-1,V={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"};var S={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},Fe={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},Zs={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},Xs={...Fe,...Zs},y={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},Me={b:[16,32,17,15],w:[-16,-32,-17,-15]},_t={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},ei=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],ti=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],si={p:1,n:2,b:4,r:8,q:16,k:32},ii="pnbrqkPNBRQK",vt=[Re,me,oe,H],ri=7,ni=6,oi=1,ai=0,pe={[L]:S.KSIDE_CASTLE,[H]:S.QSIDE_CASTLE},U={w:[{square:y.a1,flag:S.QSIDE_CASTLE},{square:y.h1,flag:S.KSIDE_CASTLE}],b:[{square:y.a8,flag:S.QSIDE_CASTLE},{square:y.h8,flag:S.KSIDE_CASTLE}]},li={b:oi,w:ni},Be="--";function J(i){return i>>4}function ae(i){return i&15}function Et(i){return"0123456789".indexOf(i)!==-1}function P(i){let t=ae(i),e=J(i);return"abcdefgh".substring(t,t+1)+"87654321".substring(e,e+1)}function ne(i){return i===M?K:M}function ci(i){let t=i.split(/\s+/);if(t.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};let e=parseInt(t[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};let s=parseInt(t[4],10);if(isNaN(s)||s<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(t[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(t[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(t[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};let r=t[0].split("/");if(r.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let a=0;a<r.length;a++){let h=0,u=!1;for(let p=0;p<r[a].length;p++)if(Et(r[a][p])){if(u)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};h+=parseInt(r[a][p],10),u=!0}else{if(!/^[prnbqkPRNBQK]$/.test(r[a][p]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};h+=1,u=!1}if(h!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(t[3][1]=="3"&&t[1]=="w"||t[3][1]=="6"&&t[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};let o=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(let{color:a,regex:h}of o){if(!h.test(t[0]))return{ok:!1,error:`Invalid FEN: missing ${a} king`};if((t[0].match(h)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${a} kings`}}return Array.from(r[0]+r[7]).some(a=>a.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function fi(i,t){let e=i.from,s=i.to,r=i.piece,o=0,a=0,h=0;for(let u=0,p=t.length;u<p;u++){let m=t[u].from,w=t[u].to,g=t[u].piece;r===g&&e!==m&&s===w&&(o++,J(e)===J(m)&&a++,ae(e)===ae(m)&&h++)}return o>0?a>0&&h>0?P(e):h>0?P(e).charAt(1):P(e).charAt(0):""}function G(i,t,e,s,r,o=void 0,a=S.NORMAL){let h=J(s);if(r===I&&(h===ri||h===ai))for(let u=0;u<vt.length;u++){let p=vt[u];i.push({color:t,from:e,to:s,piece:r,captured:o,promotion:p,flags:a|S.PROMOTION})}else i.push({color:t,from:e,to:s,piece:r,captured:o,flags:a})}function bt(i){let t=i.charAt(0);return t>="a"&&t<="h"?i.match(/[a-h]\d.*[a-h]\d/)?void 0:I:(t=t.toLowerCase(),t==="o"?L:t)}function Ke(i){return i.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}var _e=class{constructor(t=xe,{skipValidation:e=!1}={}){A(this,"_board",new Array(128));A(this,"_turn",M);A(this,"_header",{});A(this,"_kings",{w:O,b:O});A(this,"_epSquare",-1);A(this,"_halfMoves",0);A(this,"_moveNumber",0);A(this,"_history",[]);A(this,"_comments",{});A(this,"_castling",{w:0,b:0});A(this,"_hash",0n);A(this,"_positionCount",new Map);this.load(t,{skipValidation:e})}clear({preserveHeaders:t=!1}={}){this._board=new Array(128),this._kings={w:O,b:O},this._turn=M,this._castling={w:0,b:0},this._epSquare=O,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=t?this._header:{...Xs},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(t,{skipValidation:e=!1,preserveHeaders:s=!1}={}){let r=t.split(/\s+/);if(r.length>=2&&r.length<6){let h=["-","-","0","1"];t=r.concat(h.slice(-(6-r.length))).join(" ")}if(r=t.split(/\s+/),!e){let{ok:h,error:u}=ci(t);if(!h)throw new Error(u)}let o=r[0],a=0;this.clear({preserveHeaders:s});for(let h=0;h<o.length;h++){let u=o.charAt(h);if(u==="/")a+=8;else if(Et(u))a+=parseInt(u,10);else{let p=u<"a"?M:K;this._put({type:u.toLowerCase(),color:p},P(a)),a++}}this._turn=r[1],r[2].indexOf("K")>-1&&(this._castling.w|=S.KSIDE_CASTLE),r[2].indexOf("Q")>-1&&(this._castling.w|=S.QSIDE_CASTLE),r[2].indexOf("k")>-1&&(this._castling.b|=S.KSIDE_CASTLE),r[2].indexOf("q")>-1&&(this._castling.b|=S.QSIDE_CASTLE),this._epSquare=r[3]==="-"?O:y[r[3]],this._halfMoves=parseInt(r[4],10),this._moveNumber=parseInt(r[5],10),this._hash=this._computeHash(),this._updateSetup(t),this._incPositionCount()}fen({forceEnpassantSquare:t=!1}={}){let e=0,s="";for(let a=y.a8;a<=y.h1;a++){if(this._board[a]){e>0&&(s+=e,e=0);let{color:h,type:u}=this._board[a];s+=h===M?u.toUpperCase():u.toLowerCase()}else e++;a+1&136&&(e>0&&(s+=e),a!==y.h1&&(s+="/"),e=0,a+=8)}let r="";this._castling[M]&S.KSIDE_CASTLE&&(r+="K"),this._castling[M]&S.QSIDE_CASTLE&&(r+="Q"),this._castling[K]&S.KSIDE_CASTLE&&(r+="k"),this._castling[K]&S.QSIDE_CASTLE&&(r+="q"),r=r||"-";let o="-";if(this._epSquare!==O)if(t)o=P(this._epSquare);else{let a=this._epSquare+(this._turn===M?16:-16),h=[a+1,a-1];for(let u of h){if(u&136)continue;let p=this._turn;if(this._board[u]?.color===p&&this._board[u]?.type===I){this._makeMove({color:p,from:u,to:this._epSquare,piece:I,captured:I,flags:S.EP_CAPTURE});let m=!this._isKingAttacked(p);if(this._undoMove(),m){o=P(this._epSquare);break}}}}return[s,this._turn,r,o,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(t){if(!this._board[t])return 0n;let{color:e,type:s}=this._board[t],r={w:0,b:1}[e],o={p:0,n:1,b:2,r:3,q:4,k:5}[s];return Js[r][o][t]}_epKey(){return this._epSquare===O?0n:Ys[this._epSquare&7]}_castlingKey(){let t=this._castling.w>>5|this._castling.b>>3;return zs[t]}_computeHash(){let t=0n;for(let e=y.a8;e<=y.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(t^=this._pieceKey(e))}return t^=this._epKey(),t^=this._castlingKey(),this._turn==="b"&&(t^=Oe),t}_updateSetup(t){this._history.length>0||(t!==xe?(this._header.SetUp="1",this._header.FEN=t):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(xe)}get(t){return this._board[y[t]]}findPiece(t){let e=[];for(let s=y.a8;s<=y.h1;s++){if(s&136){s+=7;continue}!this._board[s]||this._board[s]?.color!==t.color||this._board[s].color===t.color&&this._board[s].type===t.type&&e.push(P(s))}return e}put({type:t,color:e},s){return this._put({type:t,color:e},s)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(t,e){this._hash^=this._pieceKey(t),this._board[t]=e,this._hash^=this._pieceKey(t)}_put({type:t,color:e},s){if(ii.indexOf(t.toLowerCase())===-1||!(s in y))return!1;let r=y[s];if(t==L&&!(this._kings[e]==O||this._kings[e]==r))return!1;let o=this._board[r];return o&&o.type===L&&(this._kings[o.color]=O),this._set(r,{type:t,color:e}),t===L&&(this._kings[e]=r),!0}_clear(t){this._hash^=this._pieceKey(t),delete this._board[t]}remove(t){let e=this.get(t);return this._clear(y[t]),e&&e.type===L&&(this._kings[e.color]=O),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){this._hash^=this._castlingKey();let t=this._board[y.e1]?.type===L&&this._board[y.e1]?.color===M,e=this._board[y.e8]?.type===L&&this._board[y.e8]?.color===K;(!t||this._board[y.a1]?.type!==oe||this._board[y.a1]?.color!==M)&&(this._castling.w&=-65),(!t||this._board[y.h1]?.type!==oe||this._board[y.h1]?.color!==M)&&(this._castling.w&=-33),(!e||this._board[y.a8]?.type!==oe||this._board[y.a8]?.color!==K)&&(this._castling.b&=-65),(!e||this._board[y.h8]?.type!==oe||this._board[y.h8]?.color!==K)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){if(this._epSquare===O)return;let t=this._epSquare+(this._turn===M?-16:16),e=this._epSquare+(this._turn===M?16:-16),s=[e+1,e-1];if(this._board[t]!==null||this._board[this._epSquare]!==null||this._board[e]?.color!==ne(this._turn)||this._board[e]?.type!==I){this._hash^=this._epKey(),this._epSquare=O;return}let r=o=>!(o&136)&&this._board[o]?.color===this._turn&&this._board[o]?.type===I;s.some(r)||(this._hash^=this._epKey(),this._epSquare=O)}_attacked(t,e,s){let r=[];for(let o=y.a8;o<=y.h1;o++){if(o&136){o+=7;continue}if(this._board[o]===void 0||this._board[o].color!==t)continue;let a=this._board[o],h=o-e;if(h===0)continue;let u=h+119;if(ei[u]&si[a.type]){if(a.type===I){if(h>0&&a.color===M||h<=0&&a.color===K)if(s)r.push(P(o));else return!0;continue}if(a.type==="n"||a.type==="k")if(s){r.push(P(o));continue}else return!0;let p=ti[u],m=o+p,w=!1;for(;m!==e;){if(this._board[m]!=null){w=!0;break}m+=p}if(!w)if(s){r.push(P(o));continue}else return!0}}return s?r:!1}attackers(t,e){return e?this._attacked(e,y[t],!0):this._attacked(this._turn,y[t],!0)}_isKingAttacked(t){let e=this._kings[t];return e===-1?!1:this._attacked(ne(t),e)}hash(){return this._hash.toString(16)}isAttacked(t,e){return this._attacked(e,y[t])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){let t={b:0,n:0,r:0,q:0,k:0,p:0},e=[],s=0,r=0;for(let o=y.a8;o<=y.h1;o++){if(r=(r+1)%2,o&136){o+=7;continue}let a=this._board[o];a&&(t[a.type]=a.type in t?t[a.type]+1:1,a.type===me&&e.push(r),s++)}if(s===2)return!0;if(s===3&&(t[me]===1||t[Re]===1))return!0;if(s===t[me]+2){let o=0,a=e.length;for(let h=0;h<a;h++)o+=e[h];if(o===0||o===a)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:t=!1,square:e=void 0,piece:s=void 0}={}){let r=this._moves({square:e,piece:s});return t?r.map(o=>new X(this,o)):r.map(o=>this._moveToSan(o,r))}_moves({legal:t=!0,piece:e=void 0,square:s=void 0}={}){let r=s?s.toLowerCase():void 0,o=e?.toLowerCase(),a=[],h=this._turn,u=ne(h),p=y.a8,m=y.h1,w=!1;if(r)if(r in y)p=m=y[r],w=!0;else return[];for(let E=p;E<=m;E++){if(E&136){E+=7;continue}if(!this._board[E]||this._board[E].color===u)continue;let{type:C}=this._board[E],T;if(C===I){if(o&&o!==C)continue;T=E+Me[h][0],this._board[T]||(G(a,h,E,T,I),T=E+Me[h][1],li[h]===J(E)&&!this._board[T]&&G(a,h,E,T,I,void 0,S.BIG_PAWN));for(let D=2;D<4;D++)T=E+Me[h][D],!(T&136)&&(this._board[T]?.color===u?G(a,h,E,T,I,this._board[T].type,S.CAPTURE):T===this._epSquare&&G(a,h,E,T,I,I,S.EP_CAPTURE))}else{if(o&&o!==C)continue;for(let D=0,Ae=_t[C].length;D<Ae;D++){let Te=_t[C][D];for(T=E;T+=Te,!(T&136);){if(!this._board[T])G(a,h,E,T,C);else{if(this._board[T].color===h)break;G(a,h,E,T,C,this._board[T].type,S.CAPTURE);break}if(C===Re||C===L)break}}}}if((o===void 0||o===L)&&(!w||m===this._kings[h])){if(this._castling[h]&S.KSIDE_CASTLE){let E=this._kings[h],C=E+2;!this._board[E+1]&&!this._board[C]&&!this._attacked(u,this._kings[h])&&!this._attacked(u,E+1)&&!this._attacked(u,C)&&G(a,h,this._kings[h],C,L,void 0,S.KSIDE_CASTLE)}if(this._castling[h]&S.QSIDE_CASTLE){let E=this._kings[h],C=E-2;!this._board[E-1]&&!this._board[E-2]&&!this._board[E-3]&&!this._attacked(u,this._kings[h])&&!this._attacked(u,E-1)&&!this._attacked(u,C)&&G(a,h,this._kings[h],C,L,void 0,S.QSIDE_CASTLE)}}if(!t||this._kings[h]===-1)return a;let g=[];for(let E=0,C=a.length;E<C;E++)this._makeMove(a[E]),this._isKingAttacked(h)||g.push(a[E]),this._undoMove();return g}move(t,{strict:e=!1}={}){let s=null;if(typeof t=="string")s=this._moveFromSan(t,e);else if(t===null)s=this._moveFromSan(Be,e);else if(typeof t=="object"){let o=this._moves();for(let a=0,h=o.length;a<h;a++)if(t.from===P(o[a].from)&&t.to===P(o[a].to)&&(!("promotion"in o[a])||t.promotion===o[a].promotion)){s=o[a];break}}if(!s)throw typeof t=="string"?new Error(`Invalid move: ${t}`):new Error(`Invalid move: ${JSON.stringify(t)}`);if(this.isCheck()&&s.flags&S.NULL_MOVE)throw new Error("Null move not allowed when in check");let r=new X(this,s);return this._makeMove(s),this._incPositionCount(),r}_push(t){this._history.push({move:t,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(t,e){this._hash^=this._pieceKey(t),this._board[e]=this._board[t],delete this._board[t],this._hash^=this._pieceKey(e)}_makeMove(t){let e=this._turn,s=ne(e);if(this._push(t),t.flags&S.NULL_MOVE){e===K&&this._moveNumber++,this._halfMoves++,this._turn=s,this._epSquare=O;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),t.captured&&(this._hash^=this._pieceKey(t.to)),this._movePiece(t.from,t.to),t.flags&S.EP_CAPTURE&&(this._turn===K?this._clear(t.to-16):this._clear(t.to+16)),t.promotion&&(this._clear(t.to),this._set(t.to,{type:t.promotion,color:e})),this._board[t.to].type===L){if(this._kings[e]=t.to,t.flags&S.KSIDE_CASTLE){let r=t.to-1,o=t.to+1;this._movePiece(o,r)}else if(t.flags&S.QSIDE_CASTLE){let r=t.to+1,o=t.to-2;this._movePiece(o,r)}this._castling[e]=0}if(this._castling[e]){for(let r=0,o=U[e].length;r<o;r++)if(t.from===U[e][r].square&&this._castling[e]&U[e][r].flag){this._castling[e]^=U[e][r].flag;break}}if(this._castling[s]){for(let r=0,o=U[s].length;r<o;r++)if(t.to===U[s][r].square&&this._castling[s]&U[s][r].flag){this._castling[s]^=U[s][r].flag;break}}if(this._hash^=this._castlingKey(),t.flags&S.BIG_PAWN){let r;e===K?r=t.to-16:r=t.to+16,!(t.to-1&136)&&this._board[t.to-1]?.type===I&&this._board[t.to-1]?.color===s||!(t.to+1&136)&&this._board[t.to+1]?.type===I&&this._board[t.to+1]?.color===s?(this._epSquare=r,this._hash^=this._epKey()):this._epSquare=O}else this._epSquare=O;t.piece===I?this._halfMoves=0:t.flags&(S.CAPTURE|S.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===K&&this._moveNumber++,this._turn=s,this._hash^=Oe}undo(){let t=this._hash,e=this._undoMove();if(e){let s=new X(this,e);return this._decPositionCount(t),s}return null}_undoMove(){let t=this._history.pop();if(t===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();let e=t.move;this._kings=t.kings,this._turn=t.turn,this._castling=t.castling,this._epSquare=t.epSquare,this._halfMoves=t.halfMoves,this._moveNumber=t.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=Oe;let s=this._turn,r=ne(s);if(e.flags&S.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:s})),e.captured)if(e.flags&S.EP_CAPTURE){let o;s===K?o=e.to-16:o=e.to+16,this._set(o,{type:I,color:r})}else this._set(e.to,{type:e.captured,color:r});if(e.flags&(S.KSIDE_CASTLE|S.QSIDE_CASTLE)){let o,a;e.flags&S.KSIDE_CASTLE?(o=e.to+1,a=e.to-1):(o=e.to-2,a=e.to+1),this._movePiece(a,o)}return e}pgn({newline:t=`
-`,maxWidth:e=0}={}){let s=[],r=!1;for(let g in this._header)this._header[g]&&s.push(`[${g} "${this._header[g]}"]`+t),r=!0;r&&this._history.length&&s.push(t);let o=g=>{let E=this._comments[this.fen()];if(typeof E<"u"){let C=g.length>0?" ":"";g=`${g}${C}{${E}}`}return g},a=[];for(;this._history.length>0;)a.push(this._undoMove());let h=[],u="";for(a.length===0&&h.push(o(""));a.length>0;){u=o(u);let g=a.pop();if(!g)break;if(!this._history.length&&g.color==="b"){let E=`${this._moveNumber}. ...`;u=u?`${u} ${E}`:E}else g.color==="w"&&(u.length&&h.push(u),u=this._moveNumber+".");u=u+" "+this._moveToSan(g,this._moves({legal:!0})),this._makeMove(g)}if(u.length&&h.push(o(u)),h.push(this._header.Result||"*"),e===0)return s.join("")+h.join(" ");let p=function(){return s.length>0&&s[s.length-1]===" "?(s.pop(),!0):!1},m=function(g,E){for(let C of E.split(" "))if(C){if(g+C.length>e){for(;p();)g--;s.push(t),g=0}s.push(C),g+=C.length,s.push(" "),g++}return p()&&g--,g},w=0;for(let g=0;g<h.length;g++){if(w+h[g].length>e&&h[g].includes("{")){w=m(w,h[g]);continue}w+h[g].length>e&&g!==0?(s[s.length-1]===" "&&s.pop(),s.push(t),w=0):g!==0&&(s.push(" "),w++),s.push(h[g]),w+=h[g].length}return s.join("")}header(...t){for(let e=0;e<t.length;e+=2)typeof t[e]=="string"&&typeof t[e+1]=="string"&&(this._header[t[e]]=t[e+1]);return this._header}setHeader(t,e){return this._header[t]=e??Fe[t]??null,this.getHeaders()}removeHeader(t){return t in this._header?(this._header[t]=Fe[t]||null,!0):!1}getHeaders(){let t={};for(let[e,s]of Object.entries(this._header))s!==null&&(t[e]=s);return t}loadPgn(t,{strict:e=!1,newlineChar:s=`\r?
-`}={}){s!==`\r?
-`&&(t=t.replace(new RegExp(s,"g"),`
-`));let r=Ws(t);this.reset();let o=r.headers,a="";for(let p in o)p.toLowerCase()==="fen"&&(a=o[p]),this.header(p,o[p]);if(!e)a&&this.load(a,{preserveHeaders:!0});else if(o.SetUp==="1"){if(!("FEN"in o))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(o.FEN,{preserveHeaders:!0})}let h=r.root;for(;h;){if(h.move){let p=this._moveFromSan(h.move,e);if(p==null)throw new Error(`Invalid move in PGN: ${h.move}`);this._makeMove(p),this._incPositionCount()}h.comment!==void 0&&(this._comments[this.fen()]=h.comment),h=h.variations[0]}let u=r.result;u&&Object.keys(this._header).length&&this._header.Result!==u&&this.setHeader("Result",u)}_moveToSan(t,e){let s="";if(t.flags&S.KSIDE_CASTLE)s="O-O";else if(t.flags&S.QSIDE_CASTLE)s="O-O-O";else{if(t.flags&S.NULL_MOVE)return Be;if(t.piece!==I){let r=fi(t,e);s+=t.piece.toUpperCase()+r}t.flags&(S.CAPTURE|S.EP_CAPTURE)&&(t.piece===I&&(s+=P(t.from)[0]),s+="x"),s+=P(t.to),t.promotion&&(s+="="+t.promotion.toUpperCase())}return this._makeMove(t),this.isCheck()&&(this.isCheckmate()?s+="#":s+="+"),this._undoMove(),s}_moveFromSan(t,e=!1){let s=Ke(t);if(e||(s==="0-0"?s="O-O":s==="0-0-0"&&(s="O-O-O")),s==Be)return{color:this._turn,from:0,to:0,piece:"k",flags:S.NULL_MOVE};let r=bt(s),o=this._moves({legal:!0,piece:r});for(let g=0,E=o.length;g<E;g++)if(s===Ke(this._moveToSan(o[g],o)))return o[g];if(e)return null;let a,h,u,p,m,w=!1;if(h=s.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),h?(a=h[1],u=h[2],p=h[3],m=h[4],u.length==1&&(w=!0)):(h=s.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),h&&(a=h[1],u=h[2],p=h[3],m=h[4],u.length==1&&(w=!0))),r=bt(s),o=this._moves({legal:!0,piece:a||r}),!p)return null;for(let g=0,E=o.length;g<E;g++)if(u){if((!a||a.toLowerCase()==o[g].piece)&&y[u]==o[g].from&&y[p]==o[g].to&&(!m||m.toLowerCase()==o[g].promotion))return o[g];if(w){let C=P(o[g].from);if((!a||a.toLowerCase()==o[g].piece)&&y[p]==o[g].to&&(u==C[0]||u==C[1])&&(!m||m.toLowerCase()==o[g].promotion))return o[g]}}else if(s===Ke(this._moveToSan(o[g],o)).replace("x",""))return o[g];return null}ascii(){let t=`   +------------------------+
-`;for(let e=y.a8;e<=y.h1;e++){if(ae(e)===0&&(t+=" "+"87654321"[J(e)]+" |"),this._board[e]){let s=this._board[e].type,o=this._board[e].color===M?s.toUpperCase():s.toLowerCase();t+=" "+o+" "}else t+=" . ";e+1&136&&(t+=`|
-`,e+=8)}return t+=`   +------------------------+
-`,t+="     a  b  c  d  e  f  g  h",t}perft(t){let e=this._moves({legal:!1}),s=0,r=this._turn;for(let o=0,a=e.length;o<a;o++)this._makeMove(e[o]),this._isKingAttacked(r)||(t-1>0?s+=this.perft(t-1):s++),this._undoMove();return s}setTurn(t){return this._turn==t?!1:(this.move("--"),!0)}turn(){return this._turn}board(){let t=[],e=[];for(let s=y.a8;s<=y.h1;s++)this._board[s]==null?e.push(null):e.push({square:P(s),type:this._board[s].type,color:this._board[s].color}),s+1&136&&(t.push(e),e=[],s+=8);return t}squareColor(t){if(t in y){let e=y[t];return(J(e)+ae(e))%2===0?"light":"dark"}return null}history({verbose:t=!1}={}){let e=[],s=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){let r=e.pop();if(!r)break;t?s.push(new X(this,r)):s.push(this._moveToSan(r,this._moves())),this._makeMove(r)}return s}_getPositionCount(t){return this._positionCount.get(t)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(t){let e=this._positionCount.get(t)??0;e===1?this._positionCount.delete(t):this._positionCount.set(t,e-1)}_pruneComments(){let t=[],e={},s=r=>{r in this._comments&&(e[r]=this._comments[r])};for(;this._history.length>0;)t.push(this._undoMove());for(s(this.fen());;){let r=t.pop();if(!r)break;this._makeMove(r),s(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(t){this._comments[this.fen()]=t.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){let t=this._comments[this.fen()];return delete this._comments[this.fen()],t}getComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>({fen:t,comment:this._comments[t]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>{let e=this._comments[t];return delete this._comments[t],{fen:t,comment:e}})}setCastlingRights(t,e){for(let r of[L,H])e[r]!==void 0&&(e[r]?this._castling[t]|=pe[r]:this._castling[t]&=~pe[r]);this._updateCastlingRights();let s=this.getCastlingRights(t);return(e[L]===void 0||e[L]===s[L])&&(e[H]===void 0||e[H]===s[H])}getCastlingRights(t){return{[L]:(this._castling[t]&pe[L])!==0,[H]:(this._castling[t]&pe[H])!==0}}moveNumber(){return this._moveNumber}};var yt=0,Ue="chessgpt",Q=!1;function Ee(i,t=null){try{let e=localStorage.getItem(i);return e!==null?e:t}catch(e){return console.warn("localStorage read error:",e),t}}function ye(i,t){try{return localStorage.setItem(i,t),!0}catch(e){return console.warn("localStorage write error:",e),!1}}function St(i,t=[]){try{let e=localStorage.getItem(i);return e?JSON.parse(e):t}catch(e){return console.warn("localStorage JSON parse error:",e),t}}function wt(i,t){try{return localStorage.setItem(i,JSON.stringify(t)),!0}catch(e){return console.warn("localStorage JSON write error:",e),!1}}function Ct(i){try{let t=i==="victory"?vi:bi;t&&(t.volume=.5,t.currentTime=0,t.play().catch(e=>console.warn("Audio play failed:",e)))}catch(t){console.warn("Sound playback error:",t)}}function Nt(i,t){let e=document.getElementById("myBoard");Ot.classList.remove("d-none"),xt.classList.add("d-none"),z.value=Ee("lastNickname",""),Ge=i,i==="ai"?(te.textContent="DEFEATED!",te.className="game-over-title defeat",se.src=Ue==="stockfish"?"/stockfish.png":"/chatgpt.png",se.className="game-over-logo defeat",e.classList.add("shake"),Ct("defeat"),setTimeout(()=>e.classList.remove("shake"),500)):i==="player"?(te.textContent="VICTORY!",te.className="game-over-title victory",se.src="/red.png",se.className="game-over-logo victory",Ct("victory"),typeof confetti=="function"&&(confetti({particleCount:100,spread:70,origin:{y:.6}}),setTimeout(()=>{confetti({particleCount:50,angle:60,spread:55,origin:{x:0}}),confetti({particleCount:50,angle:120,spread:55,origin:{x:1}})},250))):(te.textContent="DRAW",te.className="game-over-title draw",se.src="/chatgpt.png",se.className="game-over-logo"),gi.textContent=t,j&&(j.textContent="Restart",j.classList.remove("btn-outline-danger"),j.classList.add("btn-outline-warning")),new bootstrap.Modal(pi).show()}async function Pt(i,t=10){try{let e=await fetch(`/api/leaderboard?limit=${t}`);if(!e.ok)throw new Error("Failed to fetch leaderboard");let s=await e.json();if(i.innerHTML="",s.length===0){i.innerHTML='<tr><td colspan="5" class="text-center text-muted">No entries yet</td></tr>';return}s.forEach((r,o)=>{let a=document.createElement("tr");a.innerHTML=`
-        <td>${o+1}</td>
-        <td>${ui(r.nickname)}</td>
-        <td>${r.wins}</td>
-        <td>${r.losses}</td>
-        <td>${r.draws}</td>
-      `,i.appendChild(a)})}catch(e){console.warn("Leaderboard fetch error:",e),i.innerHTML='<tr><td colspan="5" class="text-center text-muted">Could not load leaderboard</td></tr>'}}async function hi(i,t){try{let e=await fetch("/api/leaderboard",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({nickname:i,result:t})});if(!e.ok){let s=await e.json();throw new Error(s.error||"Submission failed")}return!0}catch(e){return console.error("Score submission error:",e),!1}}function ui(i){let t=document.createElement("div");return t.textContent=i,t.innerHTML}var be=document.getElementById("container"),qe=document.getElementById("startAnimation"),di=document.getElementById("startContainer"),De=document.getElementById("chessBoard"),Se=document.getElementById("myBoard"),ce=document.getElementById("chatGptLogo"),we=document.getElementById("redLogo"),pi=document.getElementById("gameOverModal"),te=document.getElementById("gameOverTitle"),gi=document.getElementById("gameOverStatus"),se=document.getElementById("gameOverLogo"),z=document.getElementById("nicknameInput"),Y=document.getElementById("submitScoreBtn"),Ot=document.getElementById("leaderboardSubmit"),xt=document.getElementById("leaderboardDisplay"),mi=document.getElementById("leaderboardBody"),kt=document.getElementById("playAgainBtn"),Ce=document.getElementById("viewLeaderboardBtn"),_i=document.getElementById("standaloneLeaderboardBody"),j=document.getElementById("resignRestartBtn"),vi=document.getElementById("audio-victory"),bi=document.getElementById("audio-defeat"),Ge=null,ke=document.getElementById("audio-element"),Ki=document.getElementById("audio-element-metal"),ie=window.innerWidth<700?20:55,Ei=7.5,At=[];function yi(i,t){let e=document.createElement("div");return e.classList.add("block"),e.style.left=`${i*ie}px`,e.style.top=`${t*ie}px`,be.appendChild(e),e}function Si(i){return new Promise(t=>setTimeout(t,i))}async function wi(){let i=0,t=0,e=1,s=0,r=Math.ceil(window.innerWidth/ie),o=Math.ceil(window.innerHeight/ie);for(let a=0;a<r*o;a++){if(At.push(yi(i,t)),i+e>=r||i+e<0||t+s>=o||t+s<0||At.some(h=>h.style.left===`${(i+e)*ie}px`&&h.style.top===`${(t+s)*ie}px`)){let h=e;e=-s,s=h}i+=e,t+=s,await Si(Ei)}}qe.addEventListener("click",async()=>{if(Ee("volumeMessageShown")!=="true"){let t=document.getElementById("volumeMessage");new bootstrap.Modal(t).show(),ye("volumeMessageShown","true");return}let i=900;for(let t=0;t<10;t++)setTimeout(()=>{qe.classList.toggle("d-none")},t*150);ke.play(),setTimeout(async()=>{qe.classList.add("d-none"),di.classList.add("d-none"),be.classList.remove("d-none"),await wi(),be.innerHTML="",be.classList.add("d-none"),De.classList.remove("hidden"),De.classList.remove("d-none"),De.classList.remove("visible"),Bt(ke,1,.1,1e4),setTimeout(()=>{ce.classList.remove("d-none"),we.classList.remove("d-none"),setTimeout(()=>{ce.style.left="80%",we.style.left="10%"},400),setTimeout(()=>{Se.classList.add("visible"),Se.classList.remove("hidden")},2200)},50)},i)});function Mt(i,t,e,s){let o=s/50,a=(e-t)/o,h=e>t;i.volume=t;let u=setInterval(()=>{i.volume+=a,i.volume=Math.max(0,Math.min(1,i.volume)),(h?i.volume>=e:i.volume<=e)&&(i.volume=e,clearInterval(u))},50)}var Bt=Mt,Ci=Mt;function ki(){let i=document.getElementById("audio-element-metal");setTimeout(()=>{Bt(ke,.1,0,5e3),i.volume=0,i.play(),Ci(i,0,1,1e4),setTimeout(()=>{ke.volume=0},1e3)},2e3)}try{let i=function(r,o,a,h){if(x.isGameOver()||Q||o.search(/^b/)!==-1||x.turn()!=="w")return!1},e=function(){le.position(x.fen())},s=function(){var r="",o=!1,a="",h="White";if(x.turn()==="b"&&(h="Black"),x.isCheckmate()?(r="Game over, "+h+" is in checkmate.",h==="Black"?a="w":a="b",o=!0):x.isDraw()?(r="Game over, drawn position",o=!0):(r=h+" to move",x.isCheck()&&(r+=", "+h+" is in check")),Tt.html(r),$t.html(x.fen()),It.html(x.pgn()),o){let u="draw";a==="w"?u="player":a==="b"&&(u="ai"),Nt(u,r),Ti(a)}};Li=i,Ni=e,Pi=s,console.log("Chessboard.js version:",Chessboard.version),le=null,x=new _e,Tt=$("#status"),$t=$("#fen"),It=$("#pgn");async function t(r,o){if(Q||x.turn()!=="w")return"snapback";var a=x.move({from:r,to:o,promotion:"q"});if(a===null)return"snapback";var h=St("moves",[]);h.push(a.san),wt("moves",h),le.position(x.fen()),yt++,yt===6&&(await new Promise(u=>setTimeout(u,2e3)),await Ai(),Ue="stockfish"),Q=!0,$.get("/ai-move",{fen:x.fen(),bot:Ue,an:JSON.stringify(h)}).done(function(u){if(typeof u=="object"){if(u.error){console.error("Server error:",u.error),Q=!1;return}if(u.msg){console.log("Game state:",u.msg),s(),Q=!1;return}}var p=x.move(u);if(p===null){console.error("Received invalid move from server:",u),Q=!1;return}var m=St("moves",[]);m.push(u),wt("moves",m),le.position(x.fen()),s(),Q=!1}).fail(function(u){console.error("Server request failed:",u.status,u.responseJSON),Q=!1})}Lt={draggable:!0,position:"start",onDragStart:i,onDrop:t,onSnapEnd:e},le=Chessboard("myBoard",Lt),s()}catch(i){console.error("Chess initialization error:",i)}var le,x,Tt,$t,It,Lt,Li,Ni,Pi;async function Ai(){var i=document.getElementById("evolutionModal");let t=new bootstrap.Modal(i);t.show();let e=document.getElementById("evolutionImage");await new Promise(a=>setTimeout(a,2e3)),e.src="/stockfish.png",await new Promise(a=>setTimeout(a,250)),e.src="/chatgpt.png",await new Promise(a=>setTimeout(a,1e3)),e.src="/stockfish.png",await new Promise(a=>setTimeout(a,250)),e.src="/chatgpt.png",ki(),await new Promise(a=>setTimeout(a,750)),e.src="/stockfish.png",await new Promise(a=>setTimeout(a,500)),e.src="/chatgpt.png",await new Promise(a=>setTimeout(a,250)),e.src="/stockfish.png",await new Promise(a=>setTimeout(a,500));let s=document.getElementById("evolvedStart"),r=document.getElementById("evolvedFinal");s.classList.add("d-none"),r.classList.remove("d-none"),await new Promise(a=>setTimeout(a,500));let o=document.getElementById("elo");o.innerText="ELO: 3607",o.classList.remove("bg-dark"),o.classList.add("bg-danger"),o.classList.add("fs-1"),o.classList.remove("p-2"),o.classList.add("p-3"),await new Promise(a=>setTimeout(a,4e3)),ce.src="/stockfish.png",t.hide()}function Kt(){window.innerWidth<=767?(we.style.top="90%",ce.style.top="2%"):(we.style.top="75%",ce.style.top="5%")}window.addEventListener("load",Kt);window.addEventListener("resize",Kt);async function Ti(i="b"){let t=parseInt(Ee("chessGptScoreValue","0"),10)||0,e=parseInt(Ee("yourScore","0"),10)||0;i==="b"&&t++,i==="w"&&e++;let s=document.getElementById("chessGptScore"),r=document.getElementById("yourScore");s&&(s.innerText=t),r&&(r.innerText=e),ye("chessGptScoreValue",t.toString()),ye("yourScore",e.toString())}var $i=document.getElementById("resetBtn");$i.addEventListener("click",()=>{window.location.reload()});kt&&kt.addEventListener("click",()=>{window.location.reload()});Y&&Y.addEventListener("click",async()=>{let i=z.value.trim();if(!i){z.classList.add("border-danger"),z.focus();return}z.classList.remove("border-danger");let t;Ge==="player"?t="win":Ge==="ai"?t="loss":t="draw",Y.disabled=!0,Y.textContent="Submitting...",ye("lastNickname",i),await hi(i,t)?(Ot.classList.add("d-none"),xt.classList.remove("d-none"),await Pt(mi)):(Y.disabled=!1,Y.textContent="Try Again")});z&&z.addEventListener("keypress",i=>{i.key==="Enter"&&Y.click()});Ce&&Ce.addEventListener("click",async()=>{let i=document.getElementById("leaderboardModal");new bootstrap.Modal(i).show(),await Pt(_i)});j&&j.addEventListener("click",function(){x.isGameOver()?window.location.reload():Nt("ai","You resigned!")});var Ii=new MutationObserver(i=>{i.forEach(t=>{t.target.classList.contains("visible")&&!t.target.classList.contains("hidden")&&(Ce&&Ce.classList.remove("d-none"),j&&j.classList.remove("d-none"))})});Se&&Ii.observe(Se,{attributes:!0,attributeFilter:["class"]});})();
+"use strict";
+(() => {
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+
+  // node_modules/chess.js/dist/esm/chess.js
+  function rootNode(comment) {
+    return comment !== null ? { comment, variations: [] } : { variations: [] };
+  }
+  function node(move, suffix, nag, comment, variations) {
+    const node2 = { move, variations };
+    if (suffix) {
+      node2.suffix = suffix;
+    }
+    if (nag) {
+      node2.nag = nag;
+    }
+    if (comment !== null) {
+      node2.comment = comment;
+    }
+    return node2;
+  }
+  function lineToTree(...nodes) {
+    const [root, ...rest] = nodes;
+    let parent = root;
+    for (const child of rest) {
+      if (child !== null) {
+        parent.variations = [child, ...child.variations];
+        child.variations = [];
+        parent = child;
+      }
+    }
+    return root;
+  }
+  function pgn(headers, game) {
+    if (game.marker && game.marker.comment) {
+      let node2 = game.root;
+      while (true) {
+        const next = node2.variations[0];
+        if (!next) {
+          node2.comment = game.marker.comment;
+          break;
+        }
+        node2 = next;
+      }
+    }
+    return {
+      headers,
+      root: game.root,
+      result: (game.marker && game.marker.result) ?? void 0
+    };
+  }
+  function peg$subclass(child, parent) {
+    function C() {
+      this.constructor = child;
+    }
+    C.prototype = parent.prototype;
+    child.prototype = new C();
+  }
+  function peg$SyntaxError(message, expected, found, location) {
+    var self = Error.call(this, message);
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(self, peg$SyntaxError.prototype);
+    }
+    self.expected = expected;
+    self.found = found;
+    self.location = location;
+    self.name = "SyntaxError";
+    return self;
+  }
+  peg$subclass(peg$SyntaxError, Error);
+  function peg$padEnd(str, targetLength, padString) {
+    padString = padString || " ";
+    if (str.length > targetLength) {
+      return str;
+    }
+    targetLength -= str.length;
+    padString += padString.repeat(targetLength);
+    return str + padString.slice(0, targetLength);
+  }
+  peg$SyntaxError.prototype.format = function(sources) {
+    var str = "Error: " + this.message;
+    if (this.location) {
+      var src = null;
+      var k;
+      for (k = 0; k < sources.length; k++) {
+        if (sources[k].source === this.location.source) {
+          src = sources[k].text.split(/\r\n|\n|\r/g);
+          break;
+        }
+      }
+      var s = this.location.start;
+      var offset_s = this.location.source && typeof this.location.source.offset === "function" ? this.location.source.offset(s) : s;
+      var loc = this.location.source + ":" + offset_s.line + ":" + offset_s.column;
+      if (src) {
+        var e = this.location.end;
+        var filler = peg$padEnd("", offset_s.line.toString().length, " ");
+        var line = src[s.line - 1];
+        var last = s.line === e.line ? e.column : line.length + 1;
+        var hatLen = last - s.column || 1;
+        str += "\n --> " + loc + "\n" + filler + " |\n" + offset_s.line + " | " + line + "\n" + filler + " | " + peg$padEnd("", s.column - 1, " ") + peg$padEnd("", hatLen, "^");
+      } else {
+        str += "\n at " + loc;
+      }
+    }
+    return str;
+  };
+  peg$SyntaxError.buildMessage = function(expected, found) {
+    var DESCRIBE_EXPECTATION_FNS = {
+      literal: function(expectation) {
+        return '"' + literalEscape(expectation.text) + '"';
+      },
+      class: function(expectation) {
+        var escapedParts = expectation.parts.map(function(part) {
+          return Array.isArray(part) ? classEscape(part[0]) + "-" + classEscape(part[1]) : classEscape(part);
+        });
+        return "[" + (expectation.inverted ? "^" : "") + escapedParts.join("") + "]";
+      },
+      any: function() {
+        return "any character";
+      },
+      end: function() {
+        return "end of input";
+      },
+      other: function(expectation) {
+        return expectation.description;
+      }
+    };
+    function hex(ch) {
+      return ch.charCodeAt(0).toString(16).toUpperCase();
+    }
+    function literalEscape(s) {
+      return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\0/g, "\\0").replace(/\t/g, "\\t").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/[\x00-\x0F]/g, function(ch) {
+        return "\\x0" + hex(ch);
+      }).replace(/[\x10-\x1F\x7F-\x9F]/g, function(ch) {
+        return "\\x" + hex(ch);
+      });
+    }
+    function classEscape(s) {
+      return s.replace(/\\/g, "\\\\").replace(/\]/g, "\\]").replace(/\^/g, "\\^").replace(/-/g, "\\-").replace(/\0/g, "\\0").replace(/\t/g, "\\t").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/[\x00-\x0F]/g, function(ch) {
+        return "\\x0" + hex(ch);
+      }).replace(/[\x10-\x1F\x7F-\x9F]/g, function(ch) {
+        return "\\x" + hex(ch);
+      });
+    }
+    function describeExpectation(expectation) {
+      return DESCRIBE_EXPECTATION_FNS[expectation.type](expectation);
+    }
+    function describeExpected(expected2) {
+      var descriptions = expected2.map(describeExpectation);
+      var i, j;
+      descriptions.sort();
+      if (descriptions.length > 0) {
+        for (i = 1, j = 1; i < descriptions.length; i++) {
+          if (descriptions[i - 1] !== descriptions[i]) {
+            descriptions[j] = descriptions[i];
+            j++;
+          }
+        }
+        descriptions.length = j;
+      }
+      switch (descriptions.length) {
+        case 1:
+          return descriptions[0];
+        case 2:
+          return descriptions[0] + " or " + descriptions[1];
+        default:
+          return descriptions.slice(0, -1).join(", ") + ", or " + descriptions[descriptions.length - 1];
+      }
+    }
+    function describeFound(found2) {
+      return found2 ? '"' + literalEscape(found2) + '"' : "end of input";
+    }
+    return "Expected " + describeExpected(expected) + " but " + describeFound(found) + " found.";
+  };
+  function peg$parse(input, options) {
+    options = options !== void 0 ? options : {};
+    var peg$FAILED = {};
+    var peg$source = options.grammarSource;
+    var peg$startRuleFunctions = { pgn: peg$parsepgn };
+    var peg$startRuleFunction = peg$parsepgn;
+    var peg$c0 = "[";
+    var peg$c1 = '"';
+    var peg$c2 = "]";
+    var peg$c3 = ".";
+    var peg$c4 = "O-O-O";
+    var peg$c5 = "O-O";
+    var peg$c6 = "0-0-0";
+    var peg$c7 = "0-0";
+    var peg$c8 = "$";
+    var peg$c9 = "{";
+    var peg$c10 = "}";
+    var peg$c11 = ";";
+    var peg$c12 = "(";
+    var peg$c13 = ")";
+    var peg$c14 = "1-0";
+    var peg$c15 = "0-1";
+    var peg$c16 = "1/2-1/2";
+    var peg$c17 = "*";
+    var peg$r0 = /^[a-zA-Z]/;
+    var peg$r1 = /^[^"]/;
+    var peg$r2 = /^[0-9]/;
+    var peg$r3 = /^[.]/;
+    var peg$r4 = /^[a-zA-Z1-8\-=]/;
+    var peg$r5 = /^[+#]/;
+    var peg$r6 = /^[!?]/;
+    var peg$r7 = /^[^}]/;
+    var peg$r8 = /^[^\r\n]/;
+    var peg$r9 = /^[ \t\r\n]/;
+    var peg$e0 = peg$otherExpectation("tag pair");
+    var peg$e1 = peg$literalExpectation("[", false);
+    var peg$e2 = peg$literalExpectation('"', false);
+    var peg$e3 = peg$literalExpectation("]", false);
+    var peg$e4 = peg$otherExpectation("tag name");
+    var peg$e5 = peg$classExpectation([["a", "z"], ["A", "Z"]], false, false);
+    var peg$e6 = peg$otherExpectation("tag value");
+    var peg$e7 = peg$classExpectation(['"'], true, false);
+    var peg$e8 = peg$otherExpectation("move number");
+    var peg$e9 = peg$classExpectation([["0", "9"]], false, false);
+    var peg$e10 = peg$literalExpectation(".", false);
+    var peg$e11 = peg$classExpectation(["."], false, false);
+    var peg$e12 = peg$otherExpectation("standard algebraic notation");
+    var peg$e13 = peg$literalExpectation("O-O-O", false);
+    var peg$e14 = peg$literalExpectation("O-O", false);
+    var peg$e15 = peg$literalExpectation("0-0-0", false);
+    var peg$e16 = peg$literalExpectation("0-0", false);
+    var peg$e17 = peg$classExpectation([["a", "z"], ["A", "Z"], ["1", "8"], "-", "="], false, false);
+    var peg$e18 = peg$classExpectation(["+", "#"], false, false);
+    var peg$e19 = peg$otherExpectation("suffix annotation");
+    var peg$e20 = peg$classExpectation(["!", "?"], false, false);
+    var peg$e21 = peg$otherExpectation("NAG");
+    var peg$e22 = peg$literalExpectation("$", false);
+    var peg$e23 = peg$otherExpectation("brace comment");
+    var peg$e24 = peg$literalExpectation("{", false);
+    var peg$e25 = peg$classExpectation(["}"], true, false);
+    var peg$e26 = peg$literalExpectation("}", false);
+    var peg$e27 = peg$otherExpectation("rest of line comment");
+    var peg$e28 = peg$literalExpectation(";", false);
+    var peg$e29 = peg$classExpectation(["\r", "\n"], true, false);
+    var peg$e30 = peg$otherExpectation("variation");
+    var peg$e31 = peg$literalExpectation("(", false);
+    var peg$e32 = peg$literalExpectation(")", false);
+    var peg$e33 = peg$otherExpectation("game termination marker");
+    var peg$e34 = peg$literalExpectation("1-0", false);
+    var peg$e35 = peg$literalExpectation("0-1", false);
+    var peg$e36 = peg$literalExpectation("1/2-1/2", false);
+    var peg$e37 = peg$literalExpectation("*", false);
+    var peg$e38 = peg$otherExpectation("whitespace");
+    var peg$e39 = peg$classExpectation([" ", "	", "\r", "\n"], false, false);
+    var peg$f0 = function(headers, game) {
+      return pgn(headers, game);
+    };
+    var peg$f1 = function(tagPairs) {
+      return Object.fromEntries(tagPairs);
+    };
+    var peg$f2 = function(tagName, tagValue) {
+      return [tagName, tagValue];
+    };
+    var peg$f3 = function(root, marker) {
+      return { root, marker };
+    };
+    var peg$f4 = function(comment, moves) {
+      return lineToTree(rootNode(comment), ...moves.flat());
+    };
+    var peg$f5 = function(san, suffix, nag, comment, variations) {
+      return node(san, suffix, nag, comment, variations);
+    };
+    var peg$f6 = function(nag) {
+      return nag;
+    };
+    var peg$f7 = function(comment) {
+      return comment.replace(/[\r\n]+/g, " ");
+    };
+    var peg$f8 = function(comment) {
+      return comment.trim();
+    };
+    var peg$f9 = function(line) {
+      return line;
+    };
+    var peg$f10 = function(result, comment) {
+      return { result, comment };
+    };
+    var peg$currPos = options.peg$currPos | 0;
+    var peg$posDetailsCache = [{ line: 1, column: 1 }];
+    var peg$maxFailPos = peg$currPos;
+    var peg$maxFailExpected = options.peg$maxFailExpected || [];
+    var peg$silentFails = options.peg$silentFails | 0;
+    var peg$result;
+    if (options.startRule) {
+      if (!(options.startRule in peg$startRuleFunctions)) {
+        throw new Error(`Can't start parsing from rule "` + options.startRule + '".');
+      }
+      peg$startRuleFunction = peg$startRuleFunctions[options.startRule];
+    }
+    function peg$literalExpectation(text, ignoreCase) {
+      return { type: "literal", text, ignoreCase };
+    }
+    function peg$classExpectation(parts, inverted, ignoreCase) {
+      return { type: "class", parts, inverted, ignoreCase };
+    }
+    function peg$endExpectation() {
+      return { type: "end" };
+    }
+    function peg$otherExpectation(description) {
+      return { type: "other", description };
+    }
+    function peg$computePosDetails(pos) {
+      var details = peg$posDetailsCache[pos];
+      var p;
+      if (details) {
+        return details;
+      } else {
+        if (pos >= peg$posDetailsCache.length) {
+          p = peg$posDetailsCache.length - 1;
+        } else {
+          p = pos;
+          while (!peg$posDetailsCache[--p]) {
+          }
+        }
+        details = peg$posDetailsCache[p];
+        details = {
+          line: details.line,
+          column: details.column
+        };
+        while (p < pos) {
+          if (input.charCodeAt(p) === 10) {
+            details.line++;
+            details.column = 1;
+          } else {
+            details.column++;
+          }
+          p++;
+        }
+        peg$posDetailsCache[pos] = details;
+        return details;
+      }
+    }
+    function peg$computeLocation(startPos, endPos, offset) {
+      var startPosDetails = peg$computePosDetails(startPos);
+      var endPosDetails = peg$computePosDetails(endPos);
+      var res = {
+        source: peg$source,
+        start: {
+          offset: startPos,
+          line: startPosDetails.line,
+          column: startPosDetails.column
+        },
+        end: {
+          offset: endPos,
+          line: endPosDetails.line,
+          column: endPosDetails.column
+        }
+      };
+      return res;
+    }
+    function peg$fail(expected) {
+      if (peg$currPos < peg$maxFailPos) {
+        return;
+      }
+      if (peg$currPos > peg$maxFailPos) {
+        peg$maxFailPos = peg$currPos;
+        peg$maxFailExpected = [];
+      }
+      peg$maxFailExpected.push(expected);
+    }
+    function peg$buildStructuredError(expected, found, location) {
+      return new peg$SyntaxError(
+        peg$SyntaxError.buildMessage(expected, found),
+        expected,
+        found,
+        location
+      );
+    }
+    function peg$parsepgn() {
+      var s0, s1, s2;
+      s0 = peg$currPos;
+      s1 = peg$parsetagPairSection();
+      s2 = peg$parsemoveTextSection();
+      s0 = peg$f0(s1, s2);
+      return s0;
+    }
+    function peg$parsetagPairSection() {
+      var s0, s1, s2;
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = peg$parsetagPair();
+      while (s2 !== peg$FAILED) {
+        s1.push(s2);
+        s2 = peg$parsetagPair();
+      }
+      s2 = peg$parse_();
+      s0 = peg$f1(s1);
+      return s0;
+    }
+    function peg$parsetagPair() {
+      var s0, s2, s4, s6, s7, s8, s10;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      peg$parse_();
+      if (input.charCodeAt(peg$currPos) === 91) {
+        s2 = peg$c0;
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e1);
+        }
+      }
+      if (s2 !== peg$FAILED) {
+        peg$parse_();
+        s4 = peg$parsetagName();
+        if (s4 !== peg$FAILED) {
+          peg$parse_();
+          if (input.charCodeAt(peg$currPos) === 34) {
+            s6 = peg$c1;
+            peg$currPos++;
+          } else {
+            s6 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e2);
+            }
+          }
+          if (s6 !== peg$FAILED) {
+            s7 = peg$parsetagValue();
+            if (input.charCodeAt(peg$currPos) === 34) {
+              s8 = peg$c1;
+              peg$currPos++;
+            } else {
+              s8 = peg$FAILED;
+              if (peg$silentFails === 0) {
+                peg$fail(peg$e2);
+              }
+            }
+            if (s8 !== peg$FAILED) {
+              peg$parse_();
+              if (input.charCodeAt(peg$currPos) === 93) {
+                s10 = peg$c2;
+                peg$currPos++;
+              } else {
+                s10 = peg$FAILED;
+                if (peg$silentFails === 0) {
+                  peg$fail(peg$e3);
+                }
+              }
+              if (s10 !== peg$FAILED) {
+                s0 = peg$f2(s4, s7);
+              } else {
+                peg$currPos = s0;
+                s0 = peg$FAILED;
+              }
+            } else {
+              peg$currPos = s0;
+              s0 = peg$FAILED;
+            }
+          } else {
+            peg$currPos = s0;
+            s0 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e0);
+        }
+      }
+      return s0;
+    }
+    function peg$parsetagName() {
+      var s0, s1, s2;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = input.charAt(peg$currPos);
+      if (peg$r0.test(s2)) {
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e5);
+        }
+      }
+      if (s2 !== peg$FAILED) {
+        while (s2 !== peg$FAILED) {
+          s1.push(s2);
+          s2 = input.charAt(peg$currPos);
+          if (peg$r0.test(s2)) {
+            peg$currPos++;
+          } else {
+            s2 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e5);
+            }
+          }
+        }
+      } else {
+        s1 = peg$FAILED;
+      }
+      if (s1 !== peg$FAILED) {
+        s0 = input.substring(s0, peg$currPos);
+      } else {
+        s0 = s1;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e4);
+        }
+      }
+      return s0;
+    }
+    function peg$parsetagValue() {
+      var s0, s1, s2;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = input.charAt(peg$currPos);
+      if (peg$r1.test(s2)) {
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e7);
+        }
+      }
+      while (s2 !== peg$FAILED) {
+        s1.push(s2);
+        s2 = input.charAt(peg$currPos);
+        if (peg$r1.test(s2)) {
+          peg$currPos++;
+        } else {
+          s2 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e7);
+          }
+        }
+      }
+      s0 = input.substring(s0, peg$currPos);
+      peg$silentFails--;
+      s1 = peg$FAILED;
+      if (peg$silentFails === 0) {
+        peg$fail(peg$e6);
+      }
+      return s0;
+    }
+    function peg$parsemoveTextSection() {
+      var s0, s1, s3;
+      s0 = peg$currPos;
+      s1 = peg$parseline();
+      peg$parse_();
+      s3 = peg$parsegameTerminationMarker();
+      if (s3 === peg$FAILED) {
+        s3 = null;
+      }
+      peg$parse_();
+      s0 = peg$f3(s1, s3);
+      return s0;
+    }
+    function peg$parseline() {
+      var s0, s1, s2, s3;
+      s0 = peg$currPos;
+      s1 = peg$parsecomment();
+      if (s1 === peg$FAILED) {
+        s1 = null;
+      }
+      s2 = [];
+      s3 = peg$parsemove();
+      while (s3 !== peg$FAILED) {
+        s2.push(s3);
+        s3 = peg$parsemove();
+      }
+      s0 = peg$f4(s1, s2);
+      return s0;
+    }
+    function peg$parsemove() {
+      var s0, s4, s5, s6, s7, s8, s9, s10;
+      s0 = peg$currPos;
+      peg$parse_();
+      peg$parsemoveNumber();
+      peg$parse_();
+      s4 = peg$parsesan();
+      if (s4 !== peg$FAILED) {
+        s5 = peg$parsesuffixAnnotation();
+        if (s5 === peg$FAILED) {
+          s5 = null;
+        }
+        s6 = [];
+        s7 = peg$parsenag();
+        while (s7 !== peg$FAILED) {
+          s6.push(s7);
+          s7 = peg$parsenag();
+        }
+        s7 = peg$parse_();
+        s8 = peg$parsecomment();
+        if (s8 === peg$FAILED) {
+          s8 = null;
+        }
+        s9 = [];
+        s10 = peg$parsevariation();
+        while (s10 !== peg$FAILED) {
+          s9.push(s10);
+          s10 = peg$parsevariation();
+        }
+        s0 = peg$f5(s4, s5, s6, s8, s9);
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      return s0;
+    }
+    function peg$parsemoveNumber() {
+      var s0, s1, s2, s3, s4, s5;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = input.charAt(peg$currPos);
+      if (peg$r2.test(s2)) {
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e9);
+        }
+      }
+      while (s2 !== peg$FAILED) {
+        s1.push(s2);
+        s2 = input.charAt(peg$currPos);
+        if (peg$r2.test(s2)) {
+          peg$currPos++;
+        } else {
+          s2 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e9);
+          }
+        }
+      }
+      if (input.charCodeAt(peg$currPos) === 46) {
+        s2 = peg$c3;
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e10);
+        }
+      }
+      if (s2 !== peg$FAILED) {
+        s3 = peg$parse_();
+        s4 = [];
+        s5 = input.charAt(peg$currPos);
+        if (peg$r3.test(s5)) {
+          peg$currPos++;
+        } else {
+          s5 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e11);
+          }
+        }
+        while (s5 !== peg$FAILED) {
+          s4.push(s5);
+          s5 = input.charAt(peg$currPos);
+          if (peg$r3.test(s5)) {
+            peg$currPos++;
+          } else {
+            s5 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e11);
+            }
+          }
+        }
+        s1 = [s1, s2, s3, s4];
+        s0 = s1;
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e8);
+        }
+      }
+      return s0;
+    }
+    function peg$parsesan() {
+      var s0, s1, s2, s3, s4, s5;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      s1 = peg$currPos;
+      if (input.substr(peg$currPos, 5) === peg$c4) {
+        s2 = peg$c4;
+        peg$currPos += 5;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e13);
+        }
+      }
+      if (s2 === peg$FAILED) {
+        if (input.substr(peg$currPos, 3) === peg$c5) {
+          s2 = peg$c5;
+          peg$currPos += 3;
+        } else {
+          s2 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e14);
+          }
+        }
+        if (s2 === peg$FAILED) {
+          if (input.substr(peg$currPos, 5) === peg$c6) {
+            s2 = peg$c6;
+            peg$currPos += 5;
+          } else {
+            s2 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e15);
+            }
+          }
+          if (s2 === peg$FAILED) {
+            if (input.substr(peg$currPos, 3) === peg$c7) {
+              s2 = peg$c7;
+              peg$currPos += 3;
+            } else {
+              s2 = peg$FAILED;
+              if (peg$silentFails === 0) {
+                peg$fail(peg$e16);
+              }
+            }
+            if (s2 === peg$FAILED) {
+              s2 = peg$currPos;
+              s3 = input.charAt(peg$currPos);
+              if (peg$r0.test(s3)) {
+                peg$currPos++;
+              } else {
+                s3 = peg$FAILED;
+                if (peg$silentFails === 0) {
+                  peg$fail(peg$e5);
+                }
+              }
+              if (s3 !== peg$FAILED) {
+                s4 = [];
+                s5 = input.charAt(peg$currPos);
+                if (peg$r4.test(s5)) {
+                  peg$currPos++;
+                } else {
+                  s5 = peg$FAILED;
+                  if (peg$silentFails === 0) {
+                    peg$fail(peg$e17);
+                  }
+                }
+                if (s5 !== peg$FAILED) {
+                  while (s5 !== peg$FAILED) {
+                    s4.push(s5);
+                    s5 = input.charAt(peg$currPos);
+                    if (peg$r4.test(s5)) {
+                      peg$currPos++;
+                    } else {
+                      s5 = peg$FAILED;
+                      if (peg$silentFails === 0) {
+                        peg$fail(peg$e17);
+                      }
+                    }
+                  }
+                } else {
+                  s4 = peg$FAILED;
+                }
+                if (s4 !== peg$FAILED) {
+                  s3 = [s3, s4];
+                  s2 = s3;
+                } else {
+                  peg$currPos = s2;
+                  s2 = peg$FAILED;
+                }
+              } else {
+                peg$currPos = s2;
+                s2 = peg$FAILED;
+              }
+            }
+          }
+        }
+      }
+      if (s2 !== peg$FAILED) {
+        s3 = input.charAt(peg$currPos);
+        if (peg$r5.test(s3)) {
+          peg$currPos++;
+        } else {
+          s3 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e18);
+          }
+        }
+        if (s3 === peg$FAILED) {
+          s3 = null;
+        }
+        s2 = [s2, s3];
+        s1 = s2;
+      } else {
+        peg$currPos = s1;
+        s1 = peg$FAILED;
+      }
+      if (s1 !== peg$FAILED) {
+        s0 = input.substring(s0, peg$currPos);
+      } else {
+        s0 = s1;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e12);
+        }
+      }
+      return s0;
+    }
+    function peg$parsesuffixAnnotation() {
+      var s0, s1, s2;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      s1 = [];
+      s2 = input.charAt(peg$currPos);
+      if (peg$r6.test(s2)) {
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e20);
+        }
+      }
+      while (s2 !== peg$FAILED) {
+        s1.push(s2);
+        if (s1.length >= 2) {
+          s2 = peg$FAILED;
+        } else {
+          s2 = input.charAt(peg$currPos);
+          if (peg$r6.test(s2)) {
+            peg$currPos++;
+          } else {
+            s2 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e20);
+            }
+          }
+        }
+      }
+      if (s1.length < 1) {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      } else {
+        s0 = s1;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e19);
+        }
+      }
+      return s0;
+    }
+    function peg$parsenag() {
+      var s0, s2, s3, s4, s5;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      peg$parse_();
+      if (input.charCodeAt(peg$currPos) === 36) {
+        s2 = peg$c8;
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e22);
+        }
+      }
+      if (s2 !== peg$FAILED) {
+        s3 = peg$currPos;
+        s4 = [];
+        s5 = input.charAt(peg$currPos);
+        if (peg$r2.test(s5)) {
+          peg$currPos++;
+        } else {
+          s5 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e9);
+          }
+        }
+        if (s5 !== peg$FAILED) {
+          while (s5 !== peg$FAILED) {
+            s4.push(s5);
+            s5 = input.charAt(peg$currPos);
+            if (peg$r2.test(s5)) {
+              peg$currPos++;
+            } else {
+              s5 = peg$FAILED;
+              if (peg$silentFails === 0) {
+                peg$fail(peg$e9);
+              }
+            }
+          }
+        } else {
+          s4 = peg$FAILED;
+        }
+        if (s4 !== peg$FAILED) {
+          s3 = input.substring(s3, peg$currPos);
+        } else {
+          s3 = s4;
+        }
+        if (s3 !== peg$FAILED) {
+          s0 = peg$f6(s3);
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e21);
+        }
+      }
+      return s0;
+    }
+    function peg$parsecomment() {
+      var s0;
+      s0 = peg$parsebraceComment();
+      if (s0 === peg$FAILED) {
+        s0 = peg$parserestOfLineComment();
+      }
+      return s0;
+    }
+    function peg$parsebraceComment() {
+      var s0, s1, s2, s3, s4;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      if (input.charCodeAt(peg$currPos) === 123) {
+        s1 = peg$c9;
+        peg$currPos++;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e24);
+        }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$currPos;
+        s3 = [];
+        s4 = input.charAt(peg$currPos);
+        if (peg$r7.test(s4)) {
+          peg$currPos++;
+        } else {
+          s4 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e25);
+          }
+        }
+        while (s4 !== peg$FAILED) {
+          s3.push(s4);
+          s4 = input.charAt(peg$currPos);
+          if (peg$r7.test(s4)) {
+            peg$currPos++;
+          } else {
+            s4 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e25);
+            }
+          }
+        }
+        s2 = input.substring(s2, peg$currPos);
+        if (input.charCodeAt(peg$currPos) === 125) {
+          s3 = peg$c10;
+          peg$currPos++;
+        } else {
+          s3 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e26);
+          }
+        }
+        if (s3 !== peg$FAILED) {
+          s0 = peg$f7(s2);
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e23);
+        }
+      }
+      return s0;
+    }
+    function peg$parserestOfLineComment() {
+      var s0, s1, s2, s3, s4;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      if (input.charCodeAt(peg$currPos) === 59) {
+        s1 = peg$c11;
+        peg$currPos++;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e28);
+        }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = peg$currPos;
+        s3 = [];
+        s4 = input.charAt(peg$currPos);
+        if (peg$r8.test(s4)) {
+          peg$currPos++;
+        } else {
+          s4 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e29);
+          }
+        }
+        while (s4 !== peg$FAILED) {
+          s3.push(s4);
+          s4 = input.charAt(peg$currPos);
+          if (peg$r8.test(s4)) {
+            peg$currPos++;
+          } else {
+            s4 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e29);
+            }
+          }
+        }
+        s2 = input.substring(s2, peg$currPos);
+        s0 = peg$f8(s2);
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e27);
+        }
+      }
+      return s0;
+    }
+    function peg$parsevariation() {
+      var s0, s2, s3, s5;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      peg$parse_();
+      if (input.charCodeAt(peg$currPos) === 40) {
+        s2 = peg$c12;
+        peg$currPos++;
+      } else {
+        s2 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e31);
+        }
+      }
+      if (s2 !== peg$FAILED) {
+        s3 = peg$parseline();
+        if (s3 !== peg$FAILED) {
+          peg$parse_();
+          if (input.charCodeAt(peg$currPos) === 41) {
+            s5 = peg$c13;
+            peg$currPos++;
+          } else {
+            s5 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e32);
+            }
+          }
+          if (s5 !== peg$FAILED) {
+            s0 = peg$f9(s3);
+          } else {
+            peg$currPos = s0;
+            s0 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s0;
+          s0 = peg$FAILED;
+        }
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e30);
+        }
+      }
+      return s0;
+    }
+    function peg$parsegameTerminationMarker() {
+      var s0, s1, s3;
+      peg$silentFails++;
+      s0 = peg$currPos;
+      if (input.substr(peg$currPos, 3) === peg$c14) {
+        s1 = peg$c14;
+        peg$currPos += 3;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e34);
+        }
+      }
+      if (s1 === peg$FAILED) {
+        if (input.substr(peg$currPos, 3) === peg$c15) {
+          s1 = peg$c15;
+          peg$currPos += 3;
+        } else {
+          s1 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e35);
+          }
+        }
+        if (s1 === peg$FAILED) {
+          if (input.substr(peg$currPos, 7) === peg$c16) {
+            s1 = peg$c16;
+            peg$currPos += 7;
+          } else {
+            s1 = peg$FAILED;
+            if (peg$silentFails === 0) {
+              peg$fail(peg$e36);
+            }
+          }
+          if (s1 === peg$FAILED) {
+            if (input.charCodeAt(peg$currPos) === 42) {
+              s1 = peg$c17;
+              peg$currPos++;
+            } else {
+              s1 = peg$FAILED;
+              if (peg$silentFails === 0) {
+                peg$fail(peg$e37);
+              }
+            }
+          }
+        }
+      }
+      if (s1 !== peg$FAILED) {
+        peg$parse_();
+        s3 = peg$parsecomment();
+        if (s3 === peg$FAILED) {
+          s3 = null;
+        }
+        s0 = peg$f10(s1, s3);
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
+      peg$silentFails--;
+      if (s0 === peg$FAILED) {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e33);
+        }
+      }
+      return s0;
+    }
+    function peg$parse_() {
+      var s0, s1;
+      peg$silentFails++;
+      s0 = [];
+      s1 = input.charAt(peg$currPos);
+      if (peg$r9.test(s1)) {
+        peg$currPos++;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) {
+          peg$fail(peg$e39);
+        }
+      }
+      while (s1 !== peg$FAILED) {
+        s0.push(s1);
+        s1 = input.charAt(peg$currPos);
+        if (peg$r9.test(s1)) {
+          peg$currPos++;
+        } else {
+          s1 = peg$FAILED;
+          if (peg$silentFails === 0) {
+            peg$fail(peg$e39);
+          }
+        }
+      }
+      peg$silentFails--;
+      s1 = peg$FAILED;
+      if (peg$silentFails === 0) {
+        peg$fail(peg$e38);
+      }
+      return s0;
+    }
+    peg$result = peg$startRuleFunction();
+    if (options.peg$library) {
+      return (
+        /** @type {any} */
+        {
+          peg$result,
+          peg$currPos,
+          peg$FAILED,
+          peg$maxFailExpected,
+          peg$maxFailPos
+        }
+      );
+    }
+    if (peg$result !== peg$FAILED && peg$currPos === input.length) {
+      return peg$result;
+    } else {
+      if (peg$result !== peg$FAILED && peg$currPos < input.length) {
+        peg$fail(peg$endExpectation());
+      }
+      throw peg$buildStructuredError(
+        peg$maxFailExpected,
+        peg$maxFailPos < input.length ? input.charAt(peg$maxFailPos) : null,
+        peg$maxFailPos < input.length ? peg$computeLocation(peg$maxFailPos, peg$maxFailPos + 1) : peg$computeLocation(peg$maxFailPos, peg$maxFailPos)
+      );
+    }
+  }
+  var MASK64 = 0xffffffffffffffffn;
+  function rotl(x, k) {
+    return (x << k | x >> 64n - k) & 0xffffffffffffffffn;
+  }
+  function wrappingMul(x, y) {
+    return x * y & MASK64;
+  }
+  function xoroshiro128(state) {
+    return function() {
+      let s0 = BigInt(state & MASK64);
+      let s1 = BigInt(state >> 64n & MASK64);
+      const result = wrappingMul(rotl(wrappingMul(s0, 5n), 7n), 9n);
+      s1 ^= s0;
+      s0 = (rotl(s0, 24n) ^ s1 ^ s1 << 16n) & MASK64;
+      s1 = rotl(s1, 37n);
+      state = s1 << 64n | s0;
+      return result;
+    };
+  }
+  var rand = xoroshiro128(0xa187eb39cdcaed8f31c4b365b102e01en);
+  var PIECE_KEYS = Array.from({ length: 2 }, () => Array.from({ length: 6 }, () => Array.from({ length: 128 }, () => rand())));
+  var EP_KEYS = Array.from({ length: 8 }, () => rand());
+  var CASTLING_KEYS = Array.from({ length: 16 }, () => rand());
+  var SIDE_KEY = rand();
+  var WHITE = "w";
+  var BLACK = "b";
+  var PAWN = "p";
+  var KNIGHT = "n";
+  var BISHOP = "b";
+  var ROOK = "r";
+  var QUEEN = "q";
+  var KING = "k";
+  var DEFAULT_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+  var Move = class {
+    constructor(chess, internal) {
+      __publicField(this, "color");
+      __publicField(this, "from");
+      __publicField(this, "to");
+      __publicField(this, "piece");
+      __publicField(this, "captured");
+      __publicField(this, "promotion");
+      /**
+       * @deprecated This field is deprecated and will be removed in version 2.0.0.
+       * Please use move descriptor functions instead: `isCapture`, `isPromotion`,
+       * `isEnPassant`, `isKingsideCastle`, `isQueensideCastle`, `isCastle`, and
+       * `isBigPawn`
+       */
+      __publicField(this, "flags");
+      __publicField(this, "san");
+      __publicField(this, "lan");
+      __publicField(this, "before");
+      __publicField(this, "after");
+      const { color, piece, from, to, flags, captured, promotion } = internal;
+      const fromAlgebraic = algebraic(from);
+      const toAlgebraic = algebraic(to);
+      this.color = color;
+      this.piece = piece;
+      this.from = fromAlgebraic;
+      this.to = toAlgebraic;
+      this.san = chess["_moveToSan"](internal, chess["_moves"]({ legal: true }));
+      this.lan = fromAlgebraic + toAlgebraic;
+      this.before = chess.fen();
+      chess["_makeMove"](internal);
+      this.after = chess.fen();
+      chess["_undoMove"]();
+      this.flags = "";
+      for (const flag in BITS) {
+        if (BITS[flag] & flags) {
+          this.flags += FLAGS[flag];
+        }
+      }
+      if (captured) {
+        this.captured = captured;
+      }
+      if (promotion) {
+        this.promotion = promotion;
+        this.lan += promotion;
+      }
+    }
+    isCapture() {
+      return this.flags.indexOf(FLAGS["CAPTURE"]) > -1;
+    }
+    isPromotion() {
+      return this.flags.indexOf(FLAGS["PROMOTION"]) > -1;
+    }
+    isEnPassant() {
+      return this.flags.indexOf(FLAGS["EP_CAPTURE"]) > -1;
+    }
+    isKingsideCastle() {
+      return this.flags.indexOf(FLAGS["KSIDE_CASTLE"]) > -1;
+    }
+    isQueensideCastle() {
+      return this.flags.indexOf(FLAGS["QSIDE_CASTLE"]) > -1;
+    }
+    isBigPawn() {
+      return this.flags.indexOf(FLAGS["BIG_PAWN"]) > -1;
+    }
+  };
+  var EMPTY = -1;
+  var FLAGS = {
+    NORMAL: "n",
+    CAPTURE: "c",
+    BIG_PAWN: "b",
+    EP_CAPTURE: "e",
+    PROMOTION: "p",
+    KSIDE_CASTLE: "k",
+    QSIDE_CASTLE: "q",
+    NULL_MOVE: "-"
+  };
+  var BITS = {
+    NORMAL: 1,
+    CAPTURE: 2,
+    BIG_PAWN: 4,
+    EP_CAPTURE: 8,
+    PROMOTION: 16,
+    KSIDE_CASTLE: 32,
+    QSIDE_CASTLE: 64,
+    NULL_MOVE: 128
+  };
+  var SEVEN_TAG_ROSTER = {
+    Event: "?",
+    Site: "?",
+    Date: "????.??.??",
+    Round: "?",
+    White: "?",
+    Black: "?",
+    Result: "*"
+  };
+  var SUPLEMENTAL_TAGS = {
+    WhiteTitle: null,
+    BlackTitle: null,
+    WhiteElo: null,
+    BlackElo: null,
+    WhiteUSCF: null,
+    BlackUSCF: null,
+    WhiteNA: null,
+    BlackNA: null,
+    WhiteType: null,
+    BlackType: null,
+    EventDate: null,
+    EventSponsor: null,
+    Section: null,
+    Stage: null,
+    Board: null,
+    Opening: null,
+    Variation: null,
+    SubVariation: null,
+    ECO: null,
+    NIC: null,
+    Time: null,
+    UTCTime: null,
+    UTCDate: null,
+    TimeControl: null,
+    SetUp: null,
+    FEN: null,
+    Termination: null,
+    Annotator: null,
+    Mode: null,
+    PlyCount: null
+  };
+  var HEADER_TEMPLATE = {
+    ...SEVEN_TAG_ROSTER,
+    ...SUPLEMENTAL_TAGS
+  };
+  var Ox88 = {
+    a8: 0,
+    b8: 1,
+    c8: 2,
+    d8: 3,
+    e8: 4,
+    f8: 5,
+    g8: 6,
+    h8: 7,
+    a7: 16,
+    b7: 17,
+    c7: 18,
+    d7: 19,
+    e7: 20,
+    f7: 21,
+    g7: 22,
+    h7: 23,
+    a6: 32,
+    b6: 33,
+    c6: 34,
+    d6: 35,
+    e6: 36,
+    f6: 37,
+    g6: 38,
+    h6: 39,
+    a5: 48,
+    b5: 49,
+    c5: 50,
+    d5: 51,
+    e5: 52,
+    f5: 53,
+    g5: 54,
+    h5: 55,
+    a4: 64,
+    b4: 65,
+    c4: 66,
+    d4: 67,
+    e4: 68,
+    f4: 69,
+    g4: 70,
+    h4: 71,
+    a3: 80,
+    b3: 81,
+    c3: 82,
+    d3: 83,
+    e3: 84,
+    f3: 85,
+    g3: 86,
+    h3: 87,
+    a2: 96,
+    b2: 97,
+    c2: 98,
+    d2: 99,
+    e2: 100,
+    f2: 101,
+    g2: 102,
+    h2: 103,
+    a1: 112,
+    b1: 113,
+    c1: 114,
+    d1: 115,
+    e1: 116,
+    f1: 117,
+    g1: 118,
+    h1: 119
+  };
+  var PAWN_OFFSETS = {
+    b: [16, 32, 17, 15],
+    w: [-16, -32, -17, -15]
+  };
+  var PIECE_OFFSETS = {
+    n: [-18, -33, -31, -14, 18, 33, 31, 14],
+    b: [-17, -15, 17, 15],
+    r: [-16, 1, 16, -1],
+    q: [-17, -16, -15, 1, 17, 16, 15, -1],
+    k: [-17, -16, -15, 1, 17, 16, 15, -1]
+  };
+  var ATTACKS = [
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    24,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    24,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    24,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    24,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    24,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    2,
+    24,
+    2,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    53,
+    56,
+    53,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    24,
+    24,
+    24,
+    24,
+    24,
+    24,
+    56,
+    0,
+    56,
+    24,
+    24,
+    24,
+    24,
+    24,
+    24,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    53,
+    56,
+    53,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    2,
+    24,
+    2,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    24,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    24,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    24,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    24,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20,
+    0,
+    0,
+    20,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    24,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    20
+  ];
+  var RAYS = [
+    17,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    16,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    15,
+    0,
+    0,
+    17,
+    0,
+    0,
+    0,
+    0,
+    0,
+    16,
+    0,
+    0,
+    0,
+    0,
+    0,
+    15,
+    0,
+    0,
+    0,
+    0,
+    17,
+    0,
+    0,
+    0,
+    0,
+    16,
+    0,
+    0,
+    0,
+    0,
+    15,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    17,
+    0,
+    0,
+    0,
+    16,
+    0,
+    0,
+    0,
+    15,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    17,
+    0,
+    0,
+    16,
+    0,
+    0,
+    15,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    17,
+    0,
+    16,
+    0,
+    15,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    17,
+    16,
+    15,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -15,
+    -16,
+    -17,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -15,
+    0,
+    -16,
+    0,
+    -17,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -15,
+    0,
+    0,
+    -16,
+    0,
+    0,
+    -17,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -15,
+    0,
+    0,
+    0,
+    -16,
+    0,
+    0,
+    0,
+    -17,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -15,
+    0,
+    0,
+    0,
+    0,
+    -16,
+    0,
+    0,
+    0,
+    0,
+    -17,
+    0,
+    0,
+    0,
+    0,
+    -15,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -16,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -17,
+    0,
+    0,
+    -15,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -16,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    -17
+  ];
+  var PIECE_MASKS = { p: 1, n: 2, b: 4, r: 8, q: 16, k: 32 };
+  var SYMBOLS = "pnbrqkPNBRQK";
+  var PROMOTIONS = [KNIGHT, BISHOP, ROOK, QUEEN];
+  var RANK_1 = 7;
+  var RANK_2 = 6;
+  var RANK_7 = 1;
+  var RANK_8 = 0;
+  var SIDES = {
+    [KING]: BITS.KSIDE_CASTLE,
+    [QUEEN]: BITS.QSIDE_CASTLE
+  };
+  var ROOKS = {
+    w: [
+      { square: Ox88.a1, flag: BITS.QSIDE_CASTLE },
+      { square: Ox88.h1, flag: BITS.KSIDE_CASTLE }
+    ],
+    b: [
+      { square: Ox88.a8, flag: BITS.QSIDE_CASTLE },
+      { square: Ox88.h8, flag: BITS.KSIDE_CASTLE }
+    ]
+  };
+  var SECOND_RANK = { b: RANK_7, w: RANK_2 };
+  var SAN_NULLMOVE = "--";
+  function rank(square) {
+    return square >> 4;
+  }
+  function file(square) {
+    return square & 15;
+  }
+  function isDigit(c) {
+    return "0123456789".indexOf(c) !== -1;
+  }
+  function algebraic(square) {
+    const f = file(square);
+    const r = rank(square);
+    return "abcdefgh".substring(f, f + 1) + "87654321".substring(r, r + 1);
+  }
+  function swapColor(color) {
+    return color === WHITE ? BLACK : WHITE;
+  }
+  function validateFen(fen) {
+    const tokens = fen.split(/\s+/);
+    if (tokens.length !== 6) {
+      return {
+        ok: false,
+        error: "Invalid FEN: must contain six space-delimited fields"
+      };
+    }
+    const moveNumber = parseInt(tokens[5], 10);
+    if (isNaN(moveNumber) || moveNumber <= 0) {
+      return {
+        ok: false,
+        error: "Invalid FEN: move number must be a positive integer"
+      };
+    }
+    const halfMoves = parseInt(tokens[4], 10);
+    if (isNaN(halfMoves) || halfMoves < 0) {
+      return {
+        ok: false,
+        error: "Invalid FEN: half move counter number must be a non-negative integer"
+      };
+    }
+    if (!/^(-|[abcdefgh][36])$/.test(tokens[3])) {
+      return { ok: false, error: "Invalid FEN: en-passant square is invalid" };
+    }
+    if (/[^kKqQ-]/.test(tokens[2])) {
+      return { ok: false, error: "Invalid FEN: castling availability is invalid" };
+    }
+    if (!/^(w|b)$/.test(tokens[1])) {
+      return { ok: false, error: "Invalid FEN: side-to-move is invalid" };
+    }
+    const rows = tokens[0].split("/");
+    if (rows.length !== 8) {
+      return {
+        ok: false,
+        error: "Invalid FEN: piece data does not contain 8 '/'-delimited rows"
+      };
+    }
+    for (let i = 0; i < rows.length; i++) {
+      let sumFields = 0;
+      let previousWasNumber = false;
+      for (let k = 0; k < rows[i].length; k++) {
+        if (isDigit(rows[i][k])) {
+          if (previousWasNumber) {
+            return {
+              ok: false,
+              error: "Invalid FEN: piece data is invalid (consecutive number)"
+            };
+          }
+          sumFields += parseInt(rows[i][k], 10);
+          previousWasNumber = true;
+        } else {
+          if (!/^[prnbqkPRNBQK]$/.test(rows[i][k])) {
+            return {
+              ok: false,
+              error: "Invalid FEN: piece data is invalid (invalid piece)"
+            };
+          }
+          sumFields += 1;
+          previousWasNumber = false;
+        }
+      }
+      if (sumFields !== 8) {
+        return {
+          ok: false,
+          error: "Invalid FEN: piece data is invalid (too many squares in rank)"
+        };
+      }
+    }
+    if (tokens[3][1] == "3" && tokens[1] == "w" || tokens[3][1] == "6" && tokens[1] == "b") {
+      return { ok: false, error: "Invalid FEN: illegal en-passant square" };
+    }
+    const kings = [
+      { color: "white", regex: /K/g },
+      { color: "black", regex: /k/g }
+    ];
+    for (const { color, regex } of kings) {
+      if (!regex.test(tokens[0])) {
+        return { ok: false, error: `Invalid FEN: missing ${color} king` };
+      }
+      if ((tokens[0].match(regex) || []).length > 1) {
+        return { ok: false, error: `Invalid FEN: too many ${color} kings` };
+      }
+    }
+    if (Array.from(rows[0] + rows[7]).some((char) => char.toUpperCase() === "P")) {
+      return {
+        ok: false,
+        error: "Invalid FEN: some pawns are on the edge rows"
+      };
+    }
+    return { ok: true };
+  }
+  function getDisambiguator(move, moves) {
+    const from = move.from;
+    const to = move.to;
+    const piece = move.piece;
+    let ambiguities = 0;
+    let sameRank = 0;
+    let sameFile = 0;
+    for (let i = 0, len = moves.length; i < len; i++) {
+      const ambigFrom = moves[i].from;
+      const ambigTo = moves[i].to;
+      const ambigPiece = moves[i].piece;
+      if (piece === ambigPiece && from !== ambigFrom && to === ambigTo) {
+        ambiguities++;
+        if (rank(from) === rank(ambigFrom)) {
+          sameRank++;
+        }
+        if (file(from) === file(ambigFrom)) {
+          sameFile++;
+        }
+      }
+    }
+    if (ambiguities > 0) {
+      if (sameRank > 0 && sameFile > 0) {
+        return algebraic(from);
+      } else if (sameFile > 0) {
+        return algebraic(from).charAt(1);
+      } else {
+        return algebraic(from).charAt(0);
+      }
+    }
+    return "";
+  }
+  function addMove(moves, color, from, to, piece, captured = void 0, flags = BITS.NORMAL) {
+    const r = rank(to);
+    if (piece === PAWN && (r === RANK_1 || r === RANK_8)) {
+      for (let i = 0; i < PROMOTIONS.length; i++) {
+        const promotion = PROMOTIONS[i];
+        moves.push({
+          color,
+          from,
+          to,
+          piece,
+          captured,
+          promotion,
+          flags: flags | BITS.PROMOTION
+        });
+      }
+    } else {
+      moves.push({
+        color,
+        from,
+        to,
+        piece,
+        captured,
+        flags
+      });
+    }
+  }
+  function inferPieceType(san) {
+    let pieceType = san.charAt(0);
+    if (pieceType >= "a" && pieceType <= "h") {
+      const matches = san.match(/[a-h]\d.*[a-h]\d/);
+      if (matches) {
+        return void 0;
+      }
+      return PAWN;
+    }
+    pieceType = pieceType.toLowerCase();
+    if (pieceType === "o") {
+      return KING;
+    }
+    return pieceType;
+  }
+  function strippedSan(move) {
+    return move.replace(/=/, "").replace(/[+#]?[?!]*$/, "");
+  }
+  var Chess = class {
+    constructor(fen = DEFAULT_POSITION, { skipValidation = false } = {}) {
+      __publicField(this, "_board", new Array(128));
+      __publicField(this, "_turn", WHITE);
+      __publicField(this, "_header", {});
+      __publicField(this, "_kings", { w: EMPTY, b: EMPTY });
+      __publicField(this, "_epSquare", -1);
+      __publicField(this, "_halfMoves", 0);
+      __publicField(this, "_moveNumber", 0);
+      __publicField(this, "_history", []);
+      __publicField(this, "_comments", {});
+      __publicField(this, "_castling", { w: 0, b: 0 });
+      __publicField(this, "_hash", 0n);
+      // tracks number of times a position has been seen for repetition checking
+      __publicField(this, "_positionCount", /* @__PURE__ */ new Map());
+      this.load(fen, { skipValidation });
+    }
+    clear({ preserveHeaders = false } = {}) {
+      this._board = new Array(128);
+      this._kings = { w: EMPTY, b: EMPTY };
+      this._turn = WHITE;
+      this._castling = { w: 0, b: 0 };
+      this._epSquare = EMPTY;
+      this._halfMoves = 0;
+      this._moveNumber = 1;
+      this._history = [];
+      this._comments = {};
+      this._header = preserveHeaders ? this._header : { ...HEADER_TEMPLATE };
+      this._hash = this._computeHash();
+      this._positionCount = /* @__PURE__ */ new Map();
+      this._header["SetUp"] = null;
+      this._header["FEN"] = null;
+    }
+    load(fen, { skipValidation = false, preserveHeaders = false } = {}) {
+      let tokens = fen.split(/\s+/);
+      if (tokens.length >= 2 && tokens.length < 6) {
+        const adjustments = ["-", "-", "0", "1"];
+        fen = tokens.concat(adjustments.slice(-(6 - tokens.length))).join(" ");
+      }
+      tokens = fen.split(/\s+/);
+      if (!skipValidation) {
+        const { ok, error } = validateFen(fen);
+        if (!ok) {
+          throw new Error(error);
+        }
+      }
+      const position = tokens[0];
+      let square = 0;
+      this.clear({ preserveHeaders });
+      for (let i = 0; i < position.length; i++) {
+        const piece = position.charAt(i);
+        if (piece === "/") {
+          square += 8;
+        } else if (isDigit(piece)) {
+          square += parseInt(piece, 10);
+        } else {
+          const color = piece < "a" ? WHITE : BLACK;
+          this._put({ type: piece.toLowerCase(), color }, algebraic(square));
+          square++;
+        }
+      }
+      this._turn = tokens[1];
+      if (tokens[2].indexOf("K") > -1) {
+        this._castling.w |= BITS.KSIDE_CASTLE;
+      }
+      if (tokens[2].indexOf("Q") > -1) {
+        this._castling.w |= BITS.QSIDE_CASTLE;
+      }
+      if (tokens[2].indexOf("k") > -1) {
+        this._castling.b |= BITS.KSIDE_CASTLE;
+      }
+      if (tokens[2].indexOf("q") > -1) {
+        this._castling.b |= BITS.QSIDE_CASTLE;
+      }
+      this._epSquare = tokens[3] === "-" ? EMPTY : Ox88[tokens[3]];
+      this._halfMoves = parseInt(tokens[4], 10);
+      this._moveNumber = parseInt(tokens[5], 10);
+      this._hash = this._computeHash();
+      this._updateSetup(fen);
+      this._incPositionCount();
+    }
+    fen({ forceEnpassantSquare = false } = {}) {
+      let empty = 0;
+      let fen = "";
+      for (let i = Ox88.a8; i <= Ox88.h1; i++) {
+        if (this._board[i]) {
+          if (empty > 0) {
+            fen += empty;
+            empty = 0;
+          }
+          const { color, type: piece } = this._board[i];
+          fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase();
+        } else {
+          empty++;
+        }
+        if (i + 1 & 136) {
+          if (empty > 0) {
+            fen += empty;
+          }
+          if (i !== Ox88.h1) {
+            fen += "/";
+          }
+          empty = 0;
+          i += 8;
+        }
+      }
+      let castling = "";
+      if (this._castling[WHITE] & BITS.KSIDE_CASTLE) {
+        castling += "K";
+      }
+      if (this._castling[WHITE] & BITS.QSIDE_CASTLE) {
+        castling += "Q";
+      }
+      if (this._castling[BLACK] & BITS.KSIDE_CASTLE) {
+        castling += "k";
+      }
+      if (this._castling[BLACK] & BITS.QSIDE_CASTLE) {
+        castling += "q";
+      }
+      castling = castling || "-";
+      let epSquare = "-";
+      if (this._epSquare !== EMPTY) {
+        if (forceEnpassantSquare) {
+          epSquare = algebraic(this._epSquare);
+        } else {
+          const bigPawnSquare = this._epSquare + (this._turn === WHITE ? 16 : -16);
+          const squares = [bigPawnSquare + 1, bigPawnSquare - 1];
+          for (const square of squares) {
+            if (square & 136) {
+              continue;
+            }
+            const color = this._turn;
+            if (this._board[square]?.color === color && this._board[square]?.type === PAWN) {
+              this._makeMove({
+                color,
+                from: square,
+                to: this._epSquare,
+                piece: PAWN,
+                captured: PAWN,
+                flags: BITS.EP_CAPTURE
+              });
+              const isLegal = !this._isKingAttacked(color);
+              this._undoMove();
+              if (isLegal) {
+                epSquare = algebraic(this._epSquare);
+                break;
+              }
+            }
+          }
+        }
+      }
+      return [
+        fen,
+        this._turn,
+        castling,
+        epSquare,
+        this._halfMoves,
+        this._moveNumber
+      ].join(" ");
+    }
+    _pieceKey(i) {
+      if (!this._board[i]) {
+        return 0n;
+      }
+      const { color, type } = this._board[i];
+      const colorIndex = {
+        w: 0,
+        b: 1
+      }[color];
+      const typeIndex = {
+        p: 0,
+        n: 1,
+        b: 2,
+        r: 3,
+        q: 4,
+        k: 5
+      }[type];
+      return PIECE_KEYS[colorIndex][typeIndex][i];
+    }
+    _epKey() {
+      return this._epSquare === EMPTY ? 0n : EP_KEYS[this._epSquare & 7];
+    }
+    _castlingKey() {
+      const index = this._castling.w >> 5 | this._castling.b >> 3;
+      return CASTLING_KEYS[index];
+    }
+    _computeHash() {
+      let hash = 0n;
+      for (let i = Ox88.a8; i <= Ox88.h1; i++) {
+        if (i & 136) {
+          i += 7;
+          continue;
+        }
+        if (this._board[i]) {
+          hash ^= this._pieceKey(i);
+        }
+      }
+      hash ^= this._epKey();
+      hash ^= this._castlingKey();
+      if (this._turn === "b") {
+        hash ^= SIDE_KEY;
+      }
+      return hash;
+    }
+    /*
+     * Called when the initial board setup is changed with put() or remove().
+     * modifies the SetUp and FEN properties of the header object. If the FEN
+     * is equal to the default position, the SetUp and FEN are deleted the setup
+     * is only updated if history.length is zero, ie moves haven't been made.
+     */
+    _updateSetup(fen) {
+      if (this._history.length > 0)
+        return;
+      if (fen !== DEFAULT_POSITION) {
+        this._header["SetUp"] = "1";
+        this._header["FEN"] = fen;
+      } else {
+        this._header["SetUp"] = null;
+        this._header["FEN"] = null;
+      }
+    }
+    reset() {
+      this.load(DEFAULT_POSITION);
+    }
+    get(square) {
+      return this._board[Ox88[square]];
+    }
+    findPiece(piece) {
+      const squares = [];
+      for (let i = Ox88.a8; i <= Ox88.h1; i++) {
+        if (i & 136) {
+          i += 7;
+          continue;
+        }
+        if (!this._board[i] || this._board[i]?.color !== piece.color) {
+          continue;
+        }
+        if (this._board[i].color === piece.color && this._board[i].type === piece.type) {
+          squares.push(algebraic(i));
+        }
+      }
+      return squares;
+    }
+    put({ type, color }, square) {
+      if (this._put({ type, color }, square)) {
+        this._updateCastlingRights();
+        this._updateEnPassantSquare();
+        this._updateSetup(this.fen());
+        return true;
+      }
+      return false;
+    }
+    _set(sq, piece) {
+      this._hash ^= this._pieceKey(sq);
+      this._board[sq] = piece;
+      this._hash ^= this._pieceKey(sq);
+    }
+    _put({ type, color }, square) {
+      if (SYMBOLS.indexOf(type.toLowerCase()) === -1) {
+        return false;
+      }
+      if (!(square in Ox88)) {
+        return false;
+      }
+      const sq = Ox88[square];
+      if (type == KING && !(this._kings[color] == EMPTY || this._kings[color] == sq)) {
+        return false;
+      }
+      const currentPieceOnSquare = this._board[sq];
+      if (currentPieceOnSquare && currentPieceOnSquare.type === KING) {
+        this._kings[currentPieceOnSquare.color] = EMPTY;
+      }
+      this._set(sq, { type, color });
+      if (type === KING) {
+        this._kings[color] = sq;
+      }
+      return true;
+    }
+    _clear(sq) {
+      this._hash ^= this._pieceKey(sq);
+      delete this._board[sq];
+    }
+    remove(square) {
+      const piece = this.get(square);
+      this._clear(Ox88[square]);
+      if (piece && piece.type === KING) {
+        this._kings[piece.color] = EMPTY;
+      }
+      this._updateCastlingRights();
+      this._updateEnPassantSquare();
+      this._updateSetup(this.fen());
+      return piece;
+    }
+    _updateCastlingRights() {
+      this._hash ^= this._castlingKey();
+      const whiteKingInPlace = this._board[Ox88.e1]?.type === KING && this._board[Ox88.e1]?.color === WHITE;
+      const blackKingInPlace = this._board[Ox88.e8]?.type === KING && this._board[Ox88.e8]?.color === BLACK;
+      if (!whiteKingInPlace || this._board[Ox88.a1]?.type !== ROOK || this._board[Ox88.a1]?.color !== WHITE) {
+        this._castling.w &= -65;
+      }
+      if (!whiteKingInPlace || this._board[Ox88.h1]?.type !== ROOK || this._board[Ox88.h1]?.color !== WHITE) {
+        this._castling.w &= -33;
+      }
+      if (!blackKingInPlace || this._board[Ox88.a8]?.type !== ROOK || this._board[Ox88.a8]?.color !== BLACK) {
+        this._castling.b &= -65;
+      }
+      if (!blackKingInPlace || this._board[Ox88.h8]?.type !== ROOK || this._board[Ox88.h8]?.color !== BLACK) {
+        this._castling.b &= -33;
+      }
+      this._hash ^= this._castlingKey();
+    }
+    _updateEnPassantSquare() {
+      if (this._epSquare === EMPTY) {
+        return;
+      }
+      const startSquare = this._epSquare + (this._turn === WHITE ? -16 : 16);
+      const currentSquare = this._epSquare + (this._turn === WHITE ? 16 : -16);
+      const attackers = [currentSquare + 1, currentSquare - 1];
+      if (this._board[startSquare] !== null || this._board[this._epSquare] !== null || this._board[currentSquare]?.color !== swapColor(this._turn) || this._board[currentSquare]?.type !== PAWN) {
+        this._hash ^= this._epKey();
+        this._epSquare = EMPTY;
+        return;
+      }
+      const canCapture = (square) => !(square & 136) && this._board[square]?.color === this._turn && this._board[square]?.type === PAWN;
+      if (!attackers.some(canCapture)) {
+        this._hash ^= this._epKey();
+        this._epSquare = EMPTY;
+      }
+    }
+    _attacked(color, square, verbose) {
+      const attackers = [];
+      for (let i = Ox88.a8; i <= Ox88.h1; i++) {
+        if (i & 136) {
+          i += 7;
+          continue;
+        }
+        if (this._board[i] === void 0 || this._board[i].color !== color) {
+          continue;
+        }
+        const piece = this._board[i];
+        const difference = i - square;
+        if (difference === 0) {
+          continue;
+        }
+        const index = difference + 119;
+        if (ATTACKS[index] & PIECE_MASKS[piece.type]) {
+          if (piece.type === PAWN) {
+            if (difference > 0 && piece.color === WHITE || difference <= 0 && piece.color === BLACK) {
+              if (!verbose) {
+                return true;
+              } else {
+                attackers.push(algebraic(i));
+              }
+            }
+            continue;
+          }
+          if (piece.type === "n" || piece.type === "k") {
+            if (!verbose) {
+              return true;
+            } else {
+              attackers.push(algebraic(i));
+              continue;
+            }
+          }
+          const offset = RAYS[index];
+          let j = i + offset;
+          let blocked = false;
+          while (j !== square) {
+            if (this._board[j] != null) {
+              blocked = true;
+              break;
+            }
+            j += offset;
+          }
+          if (!blocked) {
+            if (!verbose) {
+              return true;
+            } else {
+              attackers.push(algebraic(i));
+              continue;
+            }
+          }
+        }
+      }
+      if (verbose) {
+        return attackers;
+      } else {
+        return false;
+      }
+    }
+    attackers(square, attackedBy) {
+      if (!attackedBy) {
+        return this._attacked(this._turn, Ox88[square], true);
+      } else {
+        return this._attacked(attackedBy, Ox88[square], true);
+      }
+    }
+    _isKingAttacked(color) {
+      const square = this._kings[color];
+      return square === -1 ? false : this._attacked(swapColor(color), square);
+    }
+    hash() {
+      return this._hash.toString(16);
+    }
+    isAttacked(square, attackedBy) {
+      return this._attacked(attackedBy, Ox88[square]);
+    }
+    isCheck() {
+      return this._isKingAttacked(this._turn);
+    }
+    inCheck() {
+      return this.isCheck();
+    }
+    isCheckmate() {
+      return this.isCheck() && this._moves().length === 0;
+    }
+    isStalemate() {
+      return !this.isCheck() && this._moves().length === 0;
+    }
+    isInsufficientMaterial() {
+      const pieces = {
+        b: 0,
+        n: 0,
+        r: 0,
+        q: 0,
+        k: 0,
+        p: 0
+      };
+      const bishops = [];
+      let numPieces = 0;
+      let squareColor = 0;
+      for (let i = Ox88.a8; i <= Ox88.h1; i++) {
+        squareColor = (squareColor + 1) % 2;
+        if (i & 136) {
+          i += 7;
+          continue;
+        }
+        const piece = this._board[i];
+        if (piece) {
+          pieces[piece.type] = piece.type in pieces ? pieces[piece.type] + 1 : 1;
+          if (piece.type === BISHOP) {
+            bishops.push(squareColor);
+          }
+          numPieces++;
+        }
+      }
+      if (numPieces === 2) {
+        return true;
+      } else if (
+        // k vs. kn .... or .... k vs. kb
+        numPieces === 3 && (pieces[BISHOP] === 1 || pieces[KNIGHT] === 1)
+      ) {
+        return true;
+      } else if (numPieces === pieces[BISHOP] + 2) {
+        let sum = 0;
+        const len = bishops.length;
+        for (let i = 0; i < len; i++) {
+          sum += bishops[i];
+        }
+        if (sum === 0 || sum === len) {
+          return true;
+        }
+      }
+      return false;
+    }
+    isThreefoldRepetition() {
+      return this._getPositionCount(this._hash) >= 3;
+    }
+    isDrawByFiftyMoves() {
+      return this._halfMoves >= 100;
+    }
+    isDraw() {
+      return this.isDrawByFiftyMoves() || this.isStalemate() || this.isInsufficientMaterial() || this.isThreefoldRepetition();
+    }
+    isGameOver() {
+      return this.isCheckmate() || this.isDraw();
+    }
+    moves({ verbose = false, square = void 0, piece = void 0 } = {}) {
+      const moves = this._moves({ square, piece });
+      if (verbose) {
+        return moves.map((move) => new Move(this, move));
+      } else {
+        return moves.map((move) => this._moveToSan(move, moves));
+      }
+    }
+    _moves({ legal = true, piece = void 0, square = void 0 } = {}) {
+      const forSquare = square ? square.toLowerCase() : void 0;
+      const forPiece = piece?.toLowerCase();
+      const moves = [];
+      const us = this._turn;
+      const them = swapColor(us);
+      let firstSquare = Ox88.a8;
+      let lastSquare = Ox88.h1;
+      let singleSquare = false;
+      if (forSquare) {
+        if (!(forSquare in Ox88)) {
+          return [];
+        } else {
+          firstSquare = lastSquare = Ox88[forSquare];
+          singleSquare = true;
+        }
+      }
+      for (let from = firstSquare; from <= lastSquare; from++) {
+        if (from & 136) {
+          from += 7;
+          continue;
+        }
+        if (!this._board[from] || this._board[from].color === them) {
+          continue;
+        }
+        const { type } = this._board[from];
+        let to;
+        if (type === PAWN) {
+          if (forPiece && forPiece !== type)
+            continue;
+          to = from + PAWN_OFFSETS[us][0];
+          if (!this._board[to]) {
+            addMove(moves, us, from, to, PAWN);
+            to = from + PAWN_OFFSETS[us][1];
+            if (SECOND_RANK[us] === rank(from) && !this._board[to]) {
+              addMove(moves, us, from, to, PAWN, void 0, BITS.BIG_PAWN);
+            }
+          }
+          for (let j = 2; j < 4; j++) {
+            to = from + PAWN_OFFSETS[us][j];
+            if (to & 136)
+              continue;
+            if (this._board[to]?.color === them) {
+              addMove(moves, us, from, to, PAWN, this._board[to].type, BITS.CAPTURE);
+            } else if (to === this._epSquare) {
+              addMove(moves, us, from, to, PAWN, PAWN, BITS.EP_CAPTURE);
+            }
+          }
+        } else {
+          if (forPiece && forPiece !== type)
+            continue;
+          for (let j = 0, len = PIECE_OFFSETS[type].length; j < len; j++) {
+            const offset = PIECE_OFFSETS[type][j];
+            to = from;
+            while (true) {
+              to += offset;
+              if (to & 136)
+                break;
+              if (!this._board[to]) {
+                addMove(moves, us, from, to, type);
+              } else {
+                if (this._board[to].color === us)
+                  break;
+                addMove(moves, us, from, to, type, this._board[to].type, BITS.CAPTURE);
+                break;
+              }
+              if (type === KNIGHT || type === KING)
+                break;
+            }
+          }
+        }
+      }
+      if (forPiece === void 0 || forPiece === KING) {
+        if (!singleSquare || lastSquare === this._kings[us]) {
+          if (this._castling[us] & BITS.KSIDE_CASTLE) {
+            const castlingFrom = this._kings[us];
+            const castlingTo = castlingFrom + 2;
+            if (!this._board[castlingFrom + 1] && !this._board[castlingTo] && !this._attacked(them, this._kings[us]) && !this._attacked(them, castlingFrom + 1) && !this._attacked(them, castlingTo)) {
+              addMove(moves, us, this._kings[us], castlingTo, KING, void 0, BITS.KSIDE_CASTLE);
+            }
+          }
+          if (this._castling[us] & BITS.QSIDE_CASTLE) {
+            const castlingFrom = this._kings[us];
+            const castlingTo = castlingFrom - 2;
+            if (!this._board[castlingFrom - 1] && !this._board[castlingFrom - 2] && !this._board[castlingFrom - 3] && !this._attacked(them, this._kings[us]) && !this._attacked(them, castlingFrom - 1) && !this._attacked(them, castlingTo)) {
+              addMove(moves, us, this._kings[us], castlingTo, KING, void 0, BITS.QSIDE_CASTLE);
+            }
+          }
+        }
+      }
+      if (!legal || this._kings[us] === -1) {
+        return moves;
+      }
+      const legalMoves = [];
+      for (let i = 0, len = moves.length; i < len; i++) {
+        this._makeMove(moves[i]);
+        if (!this._isKingAttacked(us)) {
+          legalMoves.push(moves[i]);
+        }
+        this._undoMove();
+      }
+      return legalMoves;
+    }
+    move(move, { strict = false } = {}) {
+      let moveObj = null;
+      if (typeof move === "string") {
+        moveObj = this._moveFromSan(move, strict);
+      } else if (move === null) {
+        moveObj = this._moveFromSan(SAN_NULLMOVE, strict);
+      } else if (typeof move === "object") {
+        const moves = this._moves();
+        for (let i = 0, len = moves.length; i < len; i++) {
+          if (move.from === algebraic(moves[i].from) && move.to === algebraic(moves[i].to) && (!("promotion" in moves[i]) || move.promotion === moves[i].promotion)) {
+            moveObj = moves[i];
+            break;
+          }
+        }
+      }
+      if (!moveObj) {
+        if (typeof move === "string") {
+          throw new Error(`Invalid move: ${move}`);
+        } else {
+          throw new Error(`Invalid move: ${JSON.stringify(move)}`);
+        }
+      }
+      if (this.isCheck() && moveObj.flags & BITS.NULL_MOVE) {
+        throw new Error("Null move not allowed when in check");
+      }
+      const prettyMove = new Move(this, moveObj);
+      this._makeMove(moveObj);
+      this._incPositionCount();
+      return prettyMove;
+    }
+    _push(move) {
+      this._history.push({
+        move,
+        kings: { b: this._kings.b, w: this._kings.w },
+        turn: this._turn,
+        castling: { b: this._castling.b, w: this._castling.w },
+        epSquare: this._epSquare,
+        halfMoves: this._halfMoves,
+        moveNumber: this._moveNumber
+      });
+    }
+    _movePiece(from, to) {
+      this._hash ^= this._pieceKey(from);
+      this._board[to] = this._board[from];
+      delete this._board[from];
+      this._hash ^= this._pieceKey(to);
+    }
+    _makeMove(move) {
+      const us = this._turn;
+      const them = swapColor(us);
+      this._push(move);
+      if (move.flags & BITS.NULL_MOVE) {
+        if (us === BLACK) {
+          this._moveNumber++;
+        }
+        this._halfMoves++;
+        this._turn = them;
+        this._epSquare = EMPTY;
+        return;
+      }
+      this._hash ^= this._epKey();
+      this._hash ^= this._castlingKey();
+      if (move.captured) {
+        this._hash ^= this._pieceKey(move.to);
+      }
+      this._movePiece(move.from, move.to);
+      if (move.flags & BITS.EP_CAPTURE) {
+        if (this._turn === BLACK) {
+          this._clear(move.to - 16);
+        } else {
+          this._clear(move.to + 16);
+        }
+      }
+      if (move.promotion) {
+        this._clear(move.to);
+        this._set(move.to, { type: move.promotion, color: us });
+      }
+      if (this._board[move.to].type === KING) {
+        this._kings[us] = move.to;
+        if (move.flags & BITS.KSIDE_CASTLE) {
+          const castlingTo = move.to - 1;
+          const castlingFrom = move.to + 1;
+          this._movePiece(castlingFrom, castlingTo);
+        } else if (move.flags & BITS.QSIDE_CASTLE) {
+          const castlingTo = move.to + 1;
+          const castlingFrom = move.to - 2;
+          this._movePiece(castlingFrom, castlingTo);
+        }
+        this._castling[us] = 0;
+      }
+      if (this._castling[us]) {
+        for (let i = 0, len = ROOKS[us].length; i < len; i++) {
+          if (move.from === ROOKS[us][i].square && this._castling[us] & ROOKS[us][i].flag) {
+            this._castling[us] ^= ROOKS[us][i].flag;
+            break;
+          }
+        }
+      }
+      if (this._castling[them]) {
+        for (let i = 0, len = ROOKS[them].length; i < len; i++) {
+          if (move.to === ROOKS[them][i].square && this._castling[them] & ROOKS[them][i].flag) {
+            this._castling[them] ^= ROOKS[them][i].flag;
+            break;
+          }
+        }
+      }
+      this._hash ^= this._castlingKey();
+      if (move.flags & BITS.BIG_PAWN) {
+        let epSquare;
+        if (us === BLACK) {
+          epSquare = move.to - 16;
+        } else {
+          epSquare = move.to + 16;
+        }
+        if (!(move.to - 1 & 136) && this._board[move.to - 1]?.type === PAWN && this._board[move.to - 1]?.color === them || !(move.to + 1 & 136) && this._board[move.to + 1]?.type === PAWN && this._board[move.to + 1]?.color === them) {
+          this._epSquare = epSquare;
+          this._hash ^= this._epKey();
+        } else {
+          this._epSquare = EMPTY;
+        }
+      } else {
+        this._epSquare = EMPTY;
+      }
+      if (move.piece === PAWN) {
+        this._halfMoves = 0;
+      } else if (move.flags & (BITS.CAPTURE | BITS.EP_CAPTURE)) {
+        this._halfMoves = 0;
+      } else {
+        this._halfMoves++;
+      }
+      if (us === BLACK) {
+        this._moveNumber++;
+      }
+      this._turn = them;
+      this._hash ^= SIDE_KEY;
+    }
+    undo() {
+      const hash = this._hash;
+      const move = this._undoMove();
+      if (move) {
+        const prettyMove = new Move(this, move);
+        this._decPositionCount(hash);
+        return prettyMove;
+      }
+      return null;
+    }
+    _undoMove() {
+      const old = this._history.pop();
+      if (old === void 0) {
+        return null;
+      }
+      this._hash ^= this._epKey();
+      this._hash ^= this._castlingKey();
+      const move = old.move;
+      this._kings = old.kings;
+      this._turn = old.turn;
+      this._castling = old.castling;
+      this._epSquare = old.epSquare;
+      this._halfMoves = old.halfMoves;
+      this._moveNumber = old.moveNumber;
+      this._hash ^= this._epKey();
+      this._hash ^= this._castlingKey();
+      this._hash ^= SIDE_KEY;
+      const us = this._turn;
+      const them = swapColor(us);
+      if (move.flags & BITS.NULL_MOVE) {
+        return move;
+      }
+      this._movePiece(move.to, move.from);
+      if (move.piece) {
+        this._clear(move.from);
+        this._set(move.from, { type: move.piece, color: us });
+      }
+      if (move.captured) {
+        if (move.flags & BITS.EP_CAPTURE) {
+          let index;
+          if (us === BLACK) {
+            index = move.to - 16;
+          } else {
+            index = move.to + 16;
+          }
+          this._set(index, { type: PAWN, color: them });
+        } else {
+          this._set(move.to, { type: move.captured, color: them });
+        }
+      }
+      if (move.flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
+        let castlingTo, castlingFrom;
+        if (move.flags & BITS.KSIDE_CASTLE) {
+          castlingTo = move.to + 1;
+          castlingFrom = move.to - 1;
+        } else {
+          castlingTo = move.to - 2;
+          castlingFrom = move.to + 1;
+        }
+        this._movePiece(castlingFrom, castlingTo);
+      }
+      return move;
+    }
+    pgn({ newline = "\n", maxWidth = 0 } = {}) {
+      const result = [];
+      let headerExists = false;
+      for (const i in this._header) {
+        const headerTag = this._header[i];
+        if (headerTag)
+          result.push(`[${i} "${this._header[i]}"]` + newline);
+        headerExists = true;
+      }
+      if (headerExists && this._history.length) {
+        result.push(newline);
+      }
+      const appendComment = (moveString2) => {
+        const comment = this._comments[this.fen()];
+        if (typeof comment !== "undefined") {
+          const delimiter = moveString2.length > 0 ? " " : "";
+          moveString2 = `${moveString2}${delimiter}{${comment}}`;
+        }
+        return moveString2;
+      };
+      const reversedHistory = [];
+      while (this._history.length > 0) {
+        reversedHistory.push(this._undoMove());
+      }
+      const moves = [];
+      let moveString = "";
+      if (reversedHistory.length === 0) {
+        moves.push(appendComment(""));
+      }
+      while (reversedHistory.length > 0) {
+        moveString = appendComment(moveString);
+        const move = reversedHistory.pop();
+        if (!move) {
+          break;
+        }
+        if (!this._history.length && move.color === "b") {
+          const prefix = `${this._moveNumber}. ...`;
+          moveString = moveString ? `${moveString} ${prefix}` : prefix;
+        } else if (move.color === "w") {
+          if (moveString.length) {
+            moves.push(moveString);
+          }
+          moveString = this._moveNumber + ".";
+        }
+        moveString = moveString + " " + this._moveToSan(move, this._moves({ legal: true }));
+        this._makeMove(move);
+      }
+      if (moveString.length) {
+        moves.push(appendComment(moveString));
+      }
+      moves.push(this._header.Result || "*");
+      if (maxWidth === 0) {
+        return result.join("") + moves.join(" ");
+      }
+      const strip = function() {
+        if (result.length > 0 && result[result.length - 1] === " ") {
+          result.pop();
+          return true;
+        }
+        return false;
+      };
+      const wrapComment = function(width, move) {
+        for (const token of move.split(" ")) {
+          if (!token) {
+            continue;
+          }
+          if (width + token.length > maxWidth) {
+            while (strip()) {
+              width--;
+            }
+            result.push(newline);
+            width = 0;
+          }
+          result.push(token);
+          width += token.length;
+          result.push(" ");
+          width++;
+        }
+        if (strip()) {
+          width--;
+        }
+        return width;
+      };
+      let currentWidth = 0;
+      for (let i = 0; i < moves.length; i++) {
+        if (currentWidth + moves[i].length > maxWidth) {
+          if (moves[i].includes("{")) {
+            currentWidth = wrapComment(currentWidth, moves[i]);
+            continue;
+          }
+        }
+        if (currentWidth + moves[i].length > maxWidth && i !== 0) {
+          if (result[result.length - 1] === " ") {
+            result.pop();
+          }
+          result.push(newline);
+          currentWidth = 0;
+        } else if (i !== 0) {
+          result.push(" ");
+          currentWidth++;
+        }
+        result.push(moves[i]);
+        currentWidth += moves[i].length;
+      }
+      return result.join("");
+    }
+    /**
+     * @deprecated Use `setHeader` and `getHeaders` instead. This method will return null header tags (which is not what you want)
+     */
+    header(...args) {
+      for (let i = 0; i < args.length; i += 2) {
+        if (typeof args[i] === "string" && typeof args[i + 1] === "string") {
+          this._header[args[i]] = args[i + 1];
+        }
+      }
+      return this._header;
+    }
+    // TODO: value validation per spec
+    setHeader(key, value) {
+      this._header[key] = value ?? SEVEN_TAG_ROSTER[key] ?? null;
+      return this.getHeaders();
+    }
+    removeHeader(key) {
+      if (key in this._header) {
+        this._header[key] = SEVEN_TAG_ROSTER[key] || null;
+        return true;
+      }
+      return false;
+    }
+    // return only non-null headers (omit placemarker nulls)
+    getHeaders() {
+      const nonNullHeaders = {};
+      for (const [key, value] of Object.entries(this._header)) {
+        if (value !== null) {
+          nonNullHeaders[key] = value;
+        }
+      }
+      return nonNullHeaders;
+    }
+    loadPgn(pgn2, { strict = false, newlineChar = "\r?\n" } = {}) {
+      if (newlineChar !== "\r?\n") {
+        pgn2 = pgn2.replace(new RegExp(newlineChar, "g"), "\n");
+      }
+      const parsedPgn = peg$parse(pgn2);
+      this.reset();
+      const headers = parsedPgn.headers;
+      let fen = "";
+      for (const key in headers) {
+        if (key.toLowerCase() === "fen") {
+          fen = headers[key];
+        }
+        this.header(key, headers[key]);
+      }
+      if (!strict) {
+        if (fen) {
+          this.load(fen, { preserveHeaders: true });
+        }
+      } else {
+        if (headers["SetUp"] === "1") {
+          if (!("FEN" in headers)) {
+            throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");
+          }
+          this.load(headers["FEN"], { preserveHeaders: true });
+        }
+      }
+      let node2 = parsedPgn.root;
+      while (node2) {
+        if (node2.move) {
+          const move = this._moveFromSan(node2.move, strict);
+          if (move == null) {
+            throw new Error(`Invalid move in PGN: ${node2.move}`);
+          } else {
+            this._makeMove(move);
+            this._incPositionCount();
+          }
+        }
+        if (node2.comment !== void 0) {
+          this._comments[this.fen()] = node2.comment;
+        }
+        node2 = node2.variations[0];
+      }
+      const result = parsedPgn.result;
+      if (result && Object.keys(this._header).length && this._header["Result"] !== result) {
+        this.setHeader("Result", result);
+      }
+    }
+    /*
+     * Convert a move from 0x88 coordinates to Standard Algebraic Notation
+     * (SAN)
+     *
+     * @param {boolean} strict Use the strict SAN parser. It will throw errors
+     * on overly disambiguated moves (see below):
+     *
+     * r1bqkbnr/ppp2ppp/2n5/1B1pP3/4P3/8/PPPP2PP/RNBQK1NR b KQkq - 2 4
+     * 4. ... Nge7 is overly disambiguated because the knight on c6 is pinned
+     * 4. ... Ne7 is technically the valid SAN
+     */
+    _moveToSan(move, moves) {
+      let output = "";
+      if (move.flags & BITS.KSIDE_CASTLE) {
+        output = "O-O";
+      } else if (move.flags & BITS.QSIDE_CASTLE) {
+        output = "O-O-O";
+      } else if (move.flags & BITS.NULL_MOVE) {
+        return SAN_NULLMOVE;
+      } else {
+        if (move.piece !== PAWN) {
+          const disambiguator = getDisambiguator(move, moves);
+          output += move.piece.toUpperCase() + disambiguator;
+        }
+        if (move.flags & (BITS.CAPTURE | BITS.EP_CAPTURE)) {
+          if (move.piece === PAWN) {
+            output += algebraic(move.from)[0];
+          }
+          output += "x";
+        }
+        output += algebraic(move.to);
+        if (move.promotion) {
+          output += "=" + move.promotion.toUpperCase();
+        }
+      }
+      this._makeMove(move);
+      if (this.isCheck()) {
+        if (this.isCheckmate()) {
+          output += "#";
+        } else {
+          output += "+";
+        }
+      }
+      this._undoMove();
+      return output;
+    }
+    // convert a move from Standard Algebraic Notation (SAN) to 0x88 coordinates
+    _moveFromSan(move, strict = false) {
+      let cleanMove = strippedSan(move);
+      if (!strict) {
+        if (cleanMove === "0-0") {
+          cleanMove = "O-O";
+        } else if (cleanMove === "0-0-0") {
+          cleanMove = "O-O-O";
+        }
+      }
+      if (cleanMove == SAN_NULLMOVE) {
+        const res = {
+          color: this._turn,
+          from: 0,
+          to: 0,
+          piece: "k",
+          flags: BITS.NULL_MOVE
+        };
+        return res;
+      }
+      let pieceType = inferPieceType(cleanMove);
+      let moves = this._moves({ legal: true, piece: pieceType });
+      for (let i = 0, len = moves.length; i < len; i++) {
+        if (cleanMove === strippedSan(this._moveToSan(moves[i], moves))) {
+          return moves[i];
+        }
+      }
+      if (strict) {
+        return null;
+      }
+      let piece = void 0;
+      let matches = void 0;
+      let from = void 0;
+      let to = void 0;
+      let promotion = void 0;
+      let overlyDisambiguated = false;
+      matches = cleanMove.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/);
+      if (matches) {
+        piece = matches[1];
+        from = matches[2];
+        to = matches[3];
+        promotion = matches[4];
+        if (from.length == 1) {
+          overlyDisambiguated = true;
+        }
+      } else {
+        matches = cleanMove.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/);
+        if (matches) {
+          piece = matches[1];
+          from = matches[2];
+          to = matches[3];
+          promotion = matches[4];
+          if (from.length == 1) {
+            overlyDisambiguated = true;
+          }
+        }
+      }
+      pieceType = inferPieceType(cleanMove);
+      moves = this._moves({
+        legal: true,
+        piece: piece ? piece : pieceType
+      });
+      if (!to) {
+        return null;
+      }
+      for (let i = 0, len = moves.length; i < len; i++) {
+        if (!from) {
+          if (cleanMove === strippedSan(this._moveToSan(moves[i], moves)).replace("x", "")) {
+            return moves[i];
+          }
+        } else if ((!piece || piece.toLowerCase() == moves[i].piece) && Ox88[from] == moves[i].from && Ox88[to] == moves[i].to && (!promotion || promotion.toLowerCase() == moves[i].promotion)) {
+          return moves[i];
+        } else if (overlyDisambiguated) {
+          const square = algebraic(moves[i].from);
+          if ((!piece || piece.toLowerCase() == moves[i].piece) && Ox88[to] == moves[i].to && (from == square[0] || from == square[1]) && (!promotion || promotion.toLowerCase() == moves[i].promotion)) {
+            return moves[i];
+          }
+        }
+      }
+      return null;
+    }
+    ascii() {
+      let s = "   +------------------------+\n";
+      for (let i = Ox88.a8; i <= Ox88.h1; i++) {
+        if (file(i) === 0) {
+          s += " " + "87654321"[rank(i)] + " |";
+        }
+        if (this._board[i]) {
+          const piece = this._board[i].type;
+          const color = this._board[i].color;
+          const symbol = color === WHITE ? piece.toUpperCase() : piece.toLowerCase();
+          s += " " + symbol + " ";
+        } else {
+          s += " . ";
+        }
+        if (i + 1 & 136) {
+          s += "|\n";
+          i += 8;
+        }
+      }
+      s += "   +------------------------+\n";
+      s += "     a  b  c  d  e  f  g  h";
+      return s;
+    }
+    perft(depth) {
+      const moves = this._moves({ legal: false });
+      let nodes = 0;
+      const color = this._turn;
+      for (let i = 0, len = moves.length; i < len; i++) {
+        this._makeMove(moves[i]);
+        if (!this._isKingAttacked(color)) {
+          if (depth - 1 > 0) {
+            nodes += this.perft(depth - 1);
+          } else {
+            nodes++;
+          }
+        }
+        this._undoMove();
+      }
+      return nodes;
+    }
+    setTurn(color) {
+      if (this._turn == color) {
+        return false;
+      }
+      this.move("--");
+      return true;
+    }
+    turn() {
+      return this._turn;
+    }
+    board() {
+      const output = [];
+      let row = [];
+      for (let i = Ox88.a8; i <= Ox88.h1; i++) {
+        if (this._board[i] == null) {
+          row.push(null);
+        } else {
+          row.push({
+            square: algebraic(i),
+            type: this._board[i].type,
+            color: this._board[i].color
+          });
+        }
+        if (i + 1 & 136) {
+          output.push(row);
+          row = [];
+          i += 8;
+        }
+      }
+      return output;
+    }
+    squareColor(square) {
+      if (square in Ox88) {
+        const sq = Ox88[square];
+        return (rank(sq) + file(sq)) % 2 === 0 ? "light" : "dark";
+      }
+      return null;
+    }
+    history({ verbose = false } = {}) {
+      const reversedHistory = [];
+      const moveHistory = [];
+      while (this._history.length > 0) {
+        reversedHistory.push(this._undoMove());
+      }
+      while (true) {
+        const move = reversedHistory.pop();
+        if (!move) {
+          break;
+        }
+        if (verbose) {
+          moveHistory.push(new Move(this, move));
+        } else {
+          moveHistory.push(this._moveToSan(move, this._moves()));
+        }
+        this._makeMove(move);
+      }
+      return moveHistory;
+    }
+    /*
+     * Keeps track of position occurrence counts for the purpose of repetition
+     * checking. Old positions are removed from the map if their counts are reduced to 0.
+     */
+    _getPositionCount(hash) {
+      return this._positionCount.get(hash) ?? 0;
+    }
+    _incPositionCount() {
+      this._positionCount.set(this._hash, (this._positionCount.get(this._hash) ?? 0) + 1);
+    }
+    _decPositionCount(hash) {
+      const currentCount = this._positionCount.get(hash) ?? 0;
+      if (currentCount === 1) {
+        this._positionCount.delete(hash);
+      } else {
+        this._positionCount.set(hash, currentCount - 1);
+      }
+    }
+    _pruneComments() {
+      const reversedHistory = [];
+      const currentComments = {};
+      const copyComment = (fen) => {
+        if (fen in this._comments) {
+          currentComments[fen] = this._comments[fen];
+        }
+      };
+      while (this._history.length > 0) {
+        reversedHistory.push(this._undoMove());
+      }
+      copyComment(this.fen());
+      while (true) {
+        const move = reversedHistory.pop();
+        if (!move) {
+          break;
+        }
+        this._makeMove(move);
+        copyComment(this.fen());
+      }
+      this._comments = currentComments;
+    }
+    getComment() {
+      return this._comments[this.fen()];
+    }
+    setComment(comment) {
+      this._comments[this.fen()] = comment.replace("{", "[").replace("}", "]");
+    }
+    /**
+     * @deprecated Renamed to `removeComment` for consistency
+     */
+    deleteComment() {
+      return this.removeComment();
+    }
+    removeComment() {
+      const comment = this._comments[this.fen()];
+      delete this._comments[this.fen()];
+      return comment;
+    }
+    getComments() {
+      this._pruneComments();
+      return Object.keys(this._comments).map((fen) => {
+        return { fen, comment: this._comments[fen] };
+      });
+    }
+    /**
+     * @deprecated Renamed to `removeComments` for consistency
+     */
+    deleteComments() {
+      return this.removeComments();
+    }
+    removeComments() {
+      this._pruneComments();
+      return Object.keys(this._comments).map((fen) => {
+        const comment = this._comments[fen];
+        delete this._comments[fen];
+        return { fen, comment };
+      });
+    }
+    setCastlingRights(color, rights) {
+      for (const side of [KING, QUEEN]) {
+        if (rights[side] !== void 0) {
+          if (rights[side]) {
+            this._castling[color] |= SIDES[side];
+          } else {
+            this._castling[color] &= ~SIDES[side];
+          }
+        }
+      }
+      this._updateCastlingRights();
+      const result = this.getCastlingRights(color);
+      return (rights[KING] === void 0 || rights[KING] === result[KING]) && (rights[QUEEN] === void 0 || rights[QUEEN] === result[QUEEN]);
+    }
+    getCastlingRights(color) {
+      return {
+        [KING]: (this._castling[color] & SIDES[KING]) !== 0,
+        [QUEEN]: (this._castling[color] & SIDES[QUEEN]) !== 0
+      };
+    }
+    moveNumber() {
+      return this._moveNumber;
+    }
+  };
+
+  // app/js/scripts.js
+  var movesMade = 0;
+  var bot = "chessgpt";
+  var waitingForAI = false;
+  function safeGetItem(key, defaultValue = null) {
+    try {
+      const item = localStorage.getItem(key);
+      return item !== null ? item : defaultValue;
+    } catch (e) {
+      console.warn("localStorage read error:", e);
+      return defaultValue;
+    }
+  }
+  function safeSetItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.warn("localStorage write error:", e);
+      return false;
+    }
+  }
+  function safeGetJSON(key, defaultValue = []) {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue;
+    } catch (e) {
+      console.warn("localStorage JSON parse error:", e);
+      return defaultValue;
+    }
+  }
+  function safeSetJSON(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch (e) {
+      console.warn("localStorage JSON write error:", e);
+      return false;
+    }
+  }
+  var HARD_MODE_STREAK_THRESHOLD = 3;
+  var EVOLUTION_NORMAL = 6;
+  var EVOLUTION_HARD = 4;
+  function isHardModeUnlocked() {
+    return safeGetItem("hardModeUnlocked") === "true";
+  }
+  function isHardModeEnabled() {
+    return isHardModeUnlocked() && safeGetItem("hardMode") === "true";
+  }
+  function setHardModeEnabled(enabled) {
+    safeSetItem("hardMode", enabled ? "true" : "false");
+    syncHardModeUI();
+  }
+  function getEvolutionThreshold() {
+    return isHardModeEnabled() ? EVOLUTION_HARD : EVOLUTION_NORMAL;
+  }
+  function recordGameResult(resultType) {
+    let streak = parseInt(safeGetItem("winStreak", "0"), 10) || 0;
+    if (resultType === "player") {
+      streak += 1;
+    } else {
+      streak = 0;
+    }
+    safeSetItem("winStreak", String(streak));
+    const wasUnlocked = isHardModeUnlocked();
+    if (streak >= HARD_MODE_STREAK_THRESHOLD && !wasUnlocked) {
+      safeSetItem("hardModeUnlocked", "true");
+      syncHardModeUI();
+      return true;
+    }
+    return false;
+  }
+  function syncHardModeUI() {
+    const unlocked = isHardModeUnlocked();
+    const enabled = isHardModeEnabled();
+    document.querySelectorAll("[data-hard-mode-prompt]").forEach((el) => {
+      el.classList.toggle("d-none", !unlocked);
+    });
+    document.querySelectorAll("[data-hard-mode-toggle]").forEach((input) => {
+      input.checked = enabled;
+    });
+  }
+  function playGameSound(type) {
+    try {
+      const audio = type === "victory" ? audioVictory : audioDefeat;
+      if (audio) {
+        audio.volume = 0.5;
+        audio.currentTime = 0;
+        audio.play().catch((e) => console.warn("Audio play failed:", e));
+      }
+    } catch (e) {
+      console.warn("Sound playback error:", e);
+    }
+  }
+  function buildShareMessage(result, botKey) {
+    const url = "https://chessgpt.ai";
+    const botName = botKey === "stockfish" ? "Stockfish" : "ChessGPT";
+    const fishyBot = botKey === "stockfish" ? "a fish chatbot" : "a chatbot";
+    if (result === "ai") {
+      return `ugh mate, i can't believe i'm sending this, but i just got my ass handed to me by ${fishyBot}. but it's something you have to try for yourself \u2014 ${url}`;
+    }
+    if (result === "player") {
+      return `lol just beat "${botName}" at chess (it had an unwelcome twist) \u2192 if you can beat this in one go, drinks are on me: ${url}`;
+    }
+    return `just drew with ${botName} at chess. give it a go yourself \u2014 ${url}`;
+  }
+  function setupShareFriend(result) {
+    if (!shareFriend || !shareFriendBtn || !shareFriendPrompt) return;
+    shareFriend.classList.remove("d-none");
+    shareFriendBtn.disabled = false;
+    if (shareFriendBtnLabel) {
+      shareFriendBtnLabel.textContent = "\u{1F4E3} Send to a friend";
+    }
+    if (result === "ai") {
+      shareFriendPrompt.textContent = "tough one. drag a friend down with you \u{1F447}";
+    } else if (result === "player") {
+      shareFriendPrompt.textContent = "rub it in \u2014 challenge a mate \u{1F447}";
+    } else {
+      shareFriendPrompt.textContent = "share the pain \u{1F447}";
+    }
+  }
+  function showGameOverModal(result, status) {
+    const board = document.getElementById("myBoard");
+    leaderboardSubmit.classList.remove("d-none");
+    leaderboardDisplay.classList.add("d-none");
+    nicknameInput.value = safeGetItem("lastNickname", "");
+    currentGameResult = result;
+    setupShareFriend(result);
+    const justUnlocked = recordGameResult(result);
+    const unlockBanner = document.getElementById("hardModeUnlockBanner");
+    if (unlockBanner) {
+      unlockBanner.classList.toggle("d-none", !justUnlocked);
+    }
+    if (result === "ai") {
+      gameOverTitle.textContent = "DEFEATED!";
+      gameOverTitle.className = "game-over-title defeat";
+      gameOverLogo.src = bot === "stockfish" ? "/stockfish.png" : "/chatgpt.png";
+      gameOverLogo.className = "game-over-logo defeat";
+      board.classList.add("shake");
+      playGameSound("defeat");
+      setTimeout(() => board.classList.remove("shake"), 500);
+    } else if (result === "player") {
+      gameOverTitle.textContent = "VICTORY!";
+      gameOverTitle.className = "game-over-title victory";
+      gameOverLogo.src = "/red.png";
+      gameOverLogo.className = "game-over-logo victory";
+      playGameSound("victory");
+      if (typeof confetti === "function") {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        setTimeout(() => {
+          confetti({
+            particleCount: 50,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+          });
+          confetti({
+            particleCount: 50,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+          });
+        }, 250);
+      }
+    } else {
+      gameOverTitle.textContent = "DRAW";
+      gameOverTitle.className = "game-over-title draw";
+      gameOverLogo.src = "/chatgpt.png";
+      gameOverLogo.className = "game-over-logo";
+    }
+    gameOverStatus.textContent = status;
+    if (resignRestartBtn) {
+      resignRestartBtn.textContent = "Restart";
+      resignRestartBtn.classList.remove("btn-outline-danger");
+      resignRestartBtn.classList.add("btn-outline-warning");
+    }
+    const modal = new bootstrap.Modal(gameOverModal);
+    modal.show();
+  }
+  async function fetchLeaderboard(targetBody, period = "all", limit = 10) {
+    try {
+      const response = await fetch(`/api/leaderboard?period=${encodeURIComponent(period)}&limit=${limit}`);
+      if (!response.ok) throw new Error("Failed to fetch leaderboard");
+      const data = await response.json();
+      targetBody.innerHTML = "";
+      if (data.length === 0) {
+        const emptyMsg = period === "all" ? "No entries yet" : `No games in the past ${period === "week" ? "7 days" : "30 days"}`;
+        targetBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">${emptyMsg}</td></tr>`;
+        return;
+      }
+      data.forEach((player, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${escapeHtml(player.nickname)}</td>
+        <td>${player.wins}</td>
+        <td>${player.losses}</td>
+        <td>${player.draws}</td>
+      `;
+        targetBody.appendChild(row);
+      });
+    } catch (e) {
+      console.warn("Leaderboard fetch error:", e);
+      targetBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Could not load leaderboard</td></tr>';
+    }
+  }
+  function attachLeaderboardTabs(tabsetId, targetBody) {
+    const tabset = document.querySelector(`[data-leaderboard-tabs="${tabsetId}"]`);
+    if (!tabset || tabset.dataset.wired === "true") return;
+    tabset.dataset.wired = "true";
+    tabset.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-period]");
+      if (!btn) return;
+      tabset.querySelectorAll("button[data-period]").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      await fetchLeaderboard(targetBody, btn.dataset.period);
+    });
+  }
+  function getActivePeriod(tabsetId) {
+    const active = document.querySelector(`[data-leaderboard-tabs="${tabsetId}"] button.active`);
+    return active ? active.dataset.period : "all";
+  }
+  async function submitScore(nickname, result) {
+    try {
+      const response = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nickname, result })
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || "Submission failed");
+      }
+      return true;
+    } catch (e) {
+      console.error("Score submission error:", e);
+      return false;
+    }
+  }
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  var container = document.getElementById("container");
+  var startAnimation = document.getElementById("startAnimation");
+  var startContainer = document.getElementById("startContainer");
+  var chessBoard = document.getElementById("chessBoard");
+  var myBoard = document.getElementById("myBoard");
+  var chatGptLogo = document.getElementById("chatGptLogo");
+  var redLogo = document.getElementById("redLogo");
+  var gameOverModal = document.getElementById("gameOverModal");
+  var gameOverTitle = document.getElementById("gameOverTitle");
+  var gameOverStatus = document.getElementById("gameOverStatus");
+  var gameOverLogo = document.getElementById("gameOverLogo");
+  var nicknameInput = document.getElementById("nicknameInput");
+  var submitScoreBtn = document.getElementById("submitScoreBtn");
+  var leaderboardSubmit = document.getElementById("leaderboardSubmit");
+  var leaderboardDisplay = document.getElementById("leaderboardDisplay");
+  var leaderboardBody = document.getElementById("leaderboardBody");
+  var playAgainBtn = document.getElementById("playAgainBtn");
+  var shareFriend = document.getElementById("shareFriend");
+  var shareFriendBtn = document.getElementById("shareFriendBtn");
+  var shareFriendBtnLabel = document.getElementById("shareFriendBtnLabel");
+  var shareFriendPrompt = document.getElementById("shareFriendPrompt");
+  var viewLeaderboardBtn = document.getElementById("viewLeaderboardBtn");
+  var standaloneLeaderboardBody = document.getElementById("standaloneLeaderboardBody");
+  var resignRestartBtn = document.getElementById("resignRestartBtn");
+  var audioVictory = document.getElementById("audio-victory");
+  var audioDefeat = document.getElementById("audio-defeat");
+  var currentGameResult = null;
+  var audioElement = document.getElementById("audio-element");
+  var audioElementMetal = document.getElementById("audio-element-metal");
+  var blockSize = window.innerWidth < 700 ? 20 : 55;
+  var animationSpeed = 7.5;
+  var blocks = [];
+  function createBlock(x, y) {
+    const block = document.createElement("div");
+    block.classList.add("block");
+    block.style.left = `${x * blockSize}px`;
+    block.style.top = `${y * blockSize}px`;
+    container.appendChild(block);
+    return block;
+  }
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  async function animate() {
+    let x = 0;
+    let y = 0;
+    let dx = 1;
+    let dy = 0;
+    const screenWidth = Math.ceil(window.innerWidth / blockSize);
+    const screenHeight = Math.ceil(window.innerHeight / blockSize);
+    for (let i = 0; i < screenWidth * screenHeight; i++) {
+      blocks.push(createBlock(x, y));
+      if (x + dx >= screenWidth || x + dx < 0 || y + dy >= screenHeight || y + dy < 0 || blocks.some((block) => block.style.left === `${(x + dx) * blockSize}px` && block.style.top === `${(y + dy) * blockSize}px`)) {
+        const temp = dx;
+        dx = -dy;
+        dy = temp;
+      }
+      x += dx;
+      y += dy;
+      await sleep(animationSpeed);
+    }
+  }
+  startAnimation.addEventListener("click", async () => {
+    if (safeGetItem("volumeMessageShown") !== "true") {
+      const volumeMessage = document.getElementById("volumeMessage");
+      const volumeMessageModal = new bootstrap.Modal(volumeMessage);
+      volumeMessageModal.show();
+      safeSetItem("volumeMessageShown", "true");
+      return;
+    }
+    const totalAnimationDuration = 900;
+    for (let i = 0; i < 10; i++) {
+      setTimeout(() => {
+        startAnimation.classList.toggle("d-none");
+      }, i * 150);
+    }
+    audioElement.play();
+    setTimeout(async () => {
+      startAnimation.classList.add("d-none");
+      startContainer.classList.add("d-none");
+      container.classList.remove("d-none");
+      await animate();
+      container.innerHTML = "";
+      container.classList.add("d-none");
+      chessBoard.classList.remove("hidden");
+      chessBoard.classList.remove("d-none");
+      chessBoard.classList.remove("visible");
+      gentlyLowerVolume(audioElement, 1, 0.1, 1e4);
+      setTimeout(() => {
+        chatGptLogo.classList.remove("d-none");
+        redLogo.classList.remove("d-none");
+        setTimeout(() => {
+          chatGptLogo.style.left = "80%";
+          redLogo.style.left = "10%";
+        }, 400);
+        setTimeout(() => {
+          myBoard.classList.add("visible");
+          myBoard.classList.remove("hidden");
+        }, 2200);
+      }, 50);
+    }, totalAnimationDuration);
+  });
+  function fadeVolume(audioElement2, startVolume, endVolume, duration) {
+    const stepTime = 50;
+    const totalSteps = duration / stepTime;
+    const volumeChangePerStep = (endVolume - startVolume) / totalSteps;
+    const isIncreasing = endVolume > startVolume;
+    audioElement2.volume = startVolume;
+    const intervalId = setInterval(() => {
+      audioElement2.volume += volumeChangePerStep;
+      audioElement2.volume = Math.max(0, Math.min(1, audioElement2.volume));
+      const reachedTarget = isIncreasing ? audioElement2.volume >= endVolume : audioElement2.volume <= endVolume;
+      if (reachedTarget) {
+        audioElement2.volume = endVolume;
+        clearInterval(intervalId);
+      }
+    }, stepTime);
+  }
+  var gentlyLowerVolume = fadeVolume;
+  var gentlyIncreaseVolume = fadeVolume;
+  function switchToMetalTrack() {
+    const audioElementMetal2 = document.getElementById("audio-element-metal");
+    setTimeout(() => {
+      gentlyLowerVolume(audioElement, 0.1, 0, 5e3);
+      audioElementMetal2.volume = 0;
+      audioElementMetal2.play();
+      gentlyIncreaseVolume(audioElementMetal2, 0, 1, 1e4);
+      setTimeout(() => {
+        audioElement.volume = 0;
+      }, 1e3);
+    }, 2e3);
+  }
+  try {
+    let onDragStart = function(source, piece, position, orientation) {
+      if (game.isGameOver()) return false;
+      if (waitingForAI) return false;
+      if (piece.search(/^b/) !== -1) {
+        return false;
+      }
+      if (game.turn() !== "w") {
+        return false;
+      }
+    }, onSnapEnd = function() {
+      board.position(game.fen());
+    }, updateStatus = function() {
+      var status = "";
+      var stop = false;
+      var whoWon = "";
+      var moveColor = "White";
+      if (game.turn() === "b") {
+        moveColor = "Black";
+      }
+      if (game.isCheckmate()) {
+        status = "Game over, " + moveColor + " is in checkmate.";
+        if (moveColor === "Black") {
+          whoWon = "w";
+        } else {
+          whoWon = "b";
+        }
+        stop = true;
+      } else if (game.isDraw()) {
+        status = "Game over, drawn position";
+        stop = true;
+      } else {
+        status = moveColor + " to move";
+        if (game.isCheck()) {
+          status += ", " + moveColor + " is in check";
+        }
+      }
+      $status.html(status);
+      $fen.html(game.fen());
+      $pgn.html(game.pgn());
+      if (stop) {
+        let resultType = "draw";
+        if (whoWon === "w") resultType = "player";
+        else if (whoWon === "b") resultType = "ai";
+        showGameOverModal(resultType, status);
+        updateHighScore(whoWon);
+      }
+    };
+    onDragStart2 = onDragStart, onSnapEnd2 = onSnapEnd, updateStatus2 = updateStatus;
+    console.log("Chessboard.js version:", Chessboard.version);
+    board = null;
+    game = new Chess();
+    $status = $("#status");
+    $fen = $("#fen");
+    $pgn = $("#pgn");
+    async function onDrop(source, target) {
+      if (waitingForAI) return "snapback";
+      if (game.turn() !== "w") return "snapback";
+      var move = game.move({
+        from: source,
+        to: target,
+        promotion: "q"
+        // NOTE: always promote to a queen for example simplicity
+      });
+      if (move === null) return "snapback";
+      var an = safeGetJSON("moves", []);
+      an.push(move.san);
+      safeSetJSON("moves", an);
+      board.position(game.fen());
+      movesMade++;
+      if (movesMade === getEvolutionThreshold()) {
+        await new Promise((resolve) => setTimeout(resolve, 2e3));
+        await startEvolution();
+        bot = "stockfish";
+      }
+      waitingForAI = true;
+      $.get("/ai-move", { fen: game.fen(), bot, an: JSON.stringify(an) }).done(function(data) {
+        if (typeof data === "object") {
+          if (data.error) {
+            console.error("Server error:", data.error);
+            waitingForAI = false;
+            return;
+          }
+          if (data.msg) {
+            console.log("Game state:", data.msg);
+            updateStatus();
+            waitingForAI = false;
+            return;
+          }
+        }
+        var move2 = game.move(data);
+        if (move2 === null) {
+          console.error("Received invalid move from server:", data);
+          waitingForAI = false;
+          return;
+        }
+        var an2 = safeGetJSON("moves", []);
+        an2.push(data);
+        safeSetJSON("moves", an2);
+        board.position(game.fen());
+        updateStatus();
+        waitingForAI = false;
+      }).fail(function(jqXHR) {
+        console.error("Server request failed:", jqXHR.status, jqXHR.responseJSON);
+        waitingForAI = false;
+      });
+    }
+    config = {
+      draggable: true,
+      position: "start",
+      onDragStart,
+      onDrop,
+      onSnapEnd
+    };
+    board = Chessboard("myBoard", config);
+    updateStatus();
+  } catch (e) {
+    console.error("Chess initialization error:", e);
+  }
+  var board;
+  var game;
+  var $status;
+  var $fen;
+  var $pgn;
+  var config;
+  var onDragStart2;
+  var onSnapEnd2;
+  var updateStatus2;
+  async function startEvolution() {
+    var modal = document.getElementById("evolutionModal");
+    const myModal = new bootstrap.Modal(modal);
+    myModal.show();
+    const evolutionImage = document.getElementById("evolutionImage");
+    await new Promise((resolve) => setTimeout(resolve, 2e3));
+    evolutionImage.src = "/stockfish.png";
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    evolutionImage.src = "/chatgpt.png";
+    await new Promise((resolve) => setTimeout(resolve, 1e3));
+    evolutionImage.src = "/stockfish.png";
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    evolutionImage.src = "/chatgpt.png";
+    switchToMetalTrack();
+    await new Promise((resolve) => setTimeout(resolve, 750));
+    evolutionImage.src = "/stockfish.png";
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    evolutionImage.src = "/chatgpt.png";
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    evolutionImage.src = "/stockfish.png";
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const evolvedStart = document.getElementById("evolvedStart");
+    const evolvedFinal = document.getElementById("evolvedFinal");
+    evolvedStart.classList.add("d-none");
+    evolvedFinal.classList.remove("d-none");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    const elo = document.getElementById("elo");
+    elo.innerText = "ELO: 3607";
+    elo.classList.remove("bg-dark");
+    elo.classList.add("bg-danger");
+    elo.classList.add("fs-1");
+    elo.classList.remove("p-2");
+    elo.classList.add("p-3");
+    await new Promise((resolve) => setTimeout(resolve, 4e3));
+    chatGptLogo.src = "/stockfish.png";
+    myModal.hide();
+  }
+  function adjustLogoHeight() {
+    if (window.innerWidth <= 767) {
+      redLogo.style.top = "90%";
+      chatGptLogo.style.top = "2%";
+    } else {
+      redLogo.style.top = "75%";
+      chatGptLogo.style.top = "5%";
+    }
+  }
+  window.addEventListener("load", adjustLogoHeight);
+  window.addEventListener("resize", adjustLogoHeight);
+  async function updateHighScore(whoWhon = "b") {
+    let chessGptScoreValue = parseInt(safeGetItem("chessGptScoreValue", "0"), 10) || 0;
+    let yourScoreValue = parseInt(safeGetItem("yourScore", "0"), 10) || 0;
+    if (whoWhon === "b") chessGptScoreValue++;
+    if (whoWhon === "w") yourScoreValue++;
+    const chessGptScore = document.getElementById("chessGptScore");
+    const yourScore = document.getElementById("yourScore");
+    if (chessGptScore) chessGptScore.innerText = chessGptScoreValue;
+    if (yourScore) yourScore.innerText = yourScoreValue;
+    safeSetItem("chessGptScoreValue", chessGptScoreValue.toString());
+    safeSetItem("yourScore", yourScoreValue.toString());
+  }
+  var resetBtn = document.getElementById("resetBtn");
+  resetBtn.addEventListener("click", () => {
+    window.location.reload();
+  });
+  if (playAgainBtn) {
+    playAgainBtn.addEventListener("click", () => {
+      window.location.reload();
+    });
+  }
+  if (shareFriendBtn) {
+    shareFriendBtn.addEventListener("click", async () => {
+      const message = buildShareMessage(currentGameResult, bot);
+      if (typeof plausible === "function") {
+        try {
+          plausible("Share With Friend", { props: { result: currentGameResult || "unknown", bot } });
+        } catch (e) {
+        }
+      }
+      if (navigator.share) {
+        try {
+          await navigator.share({ text: message });
+          return;
+        } catch (e) {
+          if (e && e.name === "AbortError") return;
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(message);
+        if (shareFriendBtnLabel) {
+          shareFriendBtnLabel.textContent = "\u2705 Copied! Now paste it to a mate";
+        }
+        shareFriendBtn.disabled = true;
+        setTimeout(() => {
+          shareFriendBtn.disabled = false;
+          if (shareFriendBtnLabel) {
+            shareFriendBtnLabel.textContent = "\u{1F4E3} Send to a friend";
+          }
+        }, 3e3);
+      } catch (e) {
+        window.prompt("Copy this and send to a friend:", message);
+      }
+    });
+  }
+  if (submitScoreBtn) {
+    submitScoreBtn.addEventListener("click", async () => {
+      const nickname = nicknameInput.value.trim();
+      if (!nickname) {
+        nicknameInput.classList.add("border-danger");
+        nicknameInput.focus();
+        return;
+      }
+      nicknameInput.classList.remove("border-danger");
+      let apiResult;
+      if (currentGameResult === "player") apiResult = "win";
+      else if (currentGameResult === "ai") apiResult = "loss";
+      else apiResult = "draw";
+      submitScoreBtn.disabled = true;
+      submitScoreBtn.textContent = "Submitting...";
+      safeSetItem("lastNickname", nickname);
+      const success = await submitScore(nickname, apiResult);
+      if (success) {
+        leaderboardSubmit.classList.add("d-none");
+        leaderboardDisplay.classList.remove("d-none");
+        attachLeaderboardTabs("gameOver", leaderboardBody);
+        await fetchLeaderboard(leaderboardBody, getActivePeriod("gameOver"));
+      } else {
+        submitScoreBtn.disabled = false;
+        submitScoreBtn.textContent = "Try Again";
+      }
+    });
+  }
+  if (nicknameInput) {
+    nicknameInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        submitScoreBtn.click();
+      }
+    });
+  }
+  if (viewLeaderboardBtn) {
+    viewLeaderboardBtn.addEventListener("click", async () => {
+      const leaderboardModal = document.getElementById("leaderboardModal");
+      const modal = new bootstrap.Modal(leaderboardModal);
+      modal.show();
+      attachLeaderboardTabs("standalone", standaloneLeaderboardBody);
+      await fetchLeaderboard(standaloneLeaderboardBody, getActivePeriod("standalone"));
+    });
+  }
+  if (resignRestartBtn) {
+    resignRestartBtn.addEventListener("click", function() {
+      if (game.isGameOver()) {
+        window.location.reload();
+      } else {
+        showGameOverModal("ai", "You resigned!");
+      }
+    });
+  }
+  var observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.target.classList.contains("visible") && !mutation.target.classList.contains("hidden")) {
+        if (viewLeaderboardBtn) {
+          viewLeaderboardBtn.classList.remove("d-none");
+        }
+        if (resignRestartBtn) {
+          resignRestartBtn.classList.remove("d-none");
+        }
+      }
+    });
+  });
+  if (myBoard) {
+    observer.observe(myBoard, { attributes: true, attributeFilter: ["class"] });
+  }
+  document.querySelectorAll("[data-hard-mode-toggle]").forEach((input) => {
+    input.addEventListener("change", (e) => {
+      setHardModeEnabled(e.target.checked);
+    });
+  });
+  syncHardModeUI();
+})();
 /*! Bundled license information:
 
 chess.js/dist/esm/chess.js:
@@ -51,3 +4178,4 @@ chess.js/dist/esm/chess.js:
    * POSSIBILITY OF SUCH DAMAGE.
    *)
 */
+//# sourceMappingURL=scripts.js.map

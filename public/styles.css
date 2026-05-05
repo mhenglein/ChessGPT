@@ -277,6 +277,87 @@ h1 {
   animation: fade-in-up 0.5s ease-out 0.5s both, victory-bounce 0.5s ease-in-out 3;
 }
 
+/* Hard mode badge (top-right; visible on title and chessboard once unlocked) */
+#hardModeBoardPrompt {
+  position: fixed;
+  top: 60px;
+  right: 10px;
+  z-index: 1000;
+}
+
+.hard-mode-prompt-board {
+  background-color: #fff3cd;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
+  cursor: pointer;
+  font-size: 0.55rem;
+  color: #000;
+}
+
+.hard-mode-prompt-board:hover {
+  background-color: #ffe69c;
+}
+
+@media (max-width: 767px) {
+  #hardModeBoardPrompt {
+    top: 50px;
+  }
+
+  .hard-mode-prompt-board {
+    font-size: 0.5rem;
+  }
+}
+
+/* Hard mode unlock banner (game over modal) */
+.hard-mode-unlock-banner {
+  background-color: #ffc107;
+  color: #000;
+  border: 2px solid #000;
+  box-shadow: 3px 3px 0 #000;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  animation: hardModePulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes hardModePulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.04); }
+}
+
+/* Share with a friend (game over modal) */
+.share-friend {
+  border-top: 1px dashed #444;
+  padding-top: 1rem;
+}
+
+.share-friend-prompt {
+  font-family: "Pokemon GB", sans-serif;
+  font-size: 0.7rem;
+  color: #ddd;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+#shareFriendBtn {
+  font-family: "Pokemon GB", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  padding: 0.6rem 0.5rem;
+}
+
+/* Leaderboard period tabs */
+.leaderboard-period-tabs .btn {
+  font-size: 0.6rem;
+  padding: 0.4rem 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.leaderboard-period-tabs .btn.active {
+  background-color: #ffc107;
+  color: #000;
+  border-color: #ffc107;
+}
+
 /* Leaderboard Styles */
 .leaderboard-container {
   max-height: 300px;
@@ -331,6 +412,17 @@ h1 {
   font-family: "Pokemon GB", sans-serif;
   font-size: 0.6rem;
   padding: 0.5rem 1rem;
+  background-color: #ffc107;
+  color: #000;
+  border: 2px solid #000;
+  box-shadow: 2px 2px 0 #000;
+}
+
+#viewLeaderboardBtn:hover,
+#viewLeaderboardBtn:focus {
+  background-color: #ffca2c;
+  color: #000;
+  border-color: #000;
 }
 
 /* Resign/Restart Button */

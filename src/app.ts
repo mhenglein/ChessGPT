@@ -249,7 +249,10 @@ const leaderboardRateLimiter = rateLimit({
 // Get leaderboard - public endpoint
 app.get("/api/leaderboard", async (req: Request, res: Response) => {
   const limit = Math.min(parseInt(req.query.limit as string, 10) || 10, 50);
-  const data = await leaderboard.getLeaderboard(limit);
+  const periodParam = (req.query.period as string) ?? "all";
+  const period =
+    periodParam === "week" || periodParam === "month" ? periodParam : "all";
+  const data = await leaderboard.getLeaderboard(period, limit);
   res.json(data);
 });
 

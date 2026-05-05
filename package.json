@@ -13,8 +13,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "og-image": "node scripts/generate-og-image.mjs",
-    "package": "./node_modules/.bin/pkg ."
+    "og-image": "node scripts/generate-og-image.mjs"
   },
   "author": "",
   "license": "ISC",
@@ -39,7 +38,6 @@
     "@types/pg": "^8.16.0",
     "esbuild": "^0.27.2",
     "jest": "^30.2.0",
-    "pkg": "^5.8.1",
     "ts-jest": "^29.4.6",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
@@ -49,5 +47,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "overrides": {
+    "ip-address": ">=10.1.1"
   }
 }

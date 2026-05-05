@@ -29,6 +29,8 @@ export interface GameState {
 }
 
 // Leaderboard types
+export type LeaderboardPeriod = "week" | "month" | "all";
+
 export interface LeaderboardEntry {
   nickname: string;
   wins: number;

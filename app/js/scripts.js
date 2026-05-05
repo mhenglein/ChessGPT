@@ -46,6 +46,59 @@ function safeSetJSON(key, value) {
   }
 }
 
+// Hard mode: unlocked after 3 consecutive player wins, evolves to Stockfish on move 2 instead of 6
+const HARD_MODE_STREAK_THRESHOLD = 3;
+const EVOLUTION_NORMAL = 6;
+const EVOLUTION_HARD = 4;
+
+function isHardModeUnlocked() {
+  return safeGetItem("hardModeUnlocked") === "true";
+}
+
+function isHardModeEnabled() {
+  return isHardModeUnlocked() && safeGetItem("hardMode") === "true";
+}
+
+function setHardModeEnabled(enabled) {
+  safeSetItem("hardMode", enabled ? "true" : "false");
+  syncHardModeUI();
+}
+
+function getEvolutionThreshold() {
+  return isHardModeEnabled() ? EVOLUTION_HARD : EVOLUTION_NORMAL;
+}
+
+// Update streak from a finished game; unlock hard mode at the threshold.
+// Returns true if hard mode was unlocked by *this* game.
+function recordGameResult(resultType) {
+  let streak = parseInt(safeGetItem("winStreak", "0"), 10) || 0;
+  if (resultType === "player") {
+    streak += 1;
+  } else {
+    streak = 0;
+  }
+  safeSetItem("winStreak", String(streak));
+
+  const wasUnlocked = isHardModeUnlocked();
+  if (streak >= HARD_MODE_STREAK_THRESHOLD && !wasUnlocked) {
+    safeSetItem("hardModeUnlocked", "true");
+    syncHardModeUI();
+    return true;
+  }
+  return false;
+}
+
+function syncHardModeUI() {
+  const unlocked = isHardModeUnlocked();
+  const enabled = isHardModeEnabled();
+  document.querySelectorAll("[data-hard-mode-prompt]").forEach((el) => {
+    el.classList.toggle("d-none", !unlocked);
+  });
+  document.querySelectorAll("[data-hard-mode-toggle]").forEach((input) => {
+    input.checked = enabled;
+  });
+}
+
 // Play sound effect with volume handling
 function playGameSound(type) {
   try {
@@ -60,6 +113,40 @@ function playGameSound(type) {
   }
 }
 
+// Build a casual share message tailored to the result + bot
+function buildShareMessage(result, botKey) {
+  const url = "https://chessgpt.ai";
+  const botName = botKey === "stockfish" ? "Stockfish" : "ChessGPT";
+  const fishyBot = botKey === "stockfish" ? "a fish chatbot" : "a chatbot";
+
+  if (result === "ai") {
+    return `ugh mate, i can't believe i'm sending this, but i just got my ass handed to me by ${fishyBot}. but it's something you have to try for yourself — ${url}`;
+  }
+  if (result === "player") {
+    return `lol just beat "${botName}" at chess (it had an unwelcome twist) → if you can beat this in one go, drinks are on me: ${url}`;
+  }
+  return `just drew with ${botName} at chess. give it a go yourself — ${url}`;
+}
+
+// Configure the share-with-friend section based on the game result
+function setupShareFriend(result) {
+  if (!shareFriend || !shareFriendBtn || !shareFriendPrompt) return;
+
+  shareFriend.classList.remove("d-none");
+  shareFriendBtn.disabled = false;
+  if (shareFriendBtnLabel) {
+    shareFriendBtnLabel.textContent = "📣 Send to a friend";
+  }
+
+  if (result === "ai") {
+    shareFriendPrompt.textContent = "tough one. drag a friend down with you 👇";
+  } else if (result === "player") {
+    shareFriendPrompt.textContent = "rub it in — challenge a mate 👇";
+  } else {
+    shareFriendPrompt.textContent = "share the pain 👇";
+  }
+}
+
 // Show game over modal with animations
 function showGameOverModal(result, status) {
   const board = document.getElementById("myBoard");
@@ -71,6 +158,14 @@ function showGameOverModal(result, status) {
 
   // Store result for leaderboard submission
   currentGameResult = result;
+  setupShareFriend(result);
+
+  // Track streak; reveals hard-mode prompt UI when threshold is hit
+  const justUnlocked = recordGameResult(result);
+  const unlockBanner = document.getElementById("hardModeUnlockBanner");
+  if (unlockBanner) {
+    unlockBanner.classList.toggle("d-none", !justUnlocked);
+  }
 
   if (result === "ai") {
     // AI wins (player loses)
@@ -137,16 +232,17 @@ function showGameOverModal(result, status) {
 }
 
 // Fetch and display leaderboard
-async function fetchLeaderboard(targetBody, limit = 10) {
+async function fetchLeaderboard(targetBody, period = "all", limit = 10) {
   try {
-    const response = await fetch(`/api/leaderboard?limit=${limit}`);
+    const response = await fetch(`/api/leaderboard?period=${encodeURIComponent(period)}&limit=${limit}`);
     if (!response.ok) throw new Error("Failed to fetch leaderboard");
 
     const data = await response.json();
     targetBody.innerHTML = "";
 
     if (data.length === 0) {
-      targetBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No entries yet</td></tr>';
+      const emptyMsg = period === "all" ? "No entries yet" : `No games in the past ${period === "week" ? "7 days" : "30 days"}`;
+      targetBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">${emptyMsg}</td></tr>`;
       return;
     }
 
@@ -165,6 +261,26 @@ async function fetchLeaderboard(targetBody, limit = 10) {
     console.warn("Leaderboard fetch error:", e);
     targetBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Could not load leaderboard</td></tr>';
   }
+}
+
+// Wire up period tabs for a given leaderboard table; remembers per-tabset selection
+function attachLeaderboardTabs(tabsetId, targetBody) {
+  const tabset = document.querySelector(`[data-leaderboard-tabs="${tabsetId}"]`);
+  if (!tabset || tabset.dataset.wired === "true") return;
+  tabset.dataset.wired = "true";
+
+  tabset.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-period]");
+    if (!btn) return;
+    tabset.querySelectorAll("button[data-period]").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    await fetchLeaderboard(targetBody, btn.dataset.period);
+  });
+}
+
+function getActivePeriod(tabsetId) {
+  const active = document.querySelector(`[data-leaderboard-tabs="${tabsetId}"] button.active`);
+  return active ? active.dataset.period : "all";
 }
 
 // Submit score to leaderboard
@@ -214,6 +330,10 @@ const leaderboardSubmit = document.getElementById("leaderboardSubmit");
 const leaderboardDisplay = document.getElementById("leaderboardDisplay");
 const leaderboardBody = document.getElementById("leaderboardBody");
 const playAgainBtn = document.getElementById("playAgainBtn");
+const shareFriend = document.getElementById("shareFriend");
+const shareFriendBtn = document.getElementById("shareFriendBtn");
+const shareFriendBtnLabel = document.getElementById("shareFriendBtnLabel");
+const shareFriendPrompt = document.getElementById("shareFriendPrompt");
 const viewLeaderboardBtn = document.getElementById("viewLeaderboardBtn");
 const standaloneLeaderboardBody = document.getElementById("standaloneLeaderboardBody");
 const resignRestartBtn = document.getElementById("resignRestartBtn");
@@ -440,7 +560,7 @@ try {
 
     movesMade++;
 
-    if (movesMade === 6) {
+    if (movesMade === getEvolutionThreshold()) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       await startEvolution();
       bot = "stockfish";
@@ -660,6 +780,49 @@ if (playAgainBtn) {
   });
 }
 
+// Share with a friend
+if (shareFriendBtn) {
+  shareFriendBtn.addEventListener("click", async () => {
+    const message = buildShareMessage(currentGameResult, bot);
+
+    if (typeof plausible === "function") {
+      try {
+        plausible("Share With Friend", { props: { result: currentGameResult || "unknown", bot } });
+      } catch (e) {
+        // ignore analytics errors
+      }
+    }
+
+    // Web Share API on supported devices (mostly mobile)
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: message });
+        return;
+      } catch (e) {
+        if (e && e.name === "AbortError") return; // user dismissed
+        // fall through to clipboard fallback
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(message);
+      if (shareFriendBtnLabel) {
+        shareFriendBtnLabel.textContent = "✅ Copied! Now paste it to a mate";
+      }
+      shareFriendBtn.disabled = true;
+      setTimeout(() => {
+        shareFriendBtn.disabled = false;
+        if (shareFriendBtnLabel) {
+          shareFriendBtnLabel.textContent = "📣 Send to a friend";
+        }
+      }, 3000);
+    } catch (e) {
+      // Last-resort fallback: prompt so they can copy manually
+      window.prompt("Copy this and send to a friend:", message);
+    }
+  });
+}
+
 // Submit score to leaderboard
 if (submitScoreBtn) {
   submitScoreBtn.addEventListener("click", async () => {
@@ -692,8 +855,8 @@ if (submitScoreBtn) {
       leaderboardSubmit.classList.add("d-none");
       leaderboardDisplay.classList.remove("d-none");
 
-      // Fetch and display leaderboard
-      await fetchLeaderboard(leaderboardBody);
+      attachLeaderboardTabs("gameOver", leaderboardBody);
+      await fetchLeaderboard(leaderboardBody, getActivePeriod("gameOver"));
     } else {
       submitScoreBtn.disabled = false;
       submitScoreBtn.textContent = "Try Again";
@@ -716,7 +879,8 @@ if (viewLeaderboardBtn) {
     const leaderboardModal = document.getElementById("leaderboardModal");
     const modal = new bootstrap.Modal(leaderboardModal);
     modal.show();
-    await fetchLeaderboard(standaloneLeaderboardBody);
+    attachLeaderboardTabs("standalone", standaloneLeaderboardBody);
+    await fetchLeaderboard(standaloneLeaderboardBody, getActivePeriod("standalone"));
   });
 }
 
@@ -750,3 +914,12 @@ const observer = new MutationObserver((mutations) => {
 if (myBoard) {
   observer.observe(myBoard, { attributes: true, attributeFilter: ["class"] });
 }
+
+// Hard mode toggle wiring (front-page banner + on-board badge share data attrs)
+document.querySelectorAll("[data-hard-mode-toggle]").forEach((input) => {
+  input.addEventListener("change", (e) => {
+    setHardModeEnabled(e.target.checked);
+  });
+});
+
+syncHardModeUI();
