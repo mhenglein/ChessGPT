@@ -1,4 +1,4 @@
-// ChessGPT Frontend - Built 2026-05-05T22:41:40.348Z
+// ChessGPT Frontend - Built 2026-05-05T22:51:14.588Z
 
 "use strict";
 (() => {
@@ -3540,8 +3540,13 @@
     document.querySelectorAll("[data-hard-mode-prompt]").forEach((el) => {
       el.classList.toggle("d-none", !unlocked);
     });
-    document.querySelectorAll("[data-hard-mode-toggle]").forEach((input) => {
-      input.checked = enabled;
+    document.querySelectorAll("[data-hard-mode-toggle]").forEach((btn) => {
+      btn.disabled = enabled;
+      btn.classList.toggle("is-active", enabled);
+      btn.setAttribute("aria-pressed", enabled ? "true" : "false");
+      const icon = btn.querySelector("[data-hard-mode-icon]");
+      if (icon) icon.textContent = enabled ? "\u{1F512}" : "\u{1F525}";
+      btn.title = enabled ? "Hard mode is locked on" : "Click to enable hard mode for your next game";
     });
   }
   function playGameSound(type) {
@@ -3819,11 +3824,11 @@
     const isIncreasing = endVolume > startVolume;
     audioElement2.volume = startVolume;
     const intervalId = setInterval(() => {
-      audioElement2.volume += volumeChangePerStep;
-      audioElement2.volume = Math.max(0, Math.min(1, audioElement2.volume));
+      const next = audioElement2.volume + volumeChangePerStep;
+      audioElement2.volume = Math.max(0, Math.min(1, next));
       const reachedTarget = isIncreasing ? audioElement2.volume >= endVolume : audioElement2.volume <= endVolume;
       if (reachedTarget) {
-        audioElement2.volume = endVolume;
+        audioElement2.volume = Math.max(0, Math.min(1, endVolume));
         clearInterval(intervalId);
       }
     }, stepTime);
@@ -4141,9 +4146,10 @@
   if (myBoard) {
     observer.observe(myBoard, { attributes: true, attributeFilter: ["class"] });
   }
-  document.querySelectorAll("[data-hard-mode-toggle]").forEach((input) => {
-    input.addEventListener("change", (e) => {
-      setHardModeEnabled(e.target.checked);
+  document.querySelectorAll("[data-hard-mode-toggle]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (isHardModeEnabled()) return;
+      setHardModeEnabled(true);
     });
   });
   syncHardModeUI();

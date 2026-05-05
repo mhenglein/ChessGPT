@@ -213,7 +213,14 @@ app.get("/ai-move", aiRateLimiter, async (req: Request, res: Response) => {
     await new Promise((resolve) => setTimeout(resolve, thinkingDelay));
     aiMove = getRandomMove(chess.moves());
   } else if (bot === "stockfish") {
+    // Stockfish is near-instant; pad to a 1–2s minimum so the move feels deliberate
+    const start = Date.now();
     aiMove = await getStockfishMove(fen, Chess);
+    const minThinkMs = 1000 + Math.random() * 1000;
+    const elapsed = Date.now() - start;
+    if (elapsed < minThinkMs) {
+      await new Promise((resolve) => setTimeout(resolve, minThinkMs - elapsed));
+    }
   } else {
     // Random move
     aiMove = getRandomMove(chess.moves());

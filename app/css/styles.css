@@ -277,14 +277,7 @@ h1 {
   animation: fade-in-up 0.5s ease-out 0.5s both, victory-bounce 0.5s ease-in-out 3;
 }
 
-/* Hard mode badge (top-right; visible on title and chessboard once unlocked) */
-#hardModeBoardPrompt {
-  position: fixed;
-  top: 60px;
-  right: 10px;
-  z-index: 1000;
-}
-
+/* Hard mode toggle button (front page, once unlocked) */
 .hard-mode-prompt-board {
   background-color: #fff3cd;
   border: 2px solid #000;
@@ -292,17 +285,30 @@ h1 {
   cursor: pointer;
   font-size: 0.55rem;
   color: #000;
+  font-family: "Pokemon GB", sans-serif;
+  letter-spacing: 0.05em;
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
 }
 
-.hard-mode-prompt-board:hover {
+.hard-mode-prompt-board:hover:not(:disabled) {
   background-color: #ffe69c;
 }
 
-@media (max-width: 767px) {
-  #hardModeBoardPrompt {
-    top: 50px;
-  }
+.hard-mode-prompt-board:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 #000;
+}
 
+.hard-mode-prompt-board:disabled,
+.hard-mode-prompt-board.is-active {
+  cursor: not-allowed;
+  background-color: #ffc107;
+  border-color: #000;
+  color: #000;
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
   .hard-mode-prompt-board {
     font-size: 0.5rem;
   }

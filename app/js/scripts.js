@@ -94,8 +94,13 @@ function syncHardModeUI() {
   document.querySelectorAll("[data-hard-mode-prompt]").forEach((el) => {
     el.classList.toggle("d-none", !unlocked);
   });
-  document.querySelectorAll("[data-hard-mode-toggle]").forEach((input) => {
-    input.checked = enabled;
+  document.querySelectorAll("[data-hard-mode-toggle]").forEach((btn) => {
+    btn.disabled = enabled; // once on, can't be turned off
+    btn.classList.toggle("is-active", enabled);
+    btn.setAttribute("aria-pressed", enabled ? "true" : "false");
+    const icon = btn.querySelector("[data-hard-mode-icon]");
+    if (icon) icon.textContent = enabled ? "🔒" : "🔥";
+    btn.title = enabled ? "Hard mode is locked on" : "Click to enable hard mode for your next game";
   });
 }
 
@@ -471,10 +476,8 @@ function fadeVolume(audioElement, startVolume, endVolume, duration) {
 
   // Start gradually changing the volume
   const intervalId = setInterval(() => {
-    audioElement.volume += volumeChangePerStep;
-
-    // Clamp the volume between 0 and 1
-    audioElement.volume = Math.max(0, Math.min(1, audioElement.volume));
+    const next = audioElement.volume + volumeChangePerStep;
+    audioElement.volume = Math.max(0, Math.min(1, next));
 
     // Stop when target volume is reached
     const reachedTarget = isIncreasing
@@ -482,7 +485,7 @@ function fadeVolume(audioElement, startVolume, endVolume, duration) {
       : audioElement.volume <= endVolume;
 
     if (reachedTarget) {
-      audioElement.volume = endVolume;
+      audioElement.volume = Math.max(0, Math.min(1, endVolume));
       clearInterval(intervalId);
     }
   }, stepTime);
@@ -915,10 +918,12 @@ if (myBoard) {
   observer.observe(myBoard, { attributes: true, attributeFilter: ["class"] });
 }
 
-// Hard mode toggle wiring (front-page banner + on-board badge share data attrs)
-document.querySelectorAll("[data-hard-mode-toggle]").forEach((input) => {
-  input.addEventListener("change", (e) => {
-    setHardModeEnabled(e.target.checked);
+// Hard mode toggle: clicking enables hard mode for the next game.
+// Once enabled, the button is disabled — hard mode cannot be turned off.
+document.querySelectorAll("[data-hard-mode-toggle]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (isHardModeEnabled()) return;
+    setHardModeEnabled(true);
   });
 });
 
