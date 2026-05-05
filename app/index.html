@@ -1,11 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ChessGPT</title>
+    <title>ChessGPT — Play Chess Against ChatGPT in Your Browser</title>
+    <meta
+      name="description"
+      content="I hooked ChatGPT up with a chessboard. With a bit of creative prompt engineering, it can now beat almost any human. Including you. Oh yeah? Game on."
+    />
+    <link rel="canonical" href="https://chessgpt.ai/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ChessGPT" />
+    <meta property="og:title" content="ChessGPT — Play Chess Against ChatGPT in Your Browser" />
+    <meta
+      property="og:description"
+      content="I hooked ChatGPT up with a chessboard. With a bit of creative prompt engineering, it can now beat almost any human. Including you. Oh yeah? Game on."
+    />
+    <meta property="og:url" content="https://chessgpt.ai/" />
+    <meta property="og:image" content="https://chessgpt.ai/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ChessGPT — play chess against ChatGPT" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ChessGPT — Play Chess Against ChatGPT" />
+    <meta
+      name="twitter:description"
+      content="I hooked ChatGPT up with a chessboard. It can now beat almost any human. Including you. Oh yeah? Game on."
+    />
+    <meta name="twitter:image" content="https://chessgpt.ai/og-image.png" />
+    <meta name="twitter:image:alt" content="ChessGPT — play chess against ChatGPT" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "ChessGPT",
+        "url": "https://chessgpt.ai/",
+        "description": "Play chess against ChatGPT in your browser. Beat the AI, climb the leaderboard, or unlock hard mode where ChessGPT evolves into Stockfish.",
+        "image": "https://chessgpt.ai/og-image.png",
+        "applicationCategory": "Game",
+        "genre": ["Chess", "Strategy", "Board Game"],
+        "gamePlatform": ["Web Browser"],
+        "operatingSystem": "Any",
+        "playMode": "SinglePlayer",
+        "inLanguage": "en",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
+
     <base href="../" />
-    <script defer data-domain="chessgpt.ai" src="https://plausible.io/js/script.js"></script>
 
     <link rel="preload" href="//db.onlinewebfonts.com/t/b10849c899982654fae3f01d02269043.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="//db.onlinewebfonts.com/t/831e1f4da157d96bc996f8c9f5f1e578.woff2" as="font" type="font/woff2" crossorigin />
@@ -58,8 +111,8 @@
     </main>
 
     <div id="container" class="d-none"></div>
-    <audio id="audio-element" src="battle-intro.m4a" preload="auto"></audio>
-    <audio id="audio-element-metal" src="metal-music.mp3" preload="auto"></audio>
+    <audio id="audio-element" src="battle-intro.m4a" preload="auto" loop></audio>
+    <audio id="audio-element-metal" src="metal-music.mp3" preload="auto" loop></audio>
 
     <section id="chessBoard" class="d-none hidden">
       <!-- <div class="spinner-grow d-none" id="spinner" role="status">
@@ -136,6 +189,10 @@
             <p class="game-over-status" id="gameOverStatus"></p>
             <img id="gameOverLogo" class="game-over-logo" src="/chatgpt.png" alt="Game result" />
 
+            <div id="hardModeUnlockBanner" class="hard-mode-unlock-banner evolving d-none mt-3 px-3 py-2">
+              🔥 HARD MODE UNLOCKED
+            </div>
+
             <!-- Leaderboard submission -->
             <div id="leaderboardSubmit" class="mt-4 w-100">
               <p class="evolving text-light mb-2" style="font-size: 0.8rem;">Enter name for leaderboard</p>
@@ -146,6 +203,11 @@
             <!-- Leaderboard display (shown after submission) -->
             <div id="leaderboardDisplay" class="mt-4 w-100 d-none">
               <h4 class="evolving text-warning mb-3">TOP PLAYERS</h4>
+              <div class="leaderboard-period-tabs btn-group w-100 mb-3" role="group" data-leaderboard-tabs="gameOver">
+                <button type="button" class="btn btn-sm btn-outline-warning rounded-0 evolving" data-period="week">Weekly</button>
+                <button type="button" class="btn btn-sm btn-outline-warning rounded-0 evolving" data-period="month">Monthly</button>
+                <button type="button" class="btn btn-sm btn-outline-warning rounded-0 evolving active" data-period="all">All-time</button>
+              </div>
               <div class="leaderboard-container">
                 <table class="table table-dark leaderboard-table">
                   <thead>
@@ -160,6 +222,14 @@
                   <tbody id="leaderboardBody"></tbody>
                 </table>
               </div>
+            </div>
+
+            <!-- Share with a friend -->
+            <div id="shareFriend" class="share-friend evolving mt-4 w-100 d-none">
+              <p id="shareFriendPrompt" class="share-friend-prompt mb-2"></p>
+              <button id="shareFriendBtn" class="btn btn-outline-warning rounded-0 w-100">
+                <span id="shareFriendBtnLabel">📣 Send to a friend</span>
+              </button>
             </div>
 
             <div class="d-flex flex-row mt-4 evolving gap-2">
@@ -180,6 +250,11 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
+            <div class="leaderboard-period-tabs btn-group w-100 mb-3" role="group" data-leaderboard-tabs="standalone">
+              <button type="button" class="btn btn-sm btn-outline-warning rounded-0 evolving" data-period="week">Weekly</button>
+              <button type="button" class="btn btn-sm btn-outline-warning rounded-0 evolving" data-period="month">Monthly</button>
+              <button type="button" class="btn btn-sm btn-outline-warning rounded-0 evolving active" data-period="all">All-time</button>
+            </div>
             <div class="leaderboard-container">
               <table class="table table-dark leaderboard-table">
                 <thead>
@@ -197,6 +272,14 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Hard Mode toggle (shown on chess board once unlocked) -->
+    <div id="hardModeBoardPrompt" class="d-none" data-hard-mode-prompt>
+      <label class="hard-mode-prompt-board d-inline-flex align-items-center gap-2 px-2 py-1">
+        <input type="checkbox" class="form-check-input m-0" data-hard-mode-toggle />
+        <span class="evolving">🔥 Hard mode</span>
+      </label>
     </div>
 
     <!-- View Leaderboard Button (shown on chess board) -->

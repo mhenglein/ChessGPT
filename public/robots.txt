@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /ai-move
+Disallow: /api/
+Disallow: /health
+Disallow: /debug-sentry
+
+Sitemap: https://chessgpt.ai/sitemap.xml
