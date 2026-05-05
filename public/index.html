@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0e0a1f" />
     <title>ChessGPT — Play Chess Against ChatGPT in Your Browser</title>
     <meta
       name="description"
@@ -65,8 +66,6 @@
 
     <link rel="stylesheet" href="/styles.css" />
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2393664069657867" crossorigin="anonymous"></script>
-
     <link
       rel="stylesheet"
       href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
@@ -120,7 +119,7 @@
 
     <section id="chessBoard" class="d-none hidden">
       <!-- HARD MODE indicator (top centre, shown when hard mode is enabled) -->
-      <div id="hardModeBadge" class="hard-mode-badge d-none" data-hard-mode-badge>🔒 HARD MODE</div>
+      <div id="hardModeBadge" class="hard-mode-badge d-none" data-hard-mode-badge><span aria-hidden="true">🔒</span> HARD MODE</div>
 
       <!-- <div class="spinner-grow d-none" id="spinner" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -132,9 +131,10 @@
         style="top: 5%; left: 20%; transition: left 1s ease-in-out 0s"
         src="/chatgpt.png"
         alt="ChatGPT logo"
+        loading="lazy"
       />
 
-      <img id="redLogo" class="position-absolute bounce-image" style="top: 75%; left: 80%; transition: left 1s ease-in-out 0s" src="/red.png" alt="Red logo" />
+      <img id="redLogo" class="position-absolute bounce-image" style="top: 75%; left: 80%; transition: left 1s ease-in-out 0s" src="/red.png" alt="Player avatar" loading="lazy" />
 
       <div class="d-flex justify-content-center align-items-center vh-100">
         <div id="myBoard" class="hidden border border-dark border-2 brutalist-shadow-sm mx-auto mt-lg-0 mb-5 d-flex justify-content-center"></div>
@@ -145,7 +145,7 @@
       <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
           <div class="modal-body d-flex flex-column justify-content-center align-items-center vh-100">
-            <img id="evolutionImage" src="/chatgpt.png" class="mb-5" height="250px" role="presentation" />
+            <img id="evolutionImage" src="/chatgpt.png" class="mb-5" height="250px" role="presentation" loading="lazy" />
 
             <p id="evolvedStart" class="evolving">What? ChessGPT is evolving</p>
             <p class="d-none evolving" id="evolvedFinal">ChessGPT evolved into Stockfish</p>
@@ -174,7 +174,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Sound on 🔈</h5>
+            <h5 class="modal-title">Sound on <span aria-hidden="true">🔈</span></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -194,10 +194,10 @@
           <div class="modal-body d-flex flex-column justify-content-center align-items-center text-center py-5">
             <h2 class="game-over-title" id="gameOverTitle">GAME OVER</h2>
             <p class="game-over-status" id="gameOverStatus"></p>
-            <img id="gameOverLogo" class="game-over-logo" src="/chatgpt.png" alt="Game result" />
+            <img id="gameOverLogo" class="game-over-logo" src="/chatgpt.png" alt="Game result" loading="lazy" />
 
             <div id="hardModeUnlockBanner" class="hard-mode-unlock-banner evolving d-none mt-3 px-3 py-2">
-              🔥 HARD MODE UNLOCKED
+              <span aria-hidden="true">🔥</span> HARD MODE UNLOCKED
             </div>
 
             <!-- Leaderboard submission -->
@@ -235,7 +235,7 @@
             <div id="shareFriend" class="share-friend evolving mt-4 w-100 d-none">
               <p id="shareFriendPrompt" class="share-friend-prompt mb-2"></p>
               <button id="shareFriendBtn" class="btn btn-outline-warning rounded-0 w-100">
-                <span id="shareFriendBtnLabel">📣 Send to a friend</span>
+                <span id="shareFriendBtnLabel"><span aria-hidden="true">📣</span> Send to a friend</span>
               </button>
             </div>
 
@@ -287,10 +287,6 @@
     <!-- Resign/Restart Button (shown on chess board) -->
     <button id="resignRestartBtn" class="btn btn-outline-danger rounded-0 d-none">Resign</button>
 
-    <!-- Audio elements for game over sounds -->
-    <audio id="audio-victory" src="/victory.mp3" preload="auto"></audio>
-    <audio id="audio-defeat" src="/defeat.mp3" preload="auto"></audio>
-
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
@@ -300,11 +296,6 @@
     <script
       src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
       integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"
-      integrity="sha384-s3XgLpvmHyscVpijnseAmye819Ee3yaGa8NxstkJVyA6nuDFjt59u1QvuEl/mecz"
       crossorigin="anonymous"
     ></script>
     <script async src="/scripts.js?t=1"></script>

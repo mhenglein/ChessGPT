@@ -298,6 +298,19 @@ h1 {
   background-color: #ffb700;
 }
 
+.hard-mode-state {
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+.hard-mode-prompt-board:not(.is-active) .hard-mode-state {
+  color: #6c757d;
+}
+
+.hard-mode-prompt-board.is-active .hard-mode-state {
+  color: #b00020;
+}
+
 @media (max-width: 767px) {
   .hard-mode-prompt-board {
     font-size: 0.5rem;

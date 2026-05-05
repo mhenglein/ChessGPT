@@ -1,4 +1,4 @@
-// ChessGPT Frontend - Built 2026-05-05T22:57:25.371Z
+// ChessGPT Frontend - Built 2026-05-05T23:24:57.560Z
 
 "use strict";
 (() => {
@@ -3544,24 +3544,14 @@
       btn.classList.toggle("is-active", enabled);
       btn.setAttribute("aria-pressed", enabled ? "true" : "false");
       const icon = btn.querySelector("[data-hard-mode-icon]");
-      if (icon) icon.textContent = enabled ? "\u{1F525}" : "\u{1F525}";
+      if (icon) icon.textContent = "\u{1F525}";
+      const label = btn.querySelector("[data-hard-mode-label]");
+      if (label) label.innerHTML = `Hard mode: <span class="hard-mode-state">${enabled ? "ON" : "OFF"}</span>`;
       btn.title = enabled ? "Hard mode is on \u2014 click to turn off" : "Click to enable hard mode";
     });
     document.querySelectorAll("[data-hard-mode-badge]").forEach((el) => {
       el.classList.toggle("d-none", !enabled);
     });
-  }
-  function playGameSound(type) {
-    try {
-      const audio = type === "victory" ? audioVictory : audioDefeat;
-      if (audio) {
-        audio.volume = 0.5;
-        audio.currentTime = 0;
-        audio.play().catch((e) => console.warn("Audio play failed:", e));
-      }
-    } catch (e) {
-      console.warn("Sound playback error:", e);
-    }
   }
   function buildShareMessage(result, botKey) {
     const url = "https://chessgpt.ai";
@@ -3608,14 +3598,12 @@
       gameOverLogo.src = bot === "stockfish" ? "/stockfish.png" : "/chatgpt.png";
       gameOverLogo.className = "game-over-logo defeat";
       board.classList.add("shake");
-      playGameSound("defeat");
       setTimeout(() => board.classList.remove("shake"), 500);
     } else if (result === "player") {
       gameOverTitle.textContent = "VICTORY!";
       gameOverTitle.className = "game-over-title victory";
       gameOverLogo.src = "/red.png";
       gameOverLogo.className = "game-over-logo victory";
-      playGameSound("victory");
       if (typeof confetti === "function") {
         confetti({
           particleCount: 100,
@@ -3741,8 +3729,6 @@
   var viewLeaderboardBtn = document.getElementById("viewLeaderboardBtn");
   var standaloneLeaderboardBody = document.getElementById("standaloneLeaderboardBody");
   var resignRestartBtn = document.getElementById("resignRestartBtn");
-  var audioVictory = document.getElementById("audio-victory");
-  var audioDefeat = document.getElementById("audio-defeat");
   var currentGameResult = null;
   var audioElement = document.getElementById("audio-element");
   var audioElementMetal = document.getElementById("audio-element-metal");
@@ -3760,6 +3746,11 @@
   function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
+  document.addEventListener("hide.bs.modal", (e) => {
+    if (e.target instanceof Element && e.target.contains(document.activeElement)) {
+      document.activeElement.blur();
+    }
+  });
   async function animate() {
     let x = 0;
     let y = 0;
@@ -3796,7 +3787,8 @@
         startAnimation.classList.toggle("d-none");
       }, i * 150);
     }
-    audioElement.play();
+    audioElement.play().catch(() => {
+    });
     setTimeout(async () => {
       startAnimation.classList.add("d-none");
       startContainer.classList.add("d-none");
@@ -3845,7 +3837,8 @@
     setTimeout(() => {
       gentlyLowerVolume(audioElement, 0.1, 0, 5e3);
       audioElementMetal2.volume = 0;
-      audioElementMetal2.play();
+      audioElementMetal2.play().catch(() => {
+      });
       gentlyIncreaseVolume(audioElementMetal2, 0, 1, 1e4);
       setTimeout(() => {
         audioElement.volume = 0;
@@ -3901,7 +3894,6 @@
       }
     };
     onDragStart2 = onDragStart, onSnapEnd2 = onSnapEnd, updateStatus2 = updateStatus;
-    console.log("Chessboard.js version:", Chessboard.version);
     board = null;
     game = new Chess();
     $status = $("#status");

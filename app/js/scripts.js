@@ -98,26 +98,14 @@ function syncHardModeUI() {
     btn.classList.toggle("is-active", enabled);
     btn.setAttribute("aria-pressed", enabled ? "true" : "false");
     const icon = btn.querySelector("[data-hard-mode-icon]");
-    if (icon) icon.textContent = enabled ? "🔥" : "🔥";
+    if (icon) icon.textContent = "🔥";
+    const label = btn.querySelector("[data-hard-mode-label]");
+    if (label) label.innerHTML = `Hard mode: <span class="hard-mode-state">${enabled ? "ON" : "OFF"}</span>`;
     btn.title = enabled ? "Hard mode is on — click to turn off" : "Click to enable hard mode";
   });
   document.querySelectorAll("[data-hard-mode-badge]").forEach((el) => {
     el.classList.toggle("d-none", !enabled);
   });
-}
-
-// Play sound effect with volume handling
-function playGameSound(type) {
-  try {
-    const audio = type === "victory" ? audioVictory : audioDefeat;
-    if (audio) {
-      audio.volume = 0.5;
-      audio.currentTime = 0;
-      audio.play().catch((e) => console.warn("Audio play failed:", e));
-    }
-  } catch (e) {
-    console.warn("Sound playback error:", e);
-  }
 }
 
 // Build a casual share message tailored to the result + bot
@@ -181,7 +169,6 @@ function showGameOverModal(result, status) {
     gameOverLogo.src = bot === "stockfish" ? "/stockfish.png" : "/chatgpt.png";
     gameOverLogo.className = "game-over-logo defeat";
     board.classList.add("shake");
-    playGameSound("defeat");
 
     // Remove shake class after animation
     setTimeout(() => board.classList.remove("shake"), 500);
@@ -191,7 +178,6 @@ function showGameOverModal(result, status) {
     gameOverTitle.className = "game-over-title victory";
     gameOverLogo.src = "/red.png";
     gameOverLogo.className = "game-over-logo victory";
-    playGameSound("victory");
 
     // Trigger confetti
     if (typeof confetti === "function") {
@@ -345,10 +331,6 @@ const viewLeaderboardBtn = document.getElementById("viewLeaderboardBtn");
 const standaloneLeaderboardBody = document.getElementById("standaloneLeaderboardBody");
 const resignRestartBtn = document.getElementById("resignRestartBtn");
 
-// Audio elements
-const audioVictory = document.getElementById("audio-victory");
-const audioDefeat = document.getElementById("audio-defeat");
-
 // Track current game result for leaderboard submission
 let currentGameResult = null;
 
@@ -372,6 +354,14 @@ function createBlock(x, y) {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+// Blur any focused descendant before a Bootstrap modal hides, so the modal
+// doesn't end up with aria-hidden while still containing the focused element.
+document.addEventListener("hide.bs.modal", (e) => {
+  if (e.target instanceof Element && e.target.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+});
 
 async function animate() {
   let x = 0;
@@ -433,7 +423,7 @@ startAnimation.addEventListener("click", async () => {
   }
 
   // Play the audio when the button is clicked
-  audioElement.play();
+  audioElement.play().catch(() => {});
 
   // Wrap the rest of the code in a setTimeout with the total animation duration
   setTimeout(async () => {
@@ -508,7 +498,7 @@ function switchToMetalTrack() {
   setTimeout(() => {
     gentlyLowerVolume(audioElement, 0.1, 0.0, 5000);
     audioElementMetal.volume = 0.0;
-    audioElementMetal.play();
+    audioElementMetal.play().catch(() => {});
     gentlyIncreaseVolume(audioElementMetal, 0.0, 1.0, 10000);
 
     setTimeout(() => {
@@ -518,8 +508,6 @@ function switchToMetalTrack() {
 }
 
 try {
-  console.log("Chessboard.js version:", Chessboard.version);
-
   var board = null;
   var game = new Chess();
   var $status = $("#status");
