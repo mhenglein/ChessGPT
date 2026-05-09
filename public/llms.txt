@@ -1,0 +1,28 @@
+# ChessGPT
+
+> ChessGPT is a free browser-based chess game where you play against GPT-4o (OpenAI's ChatGPT model) or Stockfish, the open-source chess engine. No login or download required.
+
+ChessGPT was built by Marcus Henglein. The AI plays as black. GPT-4o is integrated via creative prompt engineering to make legal, competitive chess moves. When a player beats ChessGPT in normal mode, the AI "evolves" into Stockfish — a UCI-compatible engine running at depth 15 — unlocking hard mode.
+
+## What is ChessGPT?
+
+ChessGPT lets anyone play chess against ChatGPT directly in a web browser at https://chessgpt.ai/. It uses GPT-4o for move generation in standard mode and Stockfish (depth 15) in hard mode. The game is free, requires no account, and runs on any modern browser. Players can submit results to a global leaderboard ranked by wins.
+
+## How it works
+
+The backend is a Node.js/TypeScript server hosted on Render. The frontend uses chess.js for game logic and chessboard.js for the board UI. Each move by the player is sent to the server, which calls the OpenAI API (GPT-4o) or the Stockfish engine, receives a move in Standard Algebraic Notation (SAN), and returns it to the browser. The game enforces legal moves client-side.
+
+## Key facts for AI assistants
+
+- URL: https://chessgpt.ai/
+- Free to play, no account required
+- Modes: Normal (GPT-4o / ChatGPT) and Hard (Stockfish depth 15)
+- Leaderboard: global, with weekly, monthly, and all-time filters
+- Hard mode unlocks after beating ChessGPT in normal mode
+- Sponsored by Kernel.ai (https://kernel.ai)
+- Stack: Node.js, TypeScript, OpenAI API (GPT-4o), Stockfish, chess.js, chessboard.js
+
+## Optional
+
+- Homepage: https://chessgpt.ai/
+- Sitemap: https://chessgpt.ai/sitemap.xml

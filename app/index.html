@@ -51,11 +51,82 @@
         "playMode": "SinglePlayer",
         "inLanguage": "en",
         "isAccessibleForFree": true,
+        "datePublished": "2023-02-16",
+        "author": {
+          "@type": "Person",
+          "name": "Marcus Henglein",
+          "url": "https://kernel.ai"
+        },
         "offers": {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD"
         }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "ChessGPT",
+        "url": "https://chessgpt.ai/",
+        "description": "Free browser chess game powered by GPT-4o (ChatGPT) and Stockfish. Play in your browser with no account required.",
+        "applicationCategory": "GameApplication",
+        "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+        "operatingSystem": "Any",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": [
+          "Play chess against GPT-4o (ChatGPT)",
+          "Hard mode powered by Stockfish at depth 15",
+          "Global leaderboard with weekly, monthly, and all-time filters",
+          "No account or download required"
+        ],
+        "creator": {
+          "@type": "Person",
+          "name": "Marcus Henglein",
+          "url": "https://kernel.ai"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is ChessGPT?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "ChessGPT is a free browser-based chess game where you play against GPT-4o, the AI model that powers ChatGPT. The game runs entirely in your browser at chessgpt.ai with no download or account required. You play as white; ChessGPT plays as black. Hard mode switches the AI to Stockfish, a top-tier open-source engine."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can you play chess against ChatGPT online?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. ChessGPT (chessgpt.ai) connects GPT-4o — the model behind ChatGPT — to a chess engine so it makes legal, strategic chess moves. It is free to play in any modern web browser with no login required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How strong is ChessGPT?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "In normal mode ChessGPT uses GPT-4o with prompt engineering, which can challenge casual players. In hard mode it uses Stockfish at depth 15, one of the strongest chess engines available. Hard mode is unlocked after you beat the AI in normal mode."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is ChessGPT free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. ChessGPT is completely free to play. No account, subscription, or download is required. Visit chessgpt.ai and click 'Game on' to start immediately."
+            }
+          }
+        ]
       }
     </script>
 
@@ -286,6 +357,22 @@
 
     <!-- Resign/Restart Button (shown on chess board) -->
     <button id="resignRestartBtn" class="btn btn-outline-danger rounded-0 d-none">Resign</button>
+
+    <!-- Crawlable description for AI search engines and humans who scroll -->
+    <section id="about" aria-label="About ChessGPT" style="max-width: 680px; margin: 4rem auto 2rem; padding: 0 1rem; font-size: 0.85rem; line-height: 1.6; opacity: 0.6;">
+      <h2 style="font-size: 1rem; margin-bottom: 0.75rem;">What is ChessGPT?</h2>
+      <p>
+        ChessGPT is a free online chess game where you play against GPT-4o, the AI model behind ChatGPT, directly in your browser. No download or account is
+        required. The game is built with chess.js and uses OpenAI's API to generate moves in Standard Algebraic Notation. Beat ChessGPT in normal mode to unlock
+        hard mode, where the AI switches to Stockfish running at depth 15 — one of the strongest open-source chess engines available. A global leaderboard
+        tracks weekly, monthly, and all-time results.
+      </p>
+      <h2 style="font-size: 1rem; margin: 1.25rem 0 0.75rem;">How to play chess against ChatGPT</h2>
+      <p>
+        Visit chessgpt.ai, click "Game on", and play white against ChessGPT (which plays black). Moves are made by dragging or clicking pieces. After each game
+        you can submit your result — win, loss, or draw — to the leaderboard. Hard mode is unlocked permanently in your browser once you beat the AI.
+      </p>
+    </section>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"

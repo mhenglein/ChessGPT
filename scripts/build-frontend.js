@@ -18,7 +18,7 @@ function writeSitemap() {
   <url>
     <loc>https://chessgpt.ai/</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 </urlset>
