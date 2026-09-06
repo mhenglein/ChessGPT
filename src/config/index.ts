@@ -33,6 +33,13 @@ export interface Config {
 
   // Game configuration
   EVOLUTION_MOVE_THRESHOLD: number;
+  GAME_SESSION_TTL_MS: number;
+  GAME_SESSION_MAX_STARTS: number;
+  GAME_SESSION_START_WINDOW_MS: number;
+  GAME_SESSION_MAX_SCORES: number;
+  GAME_SESSION_SCORE_WINDOW_MS: number;
+  GAME_SESSION_CLEANUP_BATCH: number;
+  MAX_TRACKED_GAME_MOVES: number;
 
   // Logging
   LOG_LEVEL: string;
@@ -75,6 +82,15 @@ const config: Config = {
 
   // Game configuration
   EVOLUTION_MOVE_THRESHOLD: 6, // Moves before switching to Stockfish
+  // Server-owned leaderboard sessions. These caps are enforced in PostgreSQL
+  // so they apply consistently across workers and restarts.
+  GAME_SESSION_TTL_MS: 24 * 60 * 60 * 1000,
+  GAME_SESSION_MAX_STARTS: 30,
+  GAME_SESSION_START_WINDOW_MS: 60 * 60 * 1000,
+  GAME_SESSION_MAX_SCORES: 30,
+  GAME_SESSION_SCORE_WINDOW_MS: 60 * 60 * 1000,
+  GAME_SESSION_CLEANUP_BATCH: 200,
+  MAX_TRACKED_GAME_MOVES: 512,
 
   // Logging
   LOG_LEVEL: process.env.LOG_LEVEL || "info",

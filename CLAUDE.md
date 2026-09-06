@@ -41,9 +41,9 @@ dist/                    # Compiled JavaScript output (gitignored)
 
 ## API
 
-`GET /ai-move?fen=<FEN>&bot=<chessgpt|stockfish>` - Returns SAN move (AI plays black)
+`GET /ai-move?fen=<FEN>&bot=<chessgpt|stockfish>&gameId=<id>` - Returns `{ move, gameId }` (AI plays black). Generate a UUID once per game and reuse it for every request and retry. Send every white move, including a terminal one.
 `GET /api/leaderboard?limit=10` - Get top players
-`POST /api/leaderboard` - Submit game result `{ nickname, result: 'win'|'loss'|'draw' }`
+`POST /api/leaderboard` - Submit `{ nickname, gameId, resigned? }`. The server derives the result from verified moves and saves each game once.
 
 ## Tech Notes
 
@@ -55,4 +55,15 @@ dist/                    # Compiled JavaScript output (gitignored)
 
 ## Render
 
-Workspace: `tea-cspt7nggph6c739ls70g`
+Workspace: `tea-cspvce8gph6c739g0bdg` (Personal)
+
+Build command: `npm ci && npm run build`. The build compiles the server, bundles
+the client, and writes `public/index.html` with content-hashed audio URLs.
+Audio source files live in `app/assets/`; music loads only when played.
+Do not edit generated `public/index.html`, `public/scripts.js`, or `public/media/` by hand.
+
+Deployment initializes an additive game-session table in the existing leaderboard
+database. It does not delete historical scores.
+
+Leaderboard integration tests require `TEST_DATABASE_URL` pointing to a disposable
+PostgreSQL database. Run `TEST_DATABASE_URL=... npm test -- --runInBand` to include them.

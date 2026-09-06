@@ -187,8 +187,8 @@
     </main>
 
     <div id="container" class="d-none"></div>
-    <audio id="audio-element" src="battle-intro.m4a" preload="auto" loop></audio>
-    <audio id="audio-element-metal" src="metal-music.mp3" preload="auto" loop></audio>
+    <audio id="audio-element" data-src="{{battle-intro}}" preload="none" loop></audio>
+    <audio id="audio-element-metal" data-src="{{metal-music}}" preload="none" loop></audio>
 
     <section id="chessBoard" class="d-none hidden">
       <!-- HARD MODE indicator (top centre, shown when hard mode is enabled) -->
@@ -211,6 +211,11 @@
 
       <div class="d-flex justify-content-center align-items-center vh-100">
         <div id="myBoard" class="hidden border border-dark border-2 brutalist-shadow-sm mx-auto mt-lg-0 mb-5 d-flex justify-content-center"></div>
+        <div id="moveError" class="d-none text-center" role="alert">
+          <p id="moveErrorMessage"></p>
+          <button id="retryMoveBtn" class="btn btn-primary rounded-0">Retry move</button>
+          <button id="restartGameBtn" class="btn btn-outline-danger rounded-0">Start over</button>
+        </div>
       </div>
     </section>
 

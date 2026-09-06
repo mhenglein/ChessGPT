@@ -3,6 +3,11 @@ import { Chess } from "chess.js";
 
 let movesMade = 0;
 let bot = "chessgpt";
+let gameId = crypto.randomUUID();
+let canSubmitScore = false;
+let pendingMoveQuery = null;
+let resigned = false;
+let scoreSubmitted = false;
 let waitingForAI = false; // Lock to prevent race condition / color-switching bug
 
 // Safe localStorage helpers with error handling
@@ -22,26 +27,6 @@ function safeSetItem(key, value) {
     return true;
   } catch (e) {
     console.warn("localStorage write error:", e);
-    return false;
-  }
-}
-
-function safeGetJSON(key, defaultValue = []) {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch (e) {
-    console.warn("localStorage JSON parse error:", e);
-    return defaultValue;
-  }
-}
-
-function safeSetJSON(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch (e) {
-    console.warn("localStorage JSON write error:", e);
     return false;
   }
 }
@@ -144,12 +129,15 @@ function setupShareFriend(result) {
 
 // Show game over modal with animations
 function showGameOverModal(result, status) {
+  if (currentGameResult !== null) return;
   const board = document.getElementById("myBoard");
 
   // Reset modal state
   leaderboardSubmit.classList.remove("d-none");
   leaderboardDisplay.classList.add("d-none");
   nicknameInput.value = safeGetItem("lastNickname", "");
+  submitScoreBtn.disabled = !canSubmitScore;
+  submitScoreBtn.textContent = canSubmitScore ? "Submit Score" : "Score saving unavailable";
 
   // Store result for leaderboard submission
   currentGameResult = result;
@@ -277,12 +265,12 @@ function getActivePeriod(tabsetId) {
 }
 
 // Submit score to leaderboard
-async function submitScore(nickname, result) {
+async function submitScore(nickname) {
   try {
     const response = await fetch("/api/leaderboard", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nickname, result }),
+      body: JSON.stringify({ nickname, gameId, resigned }),
     });
 
     if (!response.ok) {
@@ -423,7 +411,7 @@ startAnimation.addEventListener("click", async () => {
   }
 
   // Play the audio when the button is clicked
-  audioElement.play().catch(() => {});
+  playTrack(audioElement);
 
   // Wrap the rest of the code in a setTimeout with the total animation duration
   setTimeout(async () => {
@@ -493,17 +481,23 @@ function fadeVolume(audioElement, startVolume, endVolume, duration) {
 const gentlyLowerVolume = fadeVolume;
 const gentlyIncreaseVolume = fadeVolume;
 
+function playTrack(audio) {
+  if (!audio.getAttribute("src")) audio.src = audio.dataset.src;
+  audio.play().catch(() => {});
+}
+
 function switchToMetalTrack() {
   const audioElementMetal = document.getElementById("audio-element-metal");
   setTimeout(() => {
     gentlyLowerVolume(audioElement, 0.1, 0.0, 5000);
     audioElementMetal.volume = 0.0;
-    audioElementMetal.play().catch(() => {});
+    playTrack(audioElementMetal);
     gentlyIncreaseVolume(audioElementMetal, 0.0, 1.0, 10000);
 
     setTimeout(() => {
       audioElement.volume = 0.0;
-    }, 1000);
+      audioElement.pause();
+    }, 5000);
   }, 2000);
 }
 
@@ -516,7 +510,7 @@ try {
 
   function onDragStart(source, piece, position, orientation) {
     // do not pick up pieces if the game is over
-    if (game.isGameOver()) return false;
+    if (game.isGameOver() || resigned) return false;
 
     // Block if waiting for AI response (prevents race condition)
     if (waitingForAI) return false;
@@ -539,80 +533,72 @@ try {
     // Only allow moves when it's white's turn (color-switching bug fix)
     if (game.turn() !== "w") return "snapback";
 
-    // see if the move is legal
-    var move = game.move({
-      from: source,
-      to: target,
-      promotion: "q", // NOTE: always promote to a queen for example simplicity
-    });
+    if (resigned || game.isGameOver()) return "snapback";
+    let move;
+    try {
+      move = game.move({ from: source, to: target, promotion: "q" });
+    } catch {
+      return "snapback";
+    }
+    if (!move) return "snapback";
 
-    // illegal move
-    if (move === null) return "snapback";
-
-    // Save move to LocalStorage
-    var an = safeGetJSON("moves", []);
-    an.push(move.san);
-    safeSetJSON("moves", an);
-
-    // update the board with the user's move
+    waitingForAI = true;
+    resignRestartBtn.disabled = true;
     board.position(game.fen());
-
     movesMade++;
-
-    if (movesMade === getEvolutionThreshold()) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+    if (movesMade === getEvolutionThreshold() && bot !== "stockfish" && !game.isGameOver()) {
+      await sleep(2000);
       await startEvolution();
       bot = "stockfish";
     }
 
-    // Lock before making AI request
-    waitingForAI = true;
-
-    // make an HTTP request to the server to get the AI's move
-    $.get("/ai-move", { fen: game.fen(), bot, an: JSON.stringify(an) })
-      .done(function (data) {
-        // Check if response is a game-over message or error
-        if (typeof data === "object") {
-          if (data.error) {
-            console.error("Server error:", data.error);
-            waitingForAI = false;
-            return;
-          }
-          if (data.msg) {
-            // Game over message from server
-            console.log("Game state:", data.msg);
-            updateStatus();
-            waitingForAI = false;
-            return;
-          }
-        }
-
-        var move = game.move(data);
-        if (move === null) {
-          console.error("Received invalid move from server:", data);
-          waitingForAI = false;
-          // Don't reload - just unlock and let user try again
-          return;
-        }
-
-        var an = safeGetJSON("moves", []);
-        an.push(data);
-        safeSetJSON("moves", an);
-
-        // update the board with the AI's move
-        board.position(game.fen());
-
-        // update the game status
-        updateStatus();
-
-        // Unlock after AI move is complete
-        waitingForAI = false;
-      })
-      .fail(function (jqXHR) {
-        console.error("Server request failed:", jqXHR.status, jqXHR.responseJSON);
-        waitingForAI = false;
-      });
+    pendingMoveQuery = new URLSearchParams({ fen: game.fen(), bot, gameId });
+    await requestPendingMove();
   }
+
+  async function requestPendingMove() {
+    if (!pendingMoveQuery) return;
+    waitingForAI = true;
+    resignRestartBtn.disabled = true;
+    const retryButton = document.getElementById("retryMoveBtn");
+    const errorPanel = document.getElementById("moveError");
+    retryButton.disabled = true;
+    try {
+      const response = await fetch(`/ai-move?${pendingMoveQuery}`, { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not get a move.");
+      if (!data || (typeof data.move !== "string" && data.move !== null) ||
+          (typeof data.gameId !== "string" && data.gameId !== null)) {
+        throw new Error("Could not read the move response.");
+      }
+      if (data.move) game.move(data.move);
+      else if (!game.isGameOver()) throw new Error("The server did not return a move.");
+      canSubmitScore = Boolean(data.gameId);
+      if (data.gameId) gameId = data.gameId;
+      pendingMoveQuery = null;
+      errorPanel.classList.add("d-none");
+      board.position(game.fen());
+      updateStatus();
+    } catch (error) {
+      // The server may have committed already. Retry the same ID and FEN;
+      // never let a lost response fork the game into a different position.
+      document.getElementById("moveErrorMessage").textContent =
+        error.message || "Could not get a move. Please try again.";
+      errorPanel.classList.remove("d-none");
+      console.error("Move request failed:", error);
+    } finally {
+      waitingForAI = false;
+      retryButton.disabled = false;
+      resignRestartBtn.disabled = Boolean(pendingMoveQuery);
+    }
+  }
+
+  document.getElementById("retryMoveBtn").addEventListener("click", () => {
+    if (!waitingForAI) requestPendingMove();
+  });
+  document.getElementById("restartGameBtn").addEventListener("click", () => {
+    window.location.reload();
+  });
 
   function onSnapEnd() {
     board.position(game.fen());
@@ -825,6 +811,7 @@ if (shareFriendBtn) {
 // Submit score to leaderboard
 if (submitScoreBtn) {
   submitScoreBtn.addEventListener("click", async () => {
+    if (submitScoreBtn.disabled || scoreSubmitted || !canSubmitScore) return;
     const nickname = nicknameInput.value.trim();
     if (!nickname) {
       nicknameInput.classList.add("border-danger");
@@ -834,12 +821,6 @@ if (submitScoreBtn) {
 
     nicknameInput.classList.remove("border-danger");
 
-    // Determine result for API
-    let apiResult;
-    if (currentGameResult === "player") apiResult = "win";
-    else if (currentGameResult === "ai") apiResult = "loss";
-    else apiResult = "draw";
-
     // Disable button during submission
     submitScoreBtn.disabled = true;
     submitScoreBtn.textContent = "Submitting...";
@@ -847,9 +828,10 @@ if (submitScoreBtn) {
     // Save nickname for next time
     safeSetItem("lastNickname", nickname);
 
-    const success = await submitScore(nickname, apiResult);
+    const success = await submitScore(nickname);
 
     if (success) {
+      scoreSubmitted = true;
       // Hide submission form, show leaderboard
       leaderboardSubmit.classList.add("d-none");
       leaderboardDisplay.classList.remove("d-none");
@@ -886,11 +868,13 @@ if (viewLeaderboardBtn) {
 // Resign/Restart button handler
 if (resignRestartBtn) {
   resignRestartBtn.addEventListener("click", function () {
-    if (game.isGameOver()) {
+    if (waitingForAI) return;
+    if (game.isGameOver() || resigned) {
       // Game already over - restart
       window.location.reload();
     } else {
       // Active game - resign (player loses)
+      resigned = true;
       showGameOverModal("ai", "You resigned!");
     }
   });
